@@ -16,7 +16,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.center = new THREE.Vector3();
 
-	this.userZoom = true;
+	this.userZoom = false; // Was True - Scott
 	this.userZoomSpeed = 1.0;
 
 	this.userRotate = true;

@@ -23,7 +23,7 @@ function init() {
 
     camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
     scene.add(camera);
-    camera.position.set(0, 20, 400);
+    camera.position.set(0, 20, SCREEN_HEIGHT*3);
     camera.lookAt(scene.position);
 
     // RENDERER
@@ -56,16 +56,11 @@ function init() {
     scene.add(floor);
     scene.fog = new THREE.Fog( 0xf2f2f2, 0.1, FAR/10 );
 
-
-    var cubeGeometry = new THREE.CubeGeometry( 50, 50, 50, 20, 20, 20 );
-    var particleMaterial = new THREE.ParticleBasicMaterial({ size: 12, color: 0xff0000, transparency: true, alphaTest: 0.5 });
-    var particleCube = new THREE.ParticleSystem( cubeGeometry, particleMaterial );
-    var particleCube2 = new THREE.ParticleSystem( cubeGeometry, particleMaterial );
-    particleCube.position.set(0, 50, 0);
-    particleCube2.position.set(0, 500, 0);
-
-    floor.add( particleCube );
-    floor.add( particleCube2 );
+    makeCube(0,SCREEN_HEIGHT*2.25, -125, 10);
+    makeCube(400,500, -125, 10);
+    makeCube(-400,SCREEN_HEIGHT, -125, -10);
+    makeCube(0, 0, -125, 0);
+    makeCube(SCREEN_WIDTH*1.5, 0, -125, 90);
 
 
     // SKYBOX
@@ -74,6 +69,18 @@ function init() {
     var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
     scene.add(skyBox);
     new THREEx.WindowResize(renderer, camera);
+}
+
+
+function makeCube(x,y,z, rotation) {
+    var cube = new THREE.Mesh(
+            new THREE.BoxGeometry(200, 2, z*2),
+            new THREE.MeshLambertMaterial({ color: 0xff0000, })
+        )
+
+    cube.position.set(x, y, z);
+    cube.rotation.z = rotation;
+    floor.add(cube);
 }
 
 
