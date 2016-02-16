@@ -37,7 +37,7 @@ function init() {
 
     // Scales the content down to fit the screen size
     renderer.setSize(window.innerWidth, window.innerHeight);
-    container = document.getElementById( 'ThreeJS' );
+    container = document.getElementById( 'container' );
     container.appendChild( renderer.domElement );
 
     controls = new THREE.OrbitControls( camera, renderer.domElement );

@@ -1,0 +1,30 @@
+@mixin transform($transition) {
+  -webkit-transform: $transition;
+     -moz-transform: $transition;
+      -ms-transform: $transition;
+          transform: $transition;
+}
+
+@mixin transition($args) {
+  -webkit-transition: $args;
+  -moz-transition: $args;
+  -ms-transition: $args;
+  -o-transition: $args;
+  transition: $args;
+}
+
+@mixin perspective($args) {
+  -webkit-perspective: $args;
+  -moz-perspective: $args;
+  -ms-perspective: $args;
+  -o-perspective: $args;
+  perspective: $args;
+}
+
+@mixin transform-style($args) {
+  -webkit-transform-style: $args;
+  -moz-transform-style: $args;
+  -ms-transform-style: $args;
+  -o-transform-style: $args;
+  transform-style: $args;
+}
