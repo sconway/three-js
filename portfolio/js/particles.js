@@ -30,7 +30,7 @@ var container,
 	cameraZ = 1500,
 	cubeSize = 50,
 	scaleToZ = cameraZ/cubeSize,
-	numShapes = 200,
+	numShapes = 300,
 	frustumSize = 1000,
 	keyboard = new THREEx.KeyboardState(),
 	mouse = new THREE.Vector2(), 
@@ -45,12 +45,25 @@ var container,
 init();
 animate();
 
+                                 
+/**
+ * Helper function that returns a random number between the two supplied
+ * numbers. 
+ *
+ *  @param min  :  Integer
+ *  @param max  :  Integer
+ */
+function rando(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 
 function init() {
 	container = document.getElementById("container");
 	camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
-	camera.position.z = cameraZ;
-	ogCameraPosition = camera.position;
+	camera.position.set(0, 0, cameraZ);
+
+	ogCameraPosition = camera.position.clone();
 	scene = new THREE.Scene();
 
 	addLight();
@@ -58,8 +71,6 @@ function init() {
 	addShapes();
 	raycaster = new THREE.Raycaster();
 	renderScene();
-
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
@@ -75,7 +86,7 @@ function init() {
 
 function renderScene() {
 	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor( 0xf0f0f0 );
+	renderer.setClearColor( 0xdddddd );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
@@ -93,12 +104,12 @@ function addImages() {
 
 
 function addShapes() {
-	var numImages = images.length,
-		geometry = new THREE.BoxGeometry( 50, 50, 50 );
+	var numImages = images.length;
 
 	for ( var i = 0; i < numShapes; i ++ ) {
-
-		var object = new THREE.Mesh( geometry, 
+		var faceSize  = rando(20, 70),
+		    object = new THREE.Mesh( 
+						new THREE.BoxGeometry( faceSize, faceSize, faceSize ), 
 						new THREE.MeshBasicMaterial( {  
 							map: loaders[Math.floor(Math.random() * numImages)], 
 							side: THREE.DoubleSide 
@@ -118,7 +129,7 @@ function addShapes() {
 
 
 function addLight() {
-	var light = new THREE.DirectionalLight( 0xffffff, 1 );
+	var light = new THREE.DirectionalLight( 0x000000, 1 );
 	light.position.set( 1, 1, 1 ).normalize();
 	scene.add( light );
 }
@@ -141,6 +152,10 @@ function onDocumentMouseDown() {
 		projectInView = true;
 		zoomOut = false;
 
+		// tweenCamera(selectedProject.position);
+
+		$(".project-preview").addClass("hidden");
+
 		console.log("intersect position: ", selectedProject.position);
 		console.log("OG position: ", ogCameraPosition);
 
@@ -149,6 +164,7 @@ function onDocumentMouseDown() {
 		camera.position.y > selectedProject.position.y ? scaleYDown = true : scaleYUp = true;
 	} else {
 		console.log("zoomed position: ", camera.position);
+		$(".project-details, .canvas").removeClass("active");
 		scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
 		camera.position.x > ogCameraPosition.x ? scaleXDown = true : scaleXUp = true;
 		camera.position.y > ogCameraPosition.y ? scaleYDown = true : scaleYUp = true;
@@ -222,34 +238,55 @@ function zoomToSelection() {
 	}
 	if (camera.position.z > selectedProject.position.z + 20) {
 		camera.position.z -= 10;
+	}else {
+		// selectedProject = null;
+		$(".project-details, .canvas").addClass("active");
 	}
 }
 
 
+// function tweenCamera(position){
+// 	console.log("called");
+// 	new TWEEN.Tween( camera.position ).to( {
+// 	        x: position.x,
+// 	        y: position.y,
+// 	        z: position.z }, 600 )
+// 	    .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
+
+// 	// new TWEEN.Tween( controls.target ).to( {
+// 	//         x: target.x,
+// 	//         y: target.y,
+// 	//         z: target.z}, 600 )
+// 	//     .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
+// }
+
+
 function zoomCameraOut() {
 	camera.lookAt(scene.position);
-	// if (scaleXDown && camera.position.x > ogCameraPosition.x) {
-	// 	console.log("zoom x down");
-	// 	camera.position.x -= 4;
-	// }
-	// if (scaleXUp && camera.position.x < ogCameraPosition.x) {
-	// 	console.log("zoom x up");
-	// 	camera.position.x += 4;
-	// }
-	// if (scaleYDown && camera.position.y > ogCameraPosition.y) {
-	// 	console.log("zoom y down");
-	// 	camera.position.y -= 4;
-	// }
-	// if (scaleYUp && camera.position.y < ogCameraPosition.y) {
-	// 	console.log("zoom y up");
-	// 	camera.position.y += 4;
-	// }
+	// console.log("Camera pos: ", camera.position);
+	// console.log("OG pos: ", ogCameraPosition);
+	if (scaleXDown && camera.position.x > ogCameraPosition.x) {
+		console.log("zoom x down");
+		camera.position.x -= 4;
+	}
+	if (scaleXUp && camera.position.x < ogCameraPosition.x) {
+		console.log("zoom x up");
+		camera.position.x += 4;
+	}
+	if (scaleYDown && camera.position.y > ogCameraPosition.y) {
+		console.log("zoom y down");
+		camera.position.y -= 4;
+	}
+	if (scaleYUp && camera.position.y < ogCameraPosition.y) {
+		console.log("zoom y up");
+		camera.position.y += 4;
+	}
 	if (camera.position.z < cameraZ) {
 		camera.position.z += 10;
 	}else {
-		// camera.lookAt(scene.position);
-
-		// console.log("OG camera position: ", ogCameraPosition);
+		zoomOut = false;
+		$(".project-preview").removeClass("hidden");
+		console.log("done zooming");
 	}
 }
 
@@ -298,7 +335,6 @@ function animate() {
 	requestAnimationFrame( animate );
 	render();
 	handleCameraMovement();
-	controls.update();
 	stats.update();
 }
 
