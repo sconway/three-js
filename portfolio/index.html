@@ -3,29 +3,40 @@
 
 <head>
   <link href="css/projects.css" media="all" rel="stylesheet" type="text/css">
-  <script type="text/javascript" src="./js/jquery.js"></script>
+  <script type="text/javascript" src="js/loadingAnimation.js"></script>
 </head>
 
-<body>
+<body id="body">
+	<figure id="loader" class="loader"></figure>
+
 	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
 		<aside class="project-preview">
 			<img id="previewImg"  />
 		</aside>
 	</div>
+	<section class="project-intro">
+		<aside id="backBtn" class="back-btn"><</aside>
+		<h1>Project Title</h1>
+		<img class="intro-img" src="http://lorempixel.com/400/300/"/>
+		<p class="intro-description">
+			Lorem ipsum dolor sit amet, pri assentior temporibus liberavisse in, ad nec mazim euripidis definitionem. Omnes repudiandae neglegentur et qui, augue primis epicurei ea mei. Cu has persecuti incorrupte, cum augue partiendo ocurreret id, te sit nibh causae imperdiet. Epicurei eleifend platonem no vix.
+			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.
+		</p>
+	</section>
 	<section class="project-details">
 		<div class="detail-section"></div>
 		<div class="detail-section"></div>
 	</section>
 
-
+	<script type="text/javascript" src="js/jquery.js"></script>
 	<script src="http://threejs.org/build/three.min.js"></script>
-	<script type="text/javascript" src="./js/orbit-controls.js"></script>
-	<script type="text/javascript" src="./js/keyboard-state.js"></script>
-	<script type="text/javascript" src="./js/fullscreen.js"></script>
-	<script type="text/javascript" src="./js/resize.js"></script>
-	<script type="text/javascript" src="./js/detector.js"></script>
-	<script type="text/javascript" src="./js/stats.js"></script>
-	<script type="text/javascript" src="js/tween.min.js"></script>
+	<script type="text/javascript" src="http://sole.github.io/tween.js/build/tween.min.js"></script>
+	<script type="text/javascript" src="js/orbit-controls.js"></script>
+	<script type="text/javascript" src="js/keyboard-state.js"></script>
+	<script type="text/javascript" src="js/fullscreen.js"></script>
+	<script type="text/javascript" src="js/resize.js"></script>
+	<script type="text/javascript" src="js/detector.js"></script>
+	<script type="text/javascript" src="js/stats.js"></script>
 	<script type="text/javascript" src="js/particles.js"></script>
 </body>
 

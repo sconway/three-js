@@ -23,6 +23,7 @@ var container,
 	scaleToX = window.innerWidth/50,
 	scaleToY = window.innerHeight/50,
 	scaleDown = false,
+	rotateCamera = false,
 	zoomOut = false,
 	projectInView = false,
 	radius = 500, 
@@ -30,7 +31,7 @@ var container,
 	cameraZ = 1500,
 	cubeSize = 50,
 	scaleToZ = cameraZ/cubeSize,
-	numShapes = 300,
+	numShapes = 600,
 	frustumSize = 1000,
 	keyboard = new THREEx.KeyboardState(),
 	mouse = new THREE.Vector2(), 
@@ -78,7 +79,8 @@ function init() {
 	container.appendChild( stats.domElement );
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	$(".canvas").click(function() { zoomToProject(); });
+	$("#backBtn").click(function() { backToProjectView(); });
 
 	var windowResize = new THREEx.WindowResize(renderer, camera);
 }
@@ -107,7 +109,7 @@ function addShapes() {
 	var numImages = images.length;
 
 	for ( var i = 0; i < numShapes; i ++ ) {
-		var faceSize  = rando(20, 70),
+		var faceSize  = rando(20, 40),
 		    object = new THREE.Mesh( 
 						new THREE.BoxGeometry( faceSize, faceSize, faceSize ), 
 						new THREE.MeshBasicMaterial( {  
@@ -142,7 +144,7 @@ function onDocumentMouseMove( event ) {
 }
 
 
-function onDocumentMouseDown() {
+function zoomToProject() {
 	if (!projectInView) {
 		raycaster.setFromCamera( mouse, camera );
 
@@ -152,7 +154,7 @@ function onDocumentMouseDown() {
 		projectInView = true;
 		zoomOut = false;
 
-		// tweenCamera(selectedProject.position);
+		// tweenCamera();
 
 		$(".project-preview").addClass("hidden");
 
@@ -162,16 +164,19 @@ function onDocumentMouseDown() {
 		scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
 		camera.position.x > selectedProject.position.x ? scaleXDown = true : scaleXUp = true;
 		camera.position.y > selectedProject.position.y ? scaleYDown = true : scaleYUp = true;
-	} else {
-		console.log("zoomed position: ", camera.position);
-		$(".project-details, .canvas").removeClass("active");
-		scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
-		camera.position.x > ogCameraPosition.x ? scaleXDown = true : scaleXUp = true;
-		camera.position.y > ogCameraPosition.y ? scaleYDown = true : scaleYUp = true;
-		selectedProject = null;
-		projectInView = false;
-		zoomOut = true;
 	}
+}
+
+
+function backToProjectView() {
+	$(".project-details, .project-intro, .canvas").removeClass("active");
+	scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
+	camera.position.x > ogCameraPosition.x ? scaleXDown = true : scaleXUp = true;
+	camera.position.y > ogCameraPosition.y ? scaleYDown = true : scaleYUp = true;
+	rotateCamera = false;
+	selectedProject = null;
+	projectInView = false;
+	zoomOut = true;
 }
 
 
@@ -223,6 +228,12 @@ function expandSelection() {
 }
 
 
+function spinCamera() {
+	camera.rotation.x -= 0.001;
+    camera.rotation.y -= 0.001;
+}
+
+
 function zoomToSelection() {
 	if (scaleXDown && camera.position.x > selectedProject.position.x) {
 		camera.position.x -= 4;
@@ -236,29 +247,44 @@ function zoomToSelection() {
 	if (scaleYUp && camera.position.y < selectedProject.position.y) {
 		camera.position.y += 4;
 	}
-	if (camera.position.z > selectedProject.position.z + 20) {
+	if (camera.position.z > selectedProject.position.z) {
 		camera.position.z -= 10;
 	}else {
-		// selectedProject = null;
-		$(".project-details, .canvas").addClass("active");
+		rotateCamera = true;
+		$(".project-details, .project-intro, .canvas").addClass("active");
 	}
 }
 
 
-// function tweenCamera(position){
-// 	console.log("called");
-// 	new TWEEN.Tween( camera.position ).to( {
-// 	        x: position.x,
-// 	        y: position.y,
-// 	        z: position.z }, 600 )
-// 	    .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
+function tweenCamera(){
+	console.log("called");
 
-// 	// new TWEEN.Tween( controls.target ).to( {
-// 	//         x: target.x,
-// 	//         y: target.y,
-// 	//         z: target.z}, 600 )
-// 	//     .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
-// }
+	// backup original rotation
+	var startRotation = new THREE.Euler().copy( camera.rotation );
+
+	// final rotation (with lookAt)
+	camera.lookAt( selectedProject.position );
+	var endRotation = new THREE.Euler().copy( camera.rotation );
+
+	// revert to original rotation
+	camera.rotation.copy( startRotation );
+
+	// Tween
+	new TWEEN.Tween( camera ).to( { rotation: endRotation }, 600 ).start();
+
+
+	// new TWEEN.Tween( camera.position ).to( {
+	//         x: position.x,
+	//         y: position.y,
+	//         z: position.z }, 600 )
+	//     .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
+
+	// new TWEEN.Tween( controls.target ).to( {
+	//         x: target.x,
+	//         y: target.y,
+	//         z: target.z}, 600 )
+	//     .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
+}
 
 
 function zoomCameraOut() {
@@ -352,6 +378,10 @@ function render() {
 		zoomCameraOut();
 	}
 
+	if (rotateCamera) {
+	    spinCamera();
+	}
+
 	// find intersections
 	raycaster.setFromCamera( mouse, camera );
 
@@ -373,7 +403,7 @@ function render() {
 	renderer.render( scene, camera );
 }
 
-
+	
 
 
 

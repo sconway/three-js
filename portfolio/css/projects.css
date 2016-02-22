@@ -5,28 +5,67 @@ body {
   height: 100%;
   background-color: #fff; }
 
+.loader {
+  background-color: #ddd;
+  margin: 0;
+  opacity: 1;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 9999;
+  -webkit-transition: opacity 1.5s ease;
+  -moz-transition: opacity 1.5s ease;
+  -ms-transition: opacity 1.5s ease;
+  -o-transition: opacity 1.5s ease;
+  transition: opacity 1.5s ease; }
+  .loader::before {
+    content: "";
+    width: 2px;
+    height: 2px;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    position: absolute;
+    background-color: #80ff00;
+    -webkit-animation: testAnimacion 5s ease-in-out infinite alternate-reverse;
+    animation: testAnimacion 5s ease-in-out infinite alternate-reverse; }
+  .loader.fade-out {
+    opacity: 0; }
+
 canvas,
 .canvas {
+  opacity: 0;
   position: absolute;
   width: 100%;
-  height: 100%; }
+  height: 100%;
+  -webkit-transition: opacity 1.5s ease 0.5s;
+  -moz-transition: opacity 1.5s ease 0.5s;
+  -ms-transition: opacity 1.5s ease 0.5s;
+  -o-transition: opacity 1.5s ease 0.5s;
+  transition: opacity 1.5s ease 0.5s; }
   canvas::before,
   .canvas::before {
-    background-color: rgba(51, 51, 51, 0.7);
+    background-color: rgba(51, 51, 51, 0.9);
     content: "";
     height: 100%;
     width: 100%;
     position: absolute;
     z-index: 1;
     opacity: 0;
-    -webkit-transition: opacity 2s ease;
-    -moz-transition: opacity 2s ease;
-    -ms-transition: opacity 2s ease;
-    -o-transition: opacity 2s ease;
-    transition: opacity 2s ease; }
+    -webkit-transition: opacity 1s ease;
+    -moz-transition: opacity 1s ease;
+    -ms-transition: opacity 1s ease;
+    -o-transition: opacity 1s ease;
+    transition: opacity 1s ease; }
   canvas.active::before,
   .canvas.active::before {
     opacity: 1; }
+  canvas.fade-in,
+  .canvas.fade-in {
+    opacity: 1; }
+    canvas.fade-in canvas,
+    .canvas.fade-in canvas {
+      opacity: 1; }
 
 .absolute-center {
   position: absolute;
@@ -36,6 +75,15 @@ canvas,
   -moz-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%); }
+
+.back-btn {
+  color: #fff;
+  font-size: 72px;
+  position: fixed;
+  top: 0;
+  left: 25px; }
+  .back-btn:hover {
+    cursor: pointer; }
 
 .project-preview {
   opacity: 1;
@@ -55,6 +103,48 @@ canvas,
   .project-preview img {
     width: 100%;
     height: 100%; }
+
+.project-intro {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+  -webkit-transition: opacity 0.1s ease -1s;
+  -moz-transition: opacity 0.1s ease -1s;
+  -ms-transition: opacity 0.1s ease -1s;
+  -o-transition: opacity 0.1s ease -1s;
+  transition: opacity 0.1s ease -1s; }
+  .project-intro.active {
+    -webkit-transition: opacity 1s ease 1s;
+    -moz-transition: opacity 1s ease 1s;
+    -ms-transition: opacity 1s ease 1s;
+    -o-transition: opacity 1s ease 1s;
+    transition: opacity 1s ease 1s;
+    height: 100%;
+    opacity: 1; }
+  .project-intro h1 {
+    position: absolute;
+    font-size: 78px;
+    color: #fff;
+    top: 10%;
+    left: 10%; }
+
+.intro-img {
+  position: absolute;
+  top: 40%;
+  right: 10%; }
+
+.intro-description {
+  color: #fff;
+  font-size: 24px;
+  height: 50%;
+  overflow: scroll;
+  position: absolute;
+  left: 10%;
+  top: 40%;
+  width: 35%; }
 
 .project-details {
   display: none;
