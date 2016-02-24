@@ -79,7 +79,7 @@ function init() {
 	container.appendChild( stats.domElement );
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	window.addEventListener("devicemotion", handleMotion, true);
+	window.addEventListener("devicemotion", handleMotion, false);
 	$(".canvas").click(function() { zoomToProject(); });
 	$("#backBtn").click(function() { backToProjectView(); });
 
