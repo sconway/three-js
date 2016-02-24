@@ -144,7 +144,7 @@ function onDocumentMouseMove( event ) {
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
-function handleMotion(event) 
+function handleMotion(event) {
   // Do stuff with the new orientation data
   camera.position.y += event.acceleration.y/10;
   camera.position.x += event.acceleration.x/10;
