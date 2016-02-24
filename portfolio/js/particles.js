@@ -79,6 +79,7 @@ function init() {
 	container.appendChild( stats.domElement );
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	window.addEventListener("deviceorientation", handleOrientation, true);
 	$(".canvas").click(function() { zoomToProject(); });
 	$("#backBtn").click(function() { backToProjectView(); });
 
@@ -143,6 +144,15 @@ function onDocumentMouseMove( event ) {
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
+function handleOrientation(event) {
+  var absolute = event.absolute;
+  var alpha    = event.alpha;
+  var beta     = event.beta;
+  var gamma    = event.gamma;
+
+  // Do stuff with the new orientation data
+  camera.position.y += gamma;
+}
 
 function zoomToProject() {
 	if (!projectInView) {
