@@ -146,8 +146,8 @@ function onDocumentMouseMove( event ) {
 
 function handleMotion(event) 
   // Do stuff with the new orientation data
-  camera.position.y += event.acceleration.y;
-  camera.position.x += event.acceleration.x;
+  camera.position.y += event.acceleration.y/10;
+  camera.position.x += event.acceleration.x/10;
 }
 
 function zoomToProject() {
