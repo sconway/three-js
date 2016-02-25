@@ -11,6 +11,10 @@ var container,
 	ogCameraPosition,
 	lastCameraPosition,
 	scaleXDown,
+	absolute,
+	alpha,
+	beta,
+	gamma,
 	scaleXUp,
 	scaleYDown,
 	scaleYUp,
@@ -20,6 +24,8 @@ var container,
 	rotateYDown,
 	rotateZUp,
 	rotateZDown,
+	cameraUpX,
+	moveCamera = false,
 	scaleToX = window.innerWidth/50,
 	scaleToY = window.innerHeight/50,
 	scaleDown = false,
@@ -79,9 +85,11 @@ function init() {
 	container.appendChild( stats.domElement );
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	window.addEventListener("devicemotion", handleMotion, false);
+	// window.addEventListener("devicemotion", handleMotion, false);
 	$(".canvas").click(function() { zoomToProject(); });
 	$("#backBtn").click(function() { backToProjectView(); });
+
+
 
 	var windowResize = new THREEx.WindowResize(renderer, camera);
 }
@@ -145,9 +153,14 @@ function onDocumentMouseMove( event ) {
 }
 
 function handleMotion(event) {
+  // absolute = event.absolute;
+  alpha    = event.rotationRate.alpha;
+  beta     = event.rotationRate.beta;
+  gamma    = event.rotationRate.gamma;
+
   // Do stuff with the new orientation data
-  camera.position.y += event.acceleration.y/10;
-  camera.position.x += event.acceleration.x/10;
+  console.log(gamma);
+  // moveCamera = true;
 }
 
 function zoomToProject() {
@@ -237,6 +250,12 @@ function expandSelection() {
 function spinCamera() {
 	camera.rotation.x -= 0.001;
     camera.rotation.y -= 0.001;
+}
+
+
+function slideCamera() {
+	// console.log("beta: ", beta);
+	beta > 0 ? camera.position.y += 1 : camera.position.y -= 1;
 }
 
 
@@ -386,6 +405,10 @@ function render() {
 
 	if (rotateCamera) {
 	    spinCamera();
+	}
+
+	if (moveCamera) {
+		slideCamera();
 	}
 
 	// find intersections

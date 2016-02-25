@@ -4,28 +4,11 @@
 <head>
   <link href="css/projects.css" media="all" rel="stylesheet" type="text/css">
   <script type="text/javascript">
-  	/*
-	  A big thanks to Gabi at http://codepen.io/enxaneta/pen/yeaBKY for the bulk of this code.
-	*/
-
-	var s = document.createElement('style');
-	document.head.appendChild(s);
-
-	var cx = window.innerWidth / 2;
-	var cy = window.innerHeight / 2;
-	var rad = Math.PI / 180;
-
-	var R = 150,
-	  r = R / 16,
-	  kx = 5,
-	  ky = 6,
-	  phi = Math.PI / 2,
-	  x, y, t,
-	  loaded = false,
-	  timedOut = false;
+  	var loaded = false,
+	    timedOut = false;
 
 
-	setTimeout(checkLoader, 5000);
+	setTimeout(checkLoader, 2000);
 
 	window.addEventListener('load', function () {
 	  loaded = true;
@@ -58,71 +41,21 @@
 	    body.removeChild(loader);
 	  }, 3000);
 	}
-
-	function pointOnLemniscate() {
-	  console.log("pointOnLemniscate called");
-	  x = (R * Math.cos(t) / (1 + (Math.sin(t) * Math.sin(t)))).toFixed(5),
-	    y = (R * Math.sin(t) * Math.cos(t) / (1 + (Math.sin(t) * Math.sin(t)))).toFixed(5);
-	  return o = {
-	    x: x,
-	    y: y
-	  }
-	}
-
-	function pointOnLissajous() {
-	  console.log("pointOnLissajous called");
-	  x = (R * Math.sin(kx * t + phi)).toFixed(5);
-	  y = (R * Math.sin(ky * t)).toFixed(5);
-	  return o = {
-	    x: x,
-	    y: y
-	  }
-	}
-
-	function pointOnHeart() {
-	  console.log("pointOnHeart called");
-	  x = (16 * r * (Math.sin(t) * Math.sin(t) * Math.sin(t))).toFixed(5);
-	  y = (-13 * r * Math.cos(t) +
-	    5 * r * Math.cos(2 * t) +
-	    2 * r * Math.cos(3 * t) +
-	    r * Math.cos(4 * t)).toFixed(5);
-	  return o = {
-	    x: x,
-	    y: y
-	  }
-	}
-
-	function getShadow(pointOnCurve) {
-	  console.log("getShadow called");
-	  var boxShadowRy = [];
-	  for (var a = 0; a < 360; a += .5) {
-	    t = a * rad;
-	    var o = pointOnCurve();
-	    boxShadowRy.push(o.x + "px" + " " + o.y + "px" + " 0px 1px hsl(" + a + ",100%,50%)");
-	  }
-	  var boxShadowStr = boxShadowRy.join();
-	  return boxShadowStr;
-	}
-
-	s.textContent = 'body::before{';
-	s.textContent += 'left:' + cx + 'px;';
-	s.textContent += 'top:' + cy + 'px;';
-	s.textContent += 'box-shadow:' + getShadow(pointOnLissajous);
-	s.textContent += '}';
-
-	var vendors = [ /*'-ms-', '-moz-',*/ '-webkit-', /*'-o-',*/  ''];
-	for (var i = 0; i < vendors.length; i++) {
-	  s.textContent += '@' + vendors[i] + 'keyframes testAnimacion {';
-	  s.textContent += '50% {' + vendors[i] + 'box-shadow:' + getShadow(pointOnLemniscate) + ';background-color:hsl(90,100%,50%);}';
-	  s.textContent += '55% {background-color:transparent;}';
-	  s.textContent += '100% {' + vendors[i] + 'box-shadow:' + getShadow(pointOnHeart) + ';background-color:transparent;}';
-	  s.textContent += '}';
-	}
   </script>
 </head>
 
 <body id="body">
-	<figure id="loader" class="loader"></figure>
+	<section id="loader" class="loader">
+		<div class='Cube panelLoad'>
+			<div class='cube-face cube-face-front'>S</div>
+			<div class='cube-face cube-face-back'>T</div>
+			<div class='cube-face cube-face-left'>C</div>
+			<div class='cube-face cube-face-right'>&plusb;</div>  
+			<div class='cube-face cube-face-bottom'>O</div>
+			<div class='cube-face cube-face-top'>T</div>
+		</div>
+	</section>
+	
 
 	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
 		<aside class="project-preview">
@@ -145,6 +78,7 @@
 
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script src="http://threejs.org/build/three.min.js"></script>
+	<script src="js/jquery.parallax.js"></script>
 	<script type="text/javascript" src="http://sole.github.io/tween.js/build/tween.min.js"></script>
 	<script type="text/javascript" src="js/orbit-controls.js"></script>
 	<script type="text/javascript" src="js/keyboard-state.js"></script>
