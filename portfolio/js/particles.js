@@ -2,7 +2,6 @@
 
 var container, 
 	controls,
-	stats,
 	camera, 
 	scene, 
 	raycaster, 
@@ -78,11 +77,6 @@ function init() {
 	addShapes();
 	raycaster = new THREE.Raycaster();
 	renderScene();
-
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.top = '0px';
-	container.appendChild( stats.domElement );
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	// window.addEventListener("devicemotion", handleMotion, false);
@@ -386,7 +380,6 @@ function animate() {
 	requestAnimationFrame( animate );
 	render();
 	handleCameraMovement();
-	stats.update();
 }
 
 

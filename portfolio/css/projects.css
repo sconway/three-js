@@ -161,6 +161,7 @@ canvas,
     cursor: pointer; }
 
 .project-preview {
+  display: none;
   opacity: 1;
   position: absolute;
   height: 150px;
@@ -173,6 +174,9 @@ canvas,
   -ms-transition: opacity 1s ease;
   -o-transition: opacity 1s ease;
   transition: opacity 1s ease; }
+  @media (min-width: 768px) {
+    .project-preview {
+      display: block; } }
   .project-preview.hidden {
     opacity: 0; }
   .project-preview img {

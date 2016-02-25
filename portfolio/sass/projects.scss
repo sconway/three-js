@@ -198,6 +198,7 @@ canvas,
 }
 
 .project-preview {
+  display: none;
   opacity: 1;
   position: absolute;
   height: 150px;
@@ -206,6 +207,9 @@ canvas,
   top: 0;
   z-index: 1;
   @include transition(opacity 1s ease);
+  @media (min-width: 768px) {
+    display: block;
+  }
   &.hidden {
     opacity: 0;
   }
