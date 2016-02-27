@@ -1,7 +1,7 @@
 // (function() {
 
 var container, 
-	controls,
+	controls = [],
 	camera, 
 	scene, 
 	raycaster, 
@@ -36,8 +36,9 @@ var container,
 	cameraZ = 1500,
 	cubeSize = 50,
 	scaleToZ = cameraZ/cubeSize,
-	numShapes = 600,
-	frustumSize = 1000,
+	minFace = 50,
+	maxFace = 90,
+	numShapes = 50,
 	keyboard = new THREEx.KeyboardState(),
 	mouse = new THREE.Vector2(), 
 	INTERSECTED,
@@ -64,6 +65,10 @@ function rando(min, max) {
 }
 
 
+/**
+ * 
+ * 
+ */
 function init() {
 	container = document.getElementById("container");
 	camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
@@ -84,14 +89,14 @@ function init() {
 	$("#backBtn").click(function() { backToProjectView(); });
 
 
-
+	
 	var windowResize = new THREEx.WindowResize(renderer, camera);
 }
 
 
 function renderScene() {
-	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor( 0xdddddd );
+	renderer = new THREE.WebGLRenderer({alpha : true});
+	renderer.setClearColor( 0x000000, 0 );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
@@ -112,7 +117,7 @@ function addShapes() {
 	var numImages = images.length;
 
 	for ( var i = 0; i < numShapes; i ++ ) {
-		var faceSize  = rando(20, 40),
+		var faceSize  = rando(minFace, maxFace),
 		    object = new THREE.Mesh( 
 						new THREE.BoxGeometry( faceSize, faceSize, faceSize ), 
 						new THREE.MeshBasicMaterial( {  
@@ -122,11 +127,13 @@ function addShapes() {
  
 		object.position.x = Math.random() * 800 - 400;
 		object.position.y = Math.random() * 800 - 400;
-		object.position.z = Math.random() * 800 - 400;
+		object.position.z = Math.random() * 1000 - 500;
 
 		object.rotation.x = Math.random() * 2 * Math.PI;
 		object.rotation.y = Math.random() * 2 * Math.PI;
 		object.rotation.z = Math.random() * 2 * Math.PI;
+
+		controls.push( new THREE.DeviceOrientationControls( object , true ) );
 
 		scene.add( object );
 	}
@@ -376,14 +383,25 @@ function handleCameraMovement() {
 }
 
 
+function updateControls() {
+	var numControls = controls.length;
+
+	for (var i = 0; i < numControls; i++) {
+		controls[i].update();
+	}
+}
+
+
 function animate() {
 	requestAnimationFrame( animate );
+	updateControls();
 	render();
 	handleCameraMovement();
 }
 
 
 function render() {
+
 	if (!projectInView) {
 		circleCamera();
 	}

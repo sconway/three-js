@@ -164,11 +164,10 @@ canvas,
   display: none;
   opacity: 1;
   position: absolute;
-  height: 150px;
-  width: 200px;
+  height: 100%;
+  width: 100%;
   right: 0;
   top: 0;
-  z-index: 1;
   -webkit-transition: opacity 1s ease;
   -moz-transition: opacity 1s ease;
   -ms-transition: opacity 1s ease;
@@ -177,6 +176,12 @@ canvas,
   @media (min-width: 768px) {
     .project-preview {
       display: block; } }
+  .project-preview::before {
+    background-color: rgba(51, 51, 51, 0.6);
+    content: " ";
+    position: absolute;
+    height: 100%;
+    width: 100%; }
   .project-preview.hidden {
     opacity: 0; }
   .project-preview img {
