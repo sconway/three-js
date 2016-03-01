@@ -83,6 +83,8 @@ function init() {
 	raycaster = new THREE.Raycaster();
 	renderScene();
 
+	$("#previewImg").attr("src", "images/projects/zildjian.png");
+
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	// window.addEventListener("devicemotion", handleMotion, false);
 	$(".canvas").click(function() { zoomToProject(); });
@@ -428,15 +430,23 @@ function render() {
 	var intersects = raycaster.intersectObjects( scene.children );
 
 	if ( intersects.length > 0 ) {
+
 		if ( INTERSECTED != intersects[0].object ) {
 			INTERSECTED = intersects[0].object;
-			// console.log(INTERSECTED);
+			console.log("INTERSECTED");
+			INTERSECTED.scale.x += 1;
+			INTERSECTED.scale.y += 1;
+			INTERSECTED.scale.z += 1;
 			$("#previewImg").attr("src", INTERSECTED.material.map.image.currentSrc);
 		}
+		
 	} else {
 		if ( INTERSECTED ) {
 			// INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+			INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
+			console.log("not intersected");
 		}
+		// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
 		INTERSECTED = null;
 	}
 
