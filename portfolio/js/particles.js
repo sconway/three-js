@@ -38,7 +38,7 @@ var container,
 	scaleToZ = cameraZ/cubeSize,
 	minFace = 50,
 	maxFace = 90,
-	numShapes = 50,
+	numShapes = 100,
 	keyboard = new THREEx.KeyboardState(),
 	mouse = new THREE.Vector2(), 
 	INTERSECTED,
@@ -115,21 +115,54 @@ function addImages() {
 }
 
 
+/**
+ * 	This function is responsible for adding the various shapes to the canvas
+ *  and placing them in random locations in 3D space
+ */
 function addShapes() {
 	var numImages = images.length;
 
 	for ( var i = 0; i < numShapes; i ++ ) {
-		var faceSize  = rando(minFace, maxFace),
-		    object = new THREE.Mesh( 
-						new THREE.BoxGeometry( faceSize, faceSize, faceSize ), 
-						new THREE.MeshBasicMaterial( {  
+		var object,
+		    faceSize = rando(minFace, maxFace),
+		    numFaces = Math.random(),
+			material = new THREE.MeshBasicMaterial( {  
 							map: loaders[Math.floor(Math.random() * numImages)], 
 							side: THREE.DoubleSide 
-						}));
+						});
+			
+
+		if (i % 5 === 0) {
+		    object = new THREE.Mesh( 
+						new THREE.TetrahedronGeometry( faceSize, 0 ), 
+						material
+						);
+		} else if (i % 4 === 0) {
+		    object = new THREE.Mesh( 
+						new THREE.OctahedronGeometry( 35, 1 ),
+						material
+						);
+		} else if (i % 3 === 0) {
+		    object = new THREE.Mesh( 
+						new THREE.SphereGeometry( 35, 64, 32 ),
+						material
+						);
+		} else if (i % 2 === 0) {
+		    object = new THREE.Mesh( 
+						new THREE.TorusGeometry( 40, 15, 16, 100 ), 
+						material
+						);
+		} else {
+			object = new THREE.Mesh( 
+						    new THREE.BoxGeometry( faceSize, faceSize, faceSize ), 
+						    material
+						);
+		}
+
  
-		object.position.x = Math.random() * 800 - 400;
-		object.position.y = Math.random() * 800 - 400;
-		object.position.z = Math.random() * 1000 - 500;
+		object.position.x = Math.random() * 900 - 400;
+		object.position.y = Math.random() * 900 - 400;
+		object.position.z = Math.random() * 900 - 400;
 
 		object.rotation.x = Math.random() * 2 * Math.PI;
 		object.rotation.y = Math.random() * 2 * Math.PI;
@@ -428,25 +461,52 @@ function render() {
 	raycaster.setFromCamera( mouse, camera );
 
 	var intersects = raycaster.intersectObjects( scene.children );
+	var numIntersects = intersects.length;
 
 	if ( intersects.length > 0 ) {
-
-		if ( INTERSECTED != intersects[0].object ) {
+		console.log("There are intersects");
+		if (INTERSECTED != intersects[0].object ) {
+			console.log("INTERSECTED not first object");
+			// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
+			$("html").css({cursor: 'pointer'});
 			INTERSECTED = intersects[0].object;
-			console.log("INTERSECTED");
-			INTERSECTED.scale.x += 1;
-			INTERSECTED.scale.y += 1;
-			INTERSECTED.scale.z += 1;
+			// INTERSECTED.scale.x += 1;
+			// INTERSECTED.scale.y += 1;
+			// INTERSECTED.scale.z += 1;
 			$("#previewImg").attr("src", INTERSECTED.material.map.image.currentSrc);
+
+			// // loop though any intersected elements, excluding the first,
+			// // and make sure it is at it's original scale;
+			// for (var i = 0; i < numIntersects; i++) {
+			// 	console.log("looping");
+			// 	if (INTERSECTED != intersects.object) {
+			// 		intersects[i].object.scale.x = 1;
+			// 		intersects[i].object.scale.y = 1;
+			// 		intersects[i].object.scale.z = 1;
+			// 	}
+			// }
+		} else {
+			console.log("INTERSECTED is first object");
+			// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
+			// for (var i = 0; i < numIntersects; i++) {
+			// 	console.log("looping");
+			// 	intersects[i].object.scale.x = 1;
+			// 	intersects[i].object.scale.y = 1;
+			// 	intersects[i].object.scale.z = 1;
+			// }
 		}
-		
+
 	} else {
+		$("html").css({cursor: 'initial'});
 		if ( INTERSECTED ) {
+			console.log("No Intersects but there is an Intersect defined");
+			// reset all cubes to default size when nothing is intersected
+			// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
 			// INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-			INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
-			console.log("not intersected");
+		}else {
+			console.log("No Intersects and there is no Intersect defined");
 		}
-		// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
+
 		INTERSECTED = null;
 	}
 

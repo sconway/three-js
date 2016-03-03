@@ -177,7 +177,7 @@ canvas,
     .project-preview {
       display: block; } }
   .project-preview::before {
-    background-color: rgba(51, 51, 51, 0.6);
+    background-color: rgba(51, 51, 61, 0.5);
     content: " ";
     position: absolute;
     height: 100%;
