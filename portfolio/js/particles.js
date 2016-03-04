@@ -33,8 +33,9 @@ var container,
 	scaleDown = false,
 	rotateCamera = false,
 	zoomOut = false,
+	stopCamera = false,
 	projectInView = false,
-	radius = 500, 
+	radius = 800, 
 	theta = 0,
 	cameraZ = 1500,
 	cubeSize = 50,
@@ -134,7 +135,7 @@ function addShapes() {
 							side: THREE.DoubleSide 
 						}),
 			color   = new THREE.MeshLambertMaterial( { 
-							color: 0xffffff 
+							color: 0xffffff
 						}),
 			object = new THREE.Mesh( 
 						new THREE.SphereGeometry( size, 64, 64 ),
@@ -157,7 +158,7 @@ function addShapes() {
 
 
 function addLight() {
-	var light = new THREE.DirectionalLight( 0xffffff, 1 );
+	var light = new THREE.HemisphereLight( 0xdddddd , 0x000000, 0.5 );
 	light.position.set( 1, 1, 1 ).normalize();
 	scene.add( light );
 }
@@ -222,45 +223,6 @@ function circleCamera() {
 	camera.lookAt( scene.position );
 	camera.updateMatrixWorld();
 }
-
-
-// function expandSelection() {
-// 	if (!projectInView) {
-// 		circleCamera();
-// 	} else if (selectedProject && !scaleDown) {
-// 		oldRotation = selectedProject.rotation;
-// 		lastCameraPosition = selectedProject.position;
-// 		selectedProject.rotation.x = 0;
-// 		selectedProject.rotation.y = 0;
-// 		selectedProject.rotation.z = 0;
-// 		selectedProject.position.x = 0;
-// 		selectedProject.position.y = 0;
-// 		selectedProject.position.z = 0;
-// 		camera.lookAt(selectedProject.position);
-// 		if (selectedProject.scale.x < scaleToX) {
-// 			selectedProject.scale.x += 1;
-// 		}
-// 		if (selectedProject.scale.y < scaleToY) {
-// 			selectedProject.scale.y += 1;
-// 		}
-// 		if (selectedProject.scale.z < scaleToZ) {
-// 			selectedProject.scale.z += 1;
-// 		}
-// 	} else if (scaleDown) {
-// 		console.log("project selected, scaling down");
-// 		if (selectedProject.scale.x > 1) {
-// 			selectedProject.scale.x -= 1;
-// 		} else if (selectedProject.scale.y > 1) {
-// 			selectedProject.scale.y -= 1;
-// 		} else if (selectedProject.scale.z > 1) {
-// 			selectedProject.scale.z -= 1;
-// 		} else {
-// 			projectInView = false;
-// 			scaleDown = false;
-// 			selectedProject = null;
-// 		}
-// 	}
-// }
 
 
 function spinCamera() {
@@ -384,6 +346,7 @@ function expandSphere() {
 	} 
 }
 
+
 function shrinkSphere() {
 	if(curSphere.scale.x > 1) {
 		curSphere.scale.x -= 0.1;
@@ -403,7 +366,7 @@ function animate() {
 
 function render() {
 
-	if (!projectInView) {
+	if (!projectInView && !stopCamera) {
 		circleCamera();
 	}
 
@@ -435,56 +398,47 @@ function render() {
 	raycaster.setFromCamera( mouse, camera );
 
 	var intersects = raycaster.intersectObjects( scene.children );
-	var numIntersects = intersects.length;
+	var numIntersects = intersects.length, 
+		numChildren   = scene.children.length;
 
 	if ( intersects.length > 0 ) {
-		console.log("There are intersects");
+		// console.log("There are intersects");
 		if (INTERSECTED != intersects[0].object ) {
-			console.log("INTERSECTED not first object");
-			// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
+			// console.log("INTERSECTED not first object");
 			$("html").css({cursor: 'pointer'});
 			curSphere = INTERSECTED = intersects[0].object;
+			stopCamera = true;
 			isExpanding = true;
 			isShrinking = false;
 
-			// INTERSECTED.scale.x += 1;
-			// INTERSECTED.scale.y += 1;
-			// INTERSECTED.scale.z += 1;
 			// $("#previewImg").attr("src", INTERSECTED.material.map.image.currentSrc);
 
 			// // loop though any intersected elements, excluding the first,
 			// // and make sure it is at it's original scale;
-			// for (var i = 0; i < numIntersects; i++) {
-			// 	console.log("looping");
-			// 	if (INTERSECTED != intersects.object) {
-			// 		intersects[i].object.scale.x = 1;
-			// 		intersects[i].object.scale.y = 1;
-			// 		intersects[i].object.scale.z = 1;
-			// 	}
-			// }
+			for (var i = 0; i < numChildren; i++) {
+				if (INTERSECTED != scene.children[i]) {
+					scene.children[i].scale.x = 1;
+					scene.children[i].scale.y = 1;
+					scene.children[i].scale.z = 1;
+				}
+			}
 		} else {
-			console.log("INTERSECTED is first object");
-			// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
-			// for (var i = 0; i < numIntersects; i++) {
-			// 	console.log("looping");
-			// 	intersects[i].object.scale.x = 1;
-			// 	intersects[i].object.scale.y = 1;
-			// 	intersects[i].object.scale.z = 1;
-			// }
+			// console.log("INTERSECTED is first object");
+
 		}
 
 	} else {
+		stopCamera = false;
 		isExpanding = false;
 		isShrinking = true;
 		$("html").css({cursor: 'initial'});
 		$("#previewImg").attr("src", null);
 		if ( INTERSECTED ) {
-			console.log("No Intersects but there is an Intersect defined");
-			// reset all cubes to default size when nothing is intersected
-			// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
+			// console.log("No Intersects but there is an Intersect defined");
+
 			// INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 		}else {
-			console.log("No Intersects and there is no Intersect defined");
+			// console.log("No Intersects and there is no Intersect defined");
 		}
 
 		INTERSECTED = null;
