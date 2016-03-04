@@ -11,6 +11,9 @@ var container,
 	lastCameraPosition,
 	scaleXDown,
 	absolute,
+	curSphere,
+	isExpanding = false,
+	isShrinking = false,
 	alpha,
 	beta,
 	gamma,
@@ -38,7 +41,7 @@ var container,
 	scaleToZ = cameraZ/cubeSize,
 	minFace = 50,
 	maxFace = 90,
-	numShapes = 100,
+	numShapes = 10,
 	keyboard = new THREEx.KeyboardState(),
 	mouse = new THREE.Vector2(), 
 	INTERSECTED,
@@ -83,7 +86,7 @@ function init() {
 	raycaster = new THREE.Raycaster();
 	renderScene();
 
-	$("#previewImg").attr("src", "images/projects/zildjian.png");
+	// $("#previewImg").attr("src", "images/projects/zildjian.png");
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	// window.addEventListener("devicemotion", handleMotion, false);
@@ -98,7 +101,7 @@ function init() {
 
 function renderScene() {
 	renderer = new THREE.WebGLRenderer({alpha : true});
-	renderer.setClearColor( 0x000000, 0 );
+	renderer.setClearColor( 0x000000, 1 );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
@@ -123,46 +126,24 @@ function addShapes() {
 	var numImages = images.length;
 
 	for ( var i = 0; i < numShapes; i ++ ) {
-		var object,
+		var size     = ((i + 2) * 10) - ((i + 1) * 5),
 		    faceSize = rando(minFace, maxFace),
 		    numFaces = Math.random(),
 			material = new THREE.MeshBasicMaterial( {  
 							map: loaders[Math.floor(Math.random() * numImages)], 
 							side: THREE.DoubleSide 
-						});
-			
-
-		if (i % 5 === 0) {
-		    object = new THREE.Mesh( 
-						new THREE.TetrahedronGeometry( faceSize, 0 ), 
-						material
-						);
-		} else if (i % 4 === 0) {
-		    object = new THREE.Mesh( 
-						new THREE.OctahedronGeometry( 35, 1 ),
-						material
-						);
-		} else if (i % 3 === 0) {
-		    object = new THREE.Mesh( 
-						new THREE.SphereGeometry( 35, 64, 32 ),
-						material
-						);
-		} else if (i % 2 === 0) {
-		    object = new THREE.Mesh( 
-						new THREE.TorusGeometry( 40, 15, 16, 100 ), 
-						material
-						);
-		} else {
+						}),
+			color   = new THREE.MeshLambertMaterial( { 
+							color: 0xffffff 
+						}),
 			object = new THREE.Mesh( 
-						    new THREE.BoxGeometry( faceSize, faceSize, faceSize ), 
-						    material
+						new THREE.SphereGeometry( size, 64, 64 ),
+						color
 						);
-		}
-
  
-		object.position.x = Math.random() * 900 - 400;
-		object.position.y = Math.random() * 900 - 400;
-		object.position.z = Math.random() * 900 - 400;
+		object.position.x = Math.random() * 800 - 400;
+		object.position.y = Math.random() * 800 - 400;
+		object.position.z = Math.random() * 800 - 400;
 
 		object.rotation.x = Math.random() * 2 * Math.PI;
 		object.rotation.y = Math.random() * 2 * Math.PI;
@@ -176,7 +157,7 @@ function addShapes() {
 
 
 function addLight() {
-	var light = new THREE.DirectionalLight( 0x000000, 1 );
+	var light = new THREE.DirectionalLight( 0xffffff, 1 );
 	light.position.set( 1, 1, 1 ).normalize();
 	scene.add( light );
 }
@@ -188,6 +169,7 @@ function onDocumentMouseMove( event ) {
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
+
 function handleMotion(event) {
   // absolute = event.absolute;
   alpha    = event.rotationRate.alpha;
@@ -196,8 +178,8 @@ function handleMotion(event) {
 
   // Do stuff with the new orientation data
   console.log(gamma);
-  // moveCamera = true;
 }
+
 
 function zoomToProject() {
 	if (!projectInView) {
@@ -208,8 +190,6 @@ function zoomToProject() {
 		lastCameraPosition = selectedProject.position;
 		projectInView = true;
 		zoomOut = false;
-
-		// tweenCamera();
 
 		$(".project-preview").addClass("hidden");
 
@@ -244,43 +224,43 @@ function circleCamera() {
 }
 
 
-function expandSelection() {
-	if (!projectInView) {
-		circleCamera();
-	} else if (selectedProject && !scaleDown) {
-		oldRotation = selectedProject.rotation;
-		lastCameraPosition = selectedProject.position;
-		selectedProject.rotation.x = 0;
-		selectedProject.rotation.y = 0;
-		selectedProject.rotation.z = 0;
-		selectedProject.position.x = 0;
-		selectedProject.position.y = 0;
-		selectedProject.position.z = 0;
-		camera.lookAt(selectedProject.position);
-		if (selectedProject.scale.x < scaleToX) {
-			selectedProject.scale.x += 1;
-		}
-		if (selectedProject.scale.y < scaleToY) {
-			selectedProject.scale.y += 1;
-		}
-		if (selectedProject.scale.z < scaleToZ) {
-			selectedProject.scale.z += 1;
-		}
-	} else if (scaleDown) {
-		console.log("project selected, scaling down");
-		if (selectedProject.scale.x > 1) {
-			selectedProject.scale.x -= 1;
-		} else if (selectedProject.scale.y > 1) {
-			selectedProject.scale.y -= 1;
-		} else if (selectedProject.scale.z > 1) {
-			selectedProject.scale.z -= 1;
-		} else {
-			projectInView = false;
-			scaleDown = false;
-			selectedProject = null;
-		}
-	}
-}
+// function expandSelection() {
+// 	if (!projectInView) {
+// 		circleCamera();
+// 	} else if (selectedProject && !scaleDown) {
+// 		oldRotation = selectedProject.rotation;
+// 		lastCameraPosition = selectedProject.position;
+// 		selectedProject.rotation.x = 0;
+// 		selectedProject.rotation.y = 0;
+// 		selectedProject.rotation.z = 0;
+// 		selectedProject.position.x = 0;
+// 		selectedProject.position.y = 0;
+// 		selectedProject.position.z = 0;
+// 		camera.lookAt(selectedProject.position);
+// 		if (selectedProject.scale.x < scaleToX) {
+// 			selectedProject.scale.x += 1;
+// 		}
+// 		if (selectedProject.scale.y < scaleToY) {
+// 			selectedProject.scale.y += 1;
+// 		}
+// 		if (selectedProject.scale.z < scaleToZ) {
+// 			selectedProject.scale.z += 1;
+// 		}
+// 	} else if (scaleDown) {
+// 		console.log("project selected, scaling down");
+// 		if (selectedProject.scale.x > 1) {
+// 			selectedProject.scale.x -= 1;
+// 		} else if (selectedProject.scale.y > 1) {
+// 			selectedProject.scale.y -= 1;
+// 		} else if (selectedProject.scale.z > 1) {
+// 			selectedProject.scale.z -= 1;
+// 		} else {
+// 			projectInView = false;
+// 			scaleDown = false;
+// 			selectedProject = null;
+// 		}
+// 	}
+// }
 
 
 function spinCamera() {
@@ -314,37 +294,6 @@ function zoomToSelection() {
 		rotateCamera = true;
 		$(".project-details, .project-intro, .canvas").addClass("active");
 	}
-}
-
-
-function tweenCamera(){
-	console.log("called");
-
-	// backup original rotation
-	var startRotation = new THREE.Euler().copy( camera.rotation );
-
-	// final rotation (with lookAt)
-	camera.lookAt( selectedProject.position );
-	var endRotation = new THREE.Euler().copy( camera.rotation );
-
-	// revert to original rotation
-	camera.rotation.copy( startRotation );
-
-	// Tween
-	new TWEEN.Tween( camera ).to( { rotation: endRotation }, 600 ).start();
-
-
-	// new TWEEN.Tween( camera.position ).to( {
-	//         x: position.x,
-	//         y: position.y,
-	//         z: position.z }, 600 )
-	//     .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
-
-	// new TWEEN.Tween( controls.target ).to( {
-	//         x: target.x,
-	//         y: target.y,
-	//         z: target.z}, 600 )
-	//     .easing( TWEEN.Easing.Sinusoidal.EaseInOut).start();
 }
 
 
@@ -427,6 +376,23 @@ function updateControls() {
 }
 
 
+function expandSphere() {
+	if (curSphere.scale.x < 2) {
+		curSphere.scale.x += 0.1;
+		curSphere.scale.y += 0.1;
+		curSphere.scale.z += 0.1;
+	} 
+}
+
+function shrinkSphere() {
+	if(curSphere.scale.x > 1) {
+		curSphere.scale.x -= 0.1;
+		curSphere.scale.y -= 0.1;
+		curSphere.scale.z -= 0.1;
+	}
+}
+
+
 function animate() {
 	requestAnimationFrame( animate );
 	updateControls();
@@ -439,6 +405,14 @@ function render() {
 
 	if (!projectInView) {
 		circleCamera();
+	}
+
+	if (isExpanding) {
+		expandSphere();
+	}
+
+	if (isShrinking) {
+		shrinkSphere();
 	}
 	
 	if (selectedProject) {
@@ -469,11 +443,14 @@ function render() {
 			console.log("INTERSECTED not first object");
 			// INTERSECTED.scale.x = INTERSECTED.scale.y = INTERSECTED.scale.z = 1;
 			$("html").css({cursor: 'pointer'});
-			INTERSECTED = intersects[0].object;
+			curSphere = INTERSECTED = intersects[0].object;
+			isExpanding = true;
+			isShrinking = false;
+
 			// INTERSECTED.scale.x += 1;
 			// INTERSECTED.scale.y += 1;
 			// INTERSECTED.scale.z += 1;
-			$("#previewImg").attr("src", INTERSECTED.material.map.image.currentSrc);
+			// $("#previewImg").attr("src", INTERSECTED.material.map.image.currentSrc);
 
 			// // loop though any intersected elements, excluding the first,
 			// // and make sure it is at it's original scale;
@@ -497,7 +474,10 @@ function render() {
 		}
 
 	} else {
+		isExpanding = false;
+		isShrinking = true;
 		$("html").css({cursor: 'initial'});
+		$("#previewImg").attr("src", null);
 		if ( INTERSECTED ) {
 			console.log("No Intersects but there is an Intersect defined");
 			// reset all cubes to default size when nothing is intersected
