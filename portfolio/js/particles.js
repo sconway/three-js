@@ -141,7 +141,7 @@ function addShapes() {
 		    faceSize = rando(minFace, maxFace),
 		    numFaces = Math.random(),
 			// material = new THREE.MeshBasicMaterial( {  
-			// 				map: loaders[Math.floor(Math.random() * numImages)], 
+			// 				map: loaders[i], 
 			// 				side: THREE.DoubleSide 
 			// 			}),
 			color   = new THREE.MeshLambertMaterial( { 
@@ -300,9 +300,6 @@ function zoomToProject() {
 function backToProjectView() {
 	$(".project-details, .project-intro, .canvas").removeClass("active");
 	zoomCameraOut();
-	// scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
-	// camera.position.x > ogCameraPosition.x ? scaleXDown = true : scaleXUp = true;
-	// camera.position.y > ogCameraPosition.y ? scaleYDown = true : scaleYUp = true;
 	rotateCamera = false;
 	
 	// zoomOut = true;
@@ -333,19 +330,19 @@ function spinCamera() {
 /**
  * Moves all spheres on the scene to the location of the intersected object.
  *
- * @param      pos     :     Vector3
+ * @param      current     :     THREE.Mesh
  *
  */
-function spheresToCurrent(pos) {
+function spheresToCurrent(current) {
 	var numChildren = scene.children.length;
 
 	for (var i = 1; i < numChildren; i++) {
 		if (curSphere != scene.children[i]) {
 			new TWEEN.Tween(scene.children[i].position)
 			.to({
-				x: pos.x,
-				y: pos.y,
-				z: pos.z
+				x: current.position.x,
+				y: current.position.y,
+				z: current.position.z
 			}, 1000)
 			.easing( TWEEN.Easing.Quartic.In )
 		    .onUpdate( function() {
@@ -356,6 +353,8 @@ function spheresToCurrent(pos) {
 		    	// make sure the mouse has been moved before dropping the
 		    	// teaser down. Prevents it from showing on load.
 		    	if (curMouse.x > 0 && curMouse.y > 0) {
+		    		$("#teaserName, #projectTitle").html(current.name);
+
 			    	addProjectContainer(curMouse.x, curMouse.y);
 		    	}
 		    })
@@ -593,7 +592,7 @@ function onIntersection(intersects) {
 			// addText(INTERSECTED.name, INTERSECTED.position);
 			// addProjectContainer(INTERSECTED.name);
 			expandSphere(curSphere);
-			spheresToCurrent(curSphere.position);
+			spheresToCurrent(curSphere);
 			intersectMutex = false;
 		}
 
