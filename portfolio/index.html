@@ -4,62 +4,62 @@
 <head>
   <link href="css/projects.css" media="all" rel="stylesheet" type="text/css">
   <script type="text/javascript">
- //  	var loaded = false,
-	//     timedOut = false;
+  	var loaded = false,
+		    timedOut = false;
 
 
-	// setTimeout(checkLoader, 2000);
+		setTimeout(checkLoader, 2500);
 
-	// window.addEventListener('load', function () {
-	//   loaded = true;
+		window.addEventListener('load', function () {
+		  loaded = true;
 
-	//   // only fade the loader out if the load time has 
-	//   // taken longer than the pre-defined delay.
-	//   if (timedOut)
-	//     fadeLoaderOut();
+		  // only fade the loader out if the load time has 
+		  // taken longer than the pre-defined delay.
+		  if (timedOut)
+		    fadeLoaderOut();
 
-	// }, false);
+		}, false);
 
-	// function checkLoader() {
-	//   timedOut = true;
+		function checkLoader() {
+		  timedOut = true;
 
-	//   // only fade out the loader after the pre defined delay
-	//   // if the page had loaded before the delay. 
-	//   if (loaded)
-	//     fadeLoaderOut();
-	// }
+		  // only fade out the loader after the pre defined delay
+		  // if the page had loaded before the delay. 
+		  if (loaded)
+		    fadeLoaderOut();
+		}
 
-	// function fadeLoaderOut() {
-	//   var body   = document.getElementById("body"),
-	//       loader = document.getElementById("loader"),
-	//       canvas = document.getElementById("container");
+		function fadeLoaderOut() {
+		  var body   = document.getElementById("body"),
+		      loader = document.getElementById("loader"),
+		      canvas = document.getElementById("container");
 
-	//   console.log("Fading loader out");
-	//   loader.className += " fade-out";
-	//   canvas.className += " fade-in";
-	//   setTimeout(function() {
-	//     body.removeChild(loader);
-	//   }, 3000);
-	// }
-  </script>
+		  console.log("Fading loader out");
+		  loader.className += " fade-out";
+		  canvas.className += " fade-in";
+		  setTimeout(function() {
+		    body.removeChild(loader);
+		  }, 3000);
+		}
+  </script>		
 </head>
 
 <body id="body">
 	<section id="loader" class="loader">
-		<div class='Cube panelLoad'>
-			<div class='cube-face cube-face-front'>S</div>
-			<div class='cube-face cube-face-back'>T</div>
-			<div class='cube-face cube-face-left'>C</div>
-			<div class='cube-face cube-face-right'>&plusb;</div>  
-			<div class='cube-face cube-face-bottom'>O</div>
-			<div class='cube-face cube-face-top'>T</div>
+		<div class="clock">
+		  <div class="clock_knob"></div>
+		  <div class="clock_hand"></div>
 		</div>
 	</section>
-	
 
 	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
 		<aside class="project-preview">
 			<img id="previewImg"  />
+		</aside>
+		<aside id="teaser" class="project-teaser">
+			<h2 class="project-teaser--name">project title</h2>
+			<p class="project-teaser--description">Lorem ipsum dolor sit amet, pri assentior temporibus liberavisse in, ad nec mazim euripidis definitionem. Omnes repudiandae neglegentur et qui, augue primis epicurei ea mei. Cu has persecuti incorrupte, cum augue partiendo ocurreret id, te sit nibh causae imperdiet. Epicurei eleifend platonem no vix.
+			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.</p>
 		</aside>
 	</div>
 	<section class="project-intro">

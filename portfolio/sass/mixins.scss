@@ -13,6 +13,14 @@
   transition: $args;
 }
 
+@mixin transform-origin($args) {
+  -webkit-transform-origin: $args;
+  -moz-transform-origin: $args;
+  -ms-transform-origin: $args;
+  -o-transform-origin: $args;
+  transform-origin: $args;
+}
+
 @mixin perspective($args) {
   -webkit-perspective: $args;
   -moz-perspective: $args;

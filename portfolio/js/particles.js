@@ -17,6 +17,7 @@ var container,
 	alpha,
 	beta,
 	gamma,
+	font,
 	scaleXUp,
 	scaleYDown,
 	scaleYUp,
@@ -27,15 +28,18 @@ var container,
 	rotateZUp,
 	rotateZDown,
 	cameraUpX,
+	intersectMutex = true,
+	unIntersectMutex = true,
 	moveCamera = false,
 	scaleToX = window.innerWidth/50,
 	scaleToY = window.innerHeight/50,
 	scaleDown = false,
+	spheresMoving = false,
 	rotateCamera = false,
 	zoomOut = false,
 	stopCamera = false,
 	projectInView = false,
-	radius = 800, 
+	radius = window.innerWidth/2, 
 	theta = 0,
 	cameraZ = 1500,
 	cubeSize = 50,
@@ -45,11 +49,15 @@ var container,
 	numShapes = 10,
 	keyboard = new THREEx.KeyboardState(),
 	mouse = new THREE.Vector2(), 
+	curMouse = new THREE.Vector2(), 
 	INTERSECTED,
 	aspect = window.innerWidth / window.innerHeight,
 	images = [ "college-culture.png", "copyright.png", "father-peyton.png", 
 			   "iha-today.png", "standish-home.png", "wolf-greenfield.png",
 			   "zildjian.png", "enernoc.png" ],
+	names  = [ "College Culture", "Copyright Clearance", "Father Peyton",
+			   "IHA Today", "Standish Mellon", "Wolf Greenfield", 
+			   "Zildjian Cymbals", "Enernoc" ],
 	loaders = [];
 
 
@@ -70,8 +78,9 @@ function rando(min, max) {
 
 
 /**
- * 
- * 
+ * This function initializes most of the components of this page.
+ * It sets up the camera, light, and objects. It also adds the
+ * various handlers that are used for interaction.
  */
 function init() {
 	container = document.getElementById("container");
@@ -84,6 +93,9 @@ function init() {
 	addLight();
 	addImages();
 	addShapes();
+	// addProjectContainer();
+
+	// loadFont();
 	raycaster = new THREE.Raycaster();
 	renderScene();
 
@@ -93,8 +105,6 @@ function init() {
 	// window.addEventListener("devicemotion", handleMotion, false);
 	$(".canvas").click(function() { zoomToProject(); });
 	$("#backBtn").click(function() { backToProjectView(); });
-
-
 	
 	var windowResize = new THREEx.WindowResize(renderer, camera);
 }
@@ -126,34 +136,114 @@ function addImages() {
 function addShapes() {
 	var numImages = images.length;
 
-	for ( var i = 0; i < numShapes; i ++ ) {
+	for ( var i = 0; i < numImages; i ++ ) {
 		var size     = ((i + 2) * 10) - ((i + 1) * 5),
 		    faceSize = rando(minFace, maxFace),
 		    numFaces = Math.random(),
-			material = new THREE.MeshBasicMaterial( {  
-							map: loaders[Math.floor(Math.random() * numImages)], 
-							side: THREE.DoubleSide 
-						}),
+			// material = new THREE.MeshBasicMaterial( {  
+			// 				map: loaders[Math.floor(Math.random() * numImages)], 
+			// 				side: THREE.DoubleSide 
+			// 			}),
 			color   = new THREE.MeshLambertMaterial( { 
-							color: 0xffffff
+							color: 0xffffff,
+							transparent: true,
+							opacity: 0.9
 						}),
 			object = new THREE.Mesh( 
 						new THREE.SphereGeometry( size, 64, 64 ),
 						color
 						);
  
-		object.position.x = Math.random() * 800 - 400;
-		object.position.y = Math.random() * 800 - 400;
-		object.position.z = Math.random() * 800 - 400;
+		// object.position.x = Math.random() * 800 - 400;
+		// object.position.y = Math.random() * 800 - 400;
+		// object.position.z = Math.random() * 800 - 400;
 
 		object.rotation.x = Math.random() * 2 * Math.PI;
 		object.rotation.y = Math.random() * 2 * Math.PI;
 		object.rotation.z = Math.random() * 2 * Math.PI;
 
+		object.name = names[i];
+
 		controls.push( new THREE.DeviceOrientationControls( object , true ) );
 
 		scene.add( object );
 	}
+}
+
+
+/**
+ * Loads in the pre-defined font and saves it to a variable. When finished,
+ * the function to create and add the text is called.
+ */
+function loadFont() {
+	var loader = new THREE.FontLoader();
+		loader.load( 'js/open_sans.typeface.js', function ( response ) {
+			font = response;
+		} );
+}
+
+
+/**
+ * Creates the 3-D text and adds it to the scene
+ *
+ * @param      text     :     string
+ * @param      pos      :     Vector3 object
+ *
+ */
+function addText(text, pos) {
+	var material = new THREE.MeshPhongMaterial(
+		{
+        	color: 0xffffff
+    	}),
+    	textGeom = new THREE.TextGeometry( text , 
+    	{
+    		font: font,
+    		size: 48.0
+    	}),
+    	textMesh = new THREE.Mesh( textGeom, material );
+    
+    textMesh.position.x = pos.x + 50;
+    textMesh.position.y = pos.y;
+    textMesh.position.z = pos.z - 100;
+    textMesh.name = "project_name";
+    textMesh.lookAt( camera.position );
+
+    scene.add( textMesh );
+
+    textGeom.computeBoundingBox();
+}
+
+
+/**
+ * Creates the 3-D container for the project description
+ *
+ * @param      pos     :     Vector3
+ *
+ */
+function addProjectContainer(x, y) {
+	// var material = new THREE.MeshBasicMaterial( 
+	// 	{
+	// 		map: loaders[names.indexOf(name)],
+	// 		side: THREE.DoubleSide
+	// 	}),
+	// 	geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 12, 16),
+	// 	plane    = new THREE.Mesh(geometry, material);
+
+	// 	console.log(names.indexOf(name));
+
+	// 	plane.position.x = 500;
+	// 	plane.position.z = -1000;
+	// 	plane.name = "project_container";
+	// 	plane.lookAt( camera.position );
+
+	// 	scene.add(plane);
+	$("#teaser")
+		.css({
+			left: x + 100 + "px",
+			top:  y + "px"
+		})
+		.stop()
+		.slideDown(750);
 }
 
 
@@ -166,6 +256,8 @@ function addLight() {
 
 function onDocumentMouseMove( event ) {
 	event.preventDefault();
+	curMouse.x = event.clientX;
+	curMouse.y = event.clientY;
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
@@ -188,40 +280,47 @@ function zoomToProject() {
 
 		var intersect = raycaster.intersectObjects( scene.children )[0].object;
 		selectedProject = intersect;
-		lastCameraPosition = selectedProject.position;
+		lastCameraPosition = camera.clone().position;
 		projectInView = true;
-		zoomOut = false;
+		$("#teaser").stop().slideUp(250);
+		// zoomOut = false;
+
+		zoomToSelection(selectedProject.position);
 
 		$(".project-preview").addClass("hidden");
-
-		console.log("intersect position: ", selectedProject.position);
-		console.log("OG position: ", ogCameraPosition);
-
-		scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
-		camera.position.x > selectedProject.position.x ? scaleXDown = true : scaleXUp = true;
-		camera.position.y > selectedProject.position.y ? scaleYDown = true : scaleYUp = true;
 	}
 }
 
 
+/**
+ * Brings the camera back to the main project view by removing the classes
+ * that showed the project details and setting the necessary variables to 
+ * zoom the camera to the original position.
+ */
 function backToProjectView() {
 	$(".project-details, .project-intro, .canvas").removeClass("active");
-	scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
-	camera.position.x > ogCameraPosition.x ? scaleXDown = true : scaleXUp = true;
-	camera.position.y > ogCameraPosition.y ? scaleYDown = true : scaleYUp = true;
+	zoomCameraOut();
+	// scaleXUp = scaleXDown = scaleYUp = scaleYDown = null;
+	// camera.position.x > ogCameraPosition.x ? scaleXDown = true : scaleXUp = true;
+	// camera.position.y > ogCameraPosition.y ? scaleYDown = true : scaleYUp = true;
 	rotateCamera = false;
-	selectedProject = null;
-	projectInView = false;
-	zoomOut = true;
+	
+	// zoomOut = true;
 }
 
 
 function circleCamera() {
-	theta += 0.1;
+	theta += 0.2;
 	camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
 	camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
 	camera.lookAt( scene.position );
 	camera.updateMatrixWorld();
+	// var numChildren = scene.children.length;
+
+	// for (var i = 1; i < numChildren; i++) {
+	// 	scene.children[i].position.x += Math.sin( THREE.Math.degToRad( theta * Math.random(3, 6) ) );
+	// 	scene.children[i].position.y += Math.sin( THREE.Math.degToRad( theta * Math.random(3, 6) ) );
+	// }
 }
 
 
@@ -231,61 +330,175 @@ function spinCamera() {
 }
 
 
-function slideCamera() {
-	// console.log("beta: ", beta);
-	beta > 0 ? camera.position.y += 1 : camera.position.y -= 1;
+/**
+ * Moves all spheres on the scene to the location of the intersected object.
+ *
+ * @param      pos     :     Vector3
+ *
+ */
+function spheresToCurrent(pos) {
+	var numChildren = scene.children.length;
+
+	for (var i = 1; i < numChildren; i++) {
+		if (curSphere != scene.children[i]) {
+			new TWEEN.Tween(scene.children[i].position)
+			.to({
+				x: pos.x,
+				y: pos.y,
+				z: pos.z
+			}, 1000)
+			.easing( TWEEN.Easing.Quartic.In )
+		    .onUpdate( function() {
+		    	console.log("tweening");
+		    	renderer.render(scene, camera);
+		    } )
+		    .onComplete( function() {
+		    	// make sure the mouse has been moved before dropping the
+		    	// teaser down. Prevents it from showing on load.
+		    	if (curMouse.x > 0 && curMouse.y > 0) {
+			    	addProjectContainer(curMouse.x, curMouse.y);
+		    	}
+		    })
+		    .start();
+		}
+	}
 }
 
 
-function zoomToSelection() {
-	if (scaleXDown && camera.position.x > selectedProject.position.x) {
-		camera.position.x -= 4;
-	}
-	if (scaleXUp && camera.position.x < selectedProject.position.x) {
-		camera.position.x += 4;
-	}
-	if (scaleYDown && camera.position.y > selectedProject.position.y) {
-		camera.position.y -= 4;
-	}
-	if (scaleYUp && camera.position.y < selectedProject.position.y) {
-		camera.position.y += 4;
-	}
-	if (camera.position.z > selectedProject.position.z) {
-		camera.position.z -= 10;
-	}else {
-		rotateCamera = true;
-		$(".project-details, .project-intro, .canvas").addClass("active");
+/**
+ * Moves all spheres on the scene to a random location.
+ */
+function spheresToRandom() {
+	var numChildren = scene.children.length;
+
+	for (var i = 1; i < numChildren; i++) {
+		var posX = Math.random() * 800 - 400,
+			posY = Math.random() * 800 - 400,
+			posZ = Math.random() * 800 - 400;
+
+		if (curSphere != scene.children[i]) {
+			new TWEEN.Tween(scene.children[i].position)
+			.to({
+				x: posX,
+				y: posY,
+				z: posZ
+			}, 1250)
+			.easing( TWEEN.Easing.Elastic.InOut )
+		    .onUpdate( function() {
+		    	console.log("tweening back");
+		    	renderer.render(scene, camera);
+		    } )
+		    .onComplete( function() {
+		    	$("#teaser").stop().slideUp(250);
+		    })
+		    .start();
+		}
 	}
 }
 
 
+/**
+ * Scales the supplied object up by tweening the scale property.
+ *
+ * @param      object     :     THREE.Mesh
+ *
+ */
+function expandSphere(object) {
+	new TWEEN.Tween(object.scale)
+		.to({
+			x: 2,
+			y: 2,
+			z: 2
+		}, 500)
+		.easing( TWEEN.Easing.Circular.Out )
+	    .onUpdate( function() {
+	    	renderer.render(scene, camera);
+	    })
+	    .onComplete( function() {
+	    	
+	    })
+	    .start();
+}
+
+
+/**
+ * Scales the supplied object down by tweening the scale property.
+ */
+function shrinkSphere() {
+	var numChildren = scene.children.length;
+
+	for (var i = 1; i < numChildren; i++) {
+		new TWEEN.Tween(scene.children[i].scale)
+			.to({
+				x: 1,
+				y: 1,
+				z: 1
+			}, 500)
+			.easing( TWEEN.Easing.Circular.Out )
+		    .onUpdate( function() {
+		    	renderer.render(scene, camera);
+		    })
+		    .onComplete( function() {
+		    })
+		    .start();
+	}
+	
+}
+
+
+/**
+ * Tweens the camera from its current zoomed-out position, to the position
+ * to the position of the selected object. This essentially puts the camera
+ * inside the select project sphere.
+ */
+function zoomToSelection(target) {
+	TWEEN.removeAll();
+
+	new TWEEN.Tween(camera.position)
+		.to({
+			x: target.x,
+			y: target.y,
+			z: target.z
+		}, 3000)
+		.easing( TWEEN.Easing.Linear.None )
+	    .onUpdate( function() {
+	    	console.log("tweening camera in");
+	    	// camera.lookAt(selectedProject.position);
+	    	renderer.render(scene, camera);
+	    })
+	    .onComplete( function() {
+	    	rotateCamera = true;
+			$(".project-details, .project-intro, .canvas").addClass("active");
+	    })
+	    .start();
+}
+
+
+/**
+ * Tweens the camera from its current, zoomed-in, position to the previously
+ * stored camera position.
+ */
 function zoomCameraOut() {
-	camera.lookAt(scene.position);
-	// console.log("Camera pos: ", camera.position);
-	// console.log("OG pos: ", ogCameraPosition);
-	if (scaleXDown && camera.position.x > ogCameraPosition.x) {
-		console.log("zoom x down");
-		camera.position.x -= 4;
-	}
-	if (scaleXUp && camera.position.x < ogCameraPosition.x) {
-		console.log("zoom x up");
-		camera.position.x += 4;
-	}
-	if (scaleYDown && camera.position.y > ogCameraPosition.y) {
-		console.log("zoom y down");
-		camera.position.y -= 4;
-	}
-	if (scaleYUp && camera.position.y < ogCameraPosition.y) {
-		console.log("zoom y up");
-		camera.position.y += 4;
-	}
-	if (camera.position.z < cameraZ) {
-		camera.position.z += 10;
-	}else {
-		zoomOut = false;
-		$(".project-preview").removeClass("hidden");
-		console.log("done zooming");
-	}
+	TWEEN.removeAll();
+
+	new TWEEN.Tween(camera.position)
+		.to({
+			x: lastCameraPosition.x,
+			y: lastCameraPosition.y,
+			z: lastCameraPosition.z
+		}, 3000)
+		.easing( TWEEN.Easing.Linear.None )
+	    .onUpdate( function() {
+	    	console.log("tweening camera out");
+	    	camera.lookAt(scene.position);
+	    	renderer.render(scene, camera);
+	    })
+	    .onComplete( function() {
+	    	console.log("done zooming out");
+	    	selectedProject = null;
+			projectInView = false;
+	    })
+	    .start();
 }
 
 
@@ -338,110 +551,143 @@ function updateControls() {
 }
 
 
-function expandSphere() {
-	if (curSphere.scale.x < 2) {
-		curSphere.scale.x += 0.1;
-		curSphere.scale.y += 0.1;
-		curSphere.scale.z += 0.1;
-	} 
+/*
+ * Removes the supplied object from the scene.
+ *
+ * @param    name    :    string
+ *
+ */
+function removeObject(name) {
+	var selectedObject = scene.getObjectByName(name);
+    if (selectedObject) scene.remove( selectedObject );
+    // animate();
 }
 
 
-function shrinkSphere() {
-	if(curSphere.scale.x > 1) {
-		curSphere.scale.x -= 0.1;
-		curSphere.scale.y -= 0.1;
-		curSphere.scale.z -= 0.1;
+/*
+ * This function handles an intersection with a given project object.
+ * 
+ * @param    intersects    :    array
+ *
+ */
+function onIntersection(intersects) {
+	var numIntersects = intersects.length, 
+		numChildren   = scene.children.length;
+
+ 	if (INTERSECTED != intersects[0].object ) {
+		removeObject("project_name");
+		removeObject("project_container");
+
+		$("html").css({cursor: 'pointer'});
+		curSphere = INTERSECTED = intersects[0].object;
+		
+		if (!projectInView) {
+			stopCamera = true;
+			isShrinking = false;
+			unIntersectMutex = true;
+		}
+		
+		// spheresMoving = true;
+
+		if (intersectMutex) {
+			// addText(INTERSECTED.name, INTERSECTED.position);
+			// addProjectContainer(INTERSECTED.name);
+			expandSphere(curSphere);
+			spheresToCurrent(curSphere.position);
+			intersectMutex = false;
+		}
+
+		// $("#previewImg").attr("src", INTERSECTED.material.map.image.currentSrc);
+
+		// // loop though any intersected elements, excluding the first,
+		// // and make sure it is at it's original scale;
+		for (var i = 0; i < numChildren; i++) {
+			if ((INTERSECTED != scene.children[i]) && (scene.children[i].name != "project_container")) {
+				scene.children[i].scale.x = 1;
+				scene.children[i].scale.y = 1;
+				scene.children[i].scale.z = 1;
+			}
+		}
 	}
+}
+
+
+/*
+ * This function handles a hover off of a given project object.
+ * It removes any project text and sets the variables to size the
+ * orbs back to their original size.
+ */
+function onNoIntersections(intersects) {
+	
+	if (!projectInView){
+		stopCamera     = false;
+		isExpanding    = false;
+		intersectMutex = true;
+		if (unIntersectMutex) {
+			$("#teaser").stop().slideUp(250);
+			spheresToRandom();
+			shrinkSphere();
+			unIntersectMutex = false;
+		}
+	} 
+
+	$("html").css({cursor: 'initial'});
+	$("#previewImg").attr("src", null);
+
+	INTERSECTED = null;
 }
 
 
 function animate() {
 	requestAnimationFrame( animate );
+	TWEEN.update();
 	updateControls();
 	render();
-	handleCameraMovement();
+	// handleCameraMovement();
 }
 
 
+/*
+ * This function is called many times per second (~60) and is
+ * used to update any animations or interactions.
+ */
 function render() {
-
+	// cirlcle the camera around as long as there isn't a project
+	// in view or one being hovered on.
 	if (!projectInView && !stopCamera) {
 		circleCamera();
 	}
 
-	if (isExpanding) {
-		expandSphere();
-	}
+	// if (isExpanding) {
+	// 	expandSphere();
+	// }
 
-	if (isShrinking) {
-		shrinkSphere();
-	}
+	// if (isShrinking) {
+	// 	shrinkSphere();
+	// }
 	
-	if (selectedProject) {
-		zoomToSelection();
-	}
+	// if (selectedProject) {
+	// 	zoomToSelection();
+	// }
 
-	if (zoomOut) {
-		zoomCameraOut();
-	}
+	// if (zoomOut) {
+	// 	zoomCameraOut();
+	// }
 
 	if (rotateCamera) {
 	    spinCamera();
-	}
-
-	if (moveCamera) {
-		slideCamera();
 	}
 
 	// find intersections
 	raycaster.setFromCamera( mouse, camera );
 
 	var intersects = raycaster.intersectObjects( scene.children );
-	var numIntersects = intersects.length, 
-		numChildren   = scene.children.length;
 
+	// Check if the mouse pointer has intersected any of the objects
 	if ( intersects.length > 0 ) {
-		// console.log("There are intersects");
-		if (INTERSECTED != intersects[0].object ) {
-			// console.log("INTERSECTED not first object");
-			$("html").css({cursor: 'pointer'});
-			curSphere = INTERSECTED = intersects[0].object;
-			stopCamera = true;
-			isExpanding = true;
-			isShrinking = false;
-
-			// $("#previewImg").attr("src", INTERSECTED.material.map.image.currentSrc);
-
-			// // loop though any intersected elements, excluding the first,
-			// // and make sure it is at it's original scale;
-			for (var i = 0; i < numChildren; i++) {
-				if (INTERSECTED != scene.children[i]) {
-					scene.children[i].scale.x = 1;
-					scene.children[i].scale.y = 1;
-					scene.children[i].scale.z = 1;
-				}
-			}
-		} else {
-			// console.log("INTERSECTED is first object");
-
-		}
-
+		onIntersection(intersects);
 	} else {
-		stopCamera = false;
-		isExpanding = false;
-		isShrinking = true;
-		$("html").css({cursor: 'initial'});
-		$("#previewImg").attr("src", null);
-		if ( INTERSECTED ) {
-			// console.log("No Intersects but there is an Intersect defined");
-
-			// INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-		}else {
-			// console.log("No Intersects and there is no Intersect defined");
-		}
-
-		INTERSECTED = null;
+		onNoIntersections();
 	}
 
 	renderer.render( scene, camera );

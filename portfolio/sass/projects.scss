@@ -2,12 +2,16 @@
 @import "vars";
 
 .loader {
-  display: none;
-  background-color: #fff;
+  // display: none;
+  background-color: #0e0e15;
   opacity: 1;
   position: fixed;
+  left: 0;
+  top: 0;
   height: 100%;
   width: 100%;
+  text-align: center;
+  text-transform: uppercase;
   z-index: 999;
   @include transition( opacity 1s ease-in-out );
   &.fade-out {
@@ -15,138 +19,123 @@
   }
 }
 
-.Cube {
-  width: 80px;
-  height: 80px;
-  line-height: 80px;
-  text-align: center;
-  font-size: 50px;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
-  -webkit-transition: -webkit-transform 0.5s 0.1s;
-  transition: transform 0.5s 0.1s;
-  perspective: 9999px;
-  color: #333;
-  margin: -40px 0 0 -40px;
-  margin: 0 auto;
-  position: absolute;
-  left: 50%;
-  margin-left: -37px;
-  top: 65px;
-  opacity: 1;
+@mixin transform($transform) {
+    -webkit-transform: $transform;
+    -moz-transform: $transform;
+    -ms-transform: $transform;
+    -o-transform: $transform;
+    transform: $transform;
+}
 
-  &.panelLoad {
-    z-index: 11;
-    top: 50%;
-    margin-top: -60px;
-    -webkit-animation: panel 2.2s infinite forwards;
-    animation: panel 2.2s infinite forwards;
+@mixin animation($animation) {
+    -webkit-animation: #{$animation};
+    animation: #{$animation};
+}
 
-    .cube-face {
-      color: black;
-      box-shadow: inset 0 0 0 1px #111, 0 0 1px 1px #111;
+@mixin keyframes($name) {
+    @-webkit-keyframes #{$name} {
+        @content
     }
+
+    @keyframes #{$name} {
+        @content
+    }
+}
+
+
+$clock_background: #d8d9d8;
+$clock_border_size: 6px;
+$clock_border_color: #686868;
+
+@mixin circle($size) {
+  width: $size;
+  height: $size;
+  border-radius: 100%;  
+}
+
+@mixin centered {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+@include keyframes(spin) {
+  0% {
+    @include transform(rotate(0deg));
   }
 
-  .cube-face {
-    width: inherit;
-    height: inherit;
+  100% {
+    @include transform(rotate(359deg));
+  }
+}
+
+.clock {
+  background: $clock_background;
+  position: relative;
+  box-sizing: border-box;
+  border: $clock_border_size solid $clock_border_color;
+  @include circle(80px);
+  @include centered;
+}
+
+.clock_hand {
+  $hand_base_width: 10px;
+  
+  background: $clock_border_color;
+  @include circle($hand_base_width);
+  @include centered;
+  @include transform(rotate(0deg));
+  @include animation(spin 1.5s infinite linear);
+  
+  &:before {
+    $hand_width: $hand_base_width / 2;
+    $hand_length: 32px;
+    
+    content: '.';
+    font-size: 1px;
+    z-index: 1;
+    border-left: $hand_width solid transparent;
+    border-right: $hand_width solid transparent;
+    border-bottom: $hand_length solid $clock_border_color;
     position: absolute;
-    background: white;
-    box-shadow: inset 0 0 0 1px #333, 0 0 1px 1px #333;
-    opacity: 1;
-  }
-
-  .cube-face-front {
-    transform: translate3d(0, 0, 40px);
-    -webkit-transform: translate3d(0, 0, 40px);
-    font-size: 57px;
-  }
-
-  .cube-face-back {
-    -webkit-transform: rotateY(180deg) translate3d(0, 0, 40px);
-            transform: rotateY(180deg) translate3d(0, 0, 40px);
-  }
-
-  .cube-face-left {
-    -webkit-transform: rotateY(-90deg) translate3d(0, 0, 40px);
-            transform: rotateY(-90deg) translate3d(0, 0, 40px);
-  }
-
-  .cube-face-right {
-    -webkit-transform: rotateY(90deg) translate3d(0, 0, 40px);
-            transform: rotateY(90deg) translate3d(0, 0, 40px);
-  }
-
-  .cube-face-top {
-    -webkit-transform: rotateX(90deg) translate3d(0, 0, 40px);
-            transform: rotateX(90deg) translate3d(0, 0, 40px);
-  }
-
-  .cube-face-bottom {
-    -webkit-transform: rotateX(-90deg) translate3d(0, 0, 40px);
-            transform: rotateX(-90deg) translate3d(0, 0, 40px);
+    left: 50%;
+    margin-left: -$hand_width;
+    bottom: $hand_base_width / 2;
   }
 }
 
-@-webkit-keyframes panel {
-  0% {
-    -webkit-transform: rotateY(0deg) rotateZ(0deg);
-  }
-  20% {
-    -webkit-transform: rotateY(90deg) rotateZ(0deg);
-  }
-  40% {
-    -webkit-transform: rotateX(90deg) rotateZ(0deg);
-  }
-  60% {
-    -webkit-transform: rotateX(90deg) rotateY(180deg) rotateX(90deg);
-  }
-  80% {
-    -webkit-transform: rotateX(-90deg) rotateZ(0deg) rotateY(0deg);
-  }
-  100% {
-    -webkit-transform: rotateX(360deg) rotateZ(360deg);
+.clock_knob {
+  $knob_width: $clock_border_size * 0.9;
+  $knob_height: $clock_border_size * 0.5;
+
+  background: $clock_border_color;
+  width: $knob_width;
+  height: $knob_height;
+  position: absolute;
+  top: -($clock_border_size + $knob_height);
+  left: 50%;
+  margin-left: -($knob_width / 2);
+  
+  &:before {
+    $switch_width: $clock_border_size * 1.2;
+    $switch_height: $clock_border_size;
+
+    background: $clock_border_color;
+    content: '.';
+    font-size: 1px;
+    z-index: 1;
+    position: absolute;
+    width: $switch_width;
+    height: $clock_border_size;
+    top: -($knob_height + 2);
+    left: 50%;
+    margin-left: -($switch_width / 2);
   }
 }
-
-@keyframes panel {
-  0% {
-    -webkit-transform: rotateY(0deg) rotateZ(0deg);
-    transform: rotateY(0deg) rotateZ(0deg);
-  }
-  20% {
-   -webkit-transform: rotateY(90deg) rotateZ(0deg);
-   transform: rotateY(90deg) rotateZ(0deg);
-  }
-  40% {
-   -webkit-transform: rotateX(90deg) rotateZ(0deg);
-   transform: rotateX(90deg) rotateZ(0deg);
-  }
-  60% {
-   -webkit-transform: rotateX(90deg) rotateY(180deg) rotateX(90deg);
-   transform: rotateX(90deg) rotateY(180deg) rotateX(90deg);
-  }
-  80% {
-   -webkit-transform: rotateX(-90deg) rotateZ(0deg) rotateY(0deg);
-   transform: rotateX(-90deg) rotateZ(0deg) rotateY(0deg);
-  }
-  100% {
-   -webkit-transform: rotateX(360deg) rotateZ(360deg);
-   transform: rotateX(360deg) rotateZ(360deg)
-  }
-}
-
-
-
-html,
-body {
-  margin: 0px;
-  width: 100%;
-  height: 100%;
-  // background-color: #fff;
-}
-
+// =========================== END LOADER ANIMATION =========================
 
 
 canvas,
@@ -154,9 +143,11 @@ canvas,
   opacity: 1;
   overflow: hidden;
   position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
-  @include transition(opacity 1.5s ease 0.5s);
+  @include transition(opacity 1.5s ease );
   &::before {
     background-color: rgba(51,51,51,0.9);
     content: "";
@@ -226,6 +217,22 @@ canvas,
   }
 }
 
+
+// The project teaser is the description
+// box that appears next to the hovered on
+// project.
+.project-teaser {
+  border: 3px solid #fff;
+  color: #fff;
+  display: none;
+  overflow: scroll;
+  padding: 20px;
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  z-index: 1;
+}
+
 .project-intro {
   height: 0;
   opacity: 0;
@@ -235,7 +242,7 @@ canvas,
   z-index: 2;
   @include transition(opacity 0.1s ease -1s);
   &.active {
-    @include transition(opacity 1s ease 1s);
+    @include transition(opacity 1s ease );
     height: 100%;
     opacity: 1;
   }

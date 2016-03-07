@@ -1,10 +1,13 @@
 .loader {
-  display: none;
-  background-color: #fff;
+  background-color: #0e0e15;
   opacity: 1;
   position: fixed;
+  left: 0;
+  top: 0;
   height: 100%;
   width: 100%;
+  text-align: center;
+  text-transform: uppercase;
   z-index: 999;
   -webkit-transition: opacity 1s ease-in-out;
   -moz-transition: opacity 1s ease-in-out;
@@ -14,111 +17,111 @@
   .loader.fade-out {
     opacity: 0; }
 
-.Cube {
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(359deg);
+    -moz-transform: rotate(359deg);
+    -ms-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    transform: rotate(359deg); } }
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(359deg);
+    -moz-transform: rotate(359deg);
+    -ms-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    transform: rotate(359deg); } }
+.clock {
+  background: #d8d9d8;
+  position: relative;
+  box-sizing: border-box;
+  border: 6px solid #686868;
   width: 80px;
   height: 80px;
-  line-height: 80px;
-  text-align: center;
-  font-size: 50px;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
-  -webkit-transition: -webkit-transform 0.5s 0.1s;
-  transition: transform 0.5s 0.1s;
-  perspective: 9999px;
-  color: #333;
-  margin: -40px 0 0 -40px;
-  margin: 0 auto;
+  border-radius: 100%;
   position: absolute;
-  left: 50%;
-  margin-left: -37px;
-  top: 65px;
-  opacity: 1; }
-  .Cube.panelLoad {
-    z-index: 11;
-    top: 50%;
-    margin-top: -60px;
-    -webkit-animation: panel 2.2s infinite forwards;
-    animation: panel 2.2s infinite forwards; }
-    .Cube.panelLoad .cube-face {
-      color: black;
-      box-shadow: inset 0 0 0 1px #111, 0 0 1px 1px #111; }
-  .Cube .cube-face {
-    width: inherit;
-    height: inherit;
-    position: absolute;
-    background: white;
-    box-shadow: inset 0 0 0 1px #333, 0 0 1px 1px #333;
-    opacity: 1; }
-  .Cube .cube-face-front {
-    transform: translate3d(0, 0, 40px);
-    -webkit-transform: translate3d(0, 0, 40px);
-    font-size: 57px; }
-  .Cube .cube-face-back {
-    -webkit-transform: rotateY(180deg) translate3d(0, 0, 40px);
-    transform: rotateY(180deg) translate3d(0, 0, 40px); }
-  .Cube .cube-face-left {
-    -webkit-transform: rotateY(-90deg) translate3d(0, 0, 40px);
-    transform: rotateY(-90deg) translate3d(0, 0, 40px); }
-  .Cube .cube-face-right {
-    -webkit-transform: rotateY(90deg) translate3d(0, 0, 40px);
-    transform: rotateY(90deg) translate3d(0, 0, 40px); }
-  .Cube .cube-face-top {
-    -webkit-transform: rotateX(90deg) translate3d(0, 0, 40px);
-    transform: rotateX(90deg) translate3d(0, 0, 40px); }
-  .Cube .cube-face-bottom {
-    -webkit-transform: rotateX(-90deg) translate3d(0, 0, 40px);
-    transform: rotateX(-90deg) translate3d(0, 0, 40px); }
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto; }
 
-@-webkit-keyframes panel {
-  0% {
-    -webkit-transform: rotateY(0deg) rotateZ(0deg); }
-  20% {
-    -webkit-transform: rotateY(90deg) rotateZ(0deg); }
-  40% {
-    -webkit-transform: rotateX(90deg) rotateZ(0deg); }
-  60% {
-    -webkit-transform: rotateX(90deg) rotateY(180deg) rotateX(90deg); }
-  80% {
-    -webkit-transform: rotateX(-90deg) rotateZ(0deg) rotateY(0deg); }
-  100% {
-    -webkit-transform: rotateX(360deg) rotateZ(360deg); } }
-@keyframes panel {
-  0% {
-    -webkit-transform: rotateY(0deg) rotateZ(0deg);
-    transform: rotateY(0deg) rotateZ(0deg); }
-  20% {
-    -webkit-transform: rotateY(90deg) rotateZ(0deg);
-    transform: rotateY(90deg) rotateZ(0deg); }
-  40% {
-    -webkit-transform: rotateX(90deg) rotateZ(0deg);
-    transform: rotateX(90deg) rotateZ(0deg); }
-  60% {
-    -webkit-transform: rotateX(90deg) rotateY(180deg) rotateX(90deg);
-    transform: rotateX(90deg) rotateY(180deg) rotateX(90deg); }
-  80% {
-    -webkit-transform: rotateX(-90deg) rotateZ(0deg) rotateY(0deg);
-    transform: rotateX(-90deg) rotateZ(0deg) rotateY(0deg); }
-  100% {
-    -webkit-transform: rotateX(360deg) rotateZ(360deg);
-    transform: rotateX(360deg) rotateZ(360deg); } }
-html,
-body {
-  margin: 0px;
-  width: 100%;
-  height: 100%; }
+.clock_hand {
+  background: #686868;
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  transform: rotate(0deg);
+  -webkit-animation: spin 1.5s infinite linear;
+  animation: spin 1.5s infinite linear; }
+  .clock_hand:before {
+    content: '.';
+    font-size: 1px;
+    z-index: 1;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 32px solid #686868;
+    position: absolute;
+    left: 50%;
+    margin-left: -5px;
+    bottom: 5px; }
+
+.clock_knob {
+  background: #686868;
+  width: 5.4px;
+  height: 3px;
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  margin-left: -2.7px; }
+  .clock_knob:before {
+    background: #686868;
+    content: '.';
+    font-size: 1px;
+    z-index: 1;
+    position: absolute;
+    width: 7.2px;
+    height: 6px;
+    top: -5px;
+    left: 50%;
+    margin-left: -3.6px; }
 
 canvas,
 .canvas {
   opacity: 1;
   overflow: hidden;
   position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
-  -webkit-transition: opacity 1.5s ease 0.5s;
-  -moz-transition: opacity 1.5s ease 0.5s;
-  -ms-transition: opacity 1.5s ease 0.5s;
-  -o-transition: opacity 1.5s ease 0.5s;
-  transition: opacity 1.5s ease 0.5s; }
+  -webkit-transition: opacity 1.5s ease;
+  -moz-transition: opacity 1.5s ease;
+  -ms-transition: opacity 1.5s ease;
+  -o-transition: opacity 1.5s ease;
+  transition: opacity 1.5s ease; }
   canvas::before,
   .canvas::before {
     background-color: rgba(51, 51, 51, 0.9);
@@ -150,6 +153,7 @@ canvas,
   -webkit-transform: translate(-50%, -50%);
   -moz-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%); }
 
 .back-btn {
@@ -189,6 +193,17 @@ canvas,
     width: 100%;
     height: 100%; }
 
+.project-teaser {
+  border: 3px solid #fff;
+  color: #fff;
+  display: none;
+  overflow: scroll;
+  padding: 20px;
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  z-index: 1; }
+
 .project-intro {
   height: 0;
   opacity: 0;
@@ -202,11 +217,11 @@ canvas,
   -o-transition: opacity 0.1s ease -1s;
   transition: opacity 0.1s ease -1s; }
   .project-intro.active {
-    -webkit-transition: opacity 1s ease 1s;
-    -moz-transition: opacity 1s ease 1s;
-    -ms-transition: opacity 1s ease 1s;
-    -o-transition: opacity 1s ease 1s;
-    transition: opacity 1s ease 1s;
+    -webkit-transition: opacity 1s ease;
+    -moz-transition: opacity 1s ease;
+    -ms-transition: opacity 1s ease;
+    -o-transition: opacity 1s ease;
+    transition: opacity 1s ease;
     height: 100%;
     opacity: 1; }
   .project-intro h1 {
