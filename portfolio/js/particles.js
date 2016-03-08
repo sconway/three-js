@@ -237,13 +237,16 @@ function addProjectContainer(x, y) {
 	// 	plane.lookAt( camera.position );
 
 	// 	scene.add(plane);
-	$("#teaser")
-		.css({
-			left: x + 100 + "px",
-			top:  y + "px"
-		})
-		.stop()
-		.slideDown(750);
+	if (INTERSECTED) {
+		$("#teaser")
+			.css({
+				left: x + 100 + "px",
+				top:  y + "px"
+			})
+			.stop()
+			.slideDown(750);
+	}
+	
 }
 
 
@@ -383,6 +386,9 @@ function spheresToRandom() {
 				z: posZ
 			}, 1250)
 			.easing( TWEEN.Easing.Elastic.InOut )
+			.onStart( function() {
+				$("#teaser").stop().slideUp(250);
+			})
 		    .onUpdate( function() {
 		    	console.log("tweening back");
 		    	renderer.render(scene, camera);
