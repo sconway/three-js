@@ -145,7 +145,7 @@ function addShapes() {
 			// 				side: THREE.DoubleSide 
 			// 			}),
 			color   = new THREE.MeshLambertMaterial( { 
-							color: 0xffffff,
+							color: 0xffffff * Math.random(),
 							transparent: true,
 							opacity: 0.9
 						}),
@@ -220,33 +220,24 @@ function addText(text, pos) {
  * @param      pos     :     Vector3
  *
  */
-function addProjectContainer(x, y) {
-	// var material = new THREE.MeshBasicMaterial( 
-	// 	{
-	// 		map: loaders[names.indexOf(name)],
-	// 		side: THREE.DoubleSide
-	// 	}),
-	// 	geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 12, 16),
-	// 	plane    = new THREE.Mesh(geometry, material);
-
-	// 	console.log(names.indexOf(name));
-
-	// 	plane.position.x = 500;
-	// 	plane.position.z = -1000;
-	// 	plane.name = "project_container";
-	// 	plane.lookAt( camera.position );
-
-	// 	scene.add(plane);
+function addProjectContainer(x, y, slideUp) {
 	if (INTERSECTED) {
-		$("#teaser")
-			.css({
-				left: x + 100 + "px",
-				top:  y + "px"
-			})
-			.stop()
-			.slideDown(750);
+		if (slideUp) {
+			$("#teaser")
+				.css({
+					left: x + "px",
+					top:  y + "px"
+				})
+				.addClass("slide-up");
+		} else {
+			$("#teaser")
+				.css({
+					left: x + "px",
+					top:  y + "px"
+				})
+				.addClass("slide-down");	
+		}
 	}
-	
 }
 
 
@@ -285,7 +276,8 @@ function zoomToProject() {
 		selectedProject = intersect;
 		lastCameraPosition = camera.clone().position;
 		projectInView = true;
-		$("#teaser").stop().slideUp(250);
+		$("#teaser").removeClass("slide-up").removeClass("slide-down");
+		// $("#teaser").stop().slideUp(250);
 		// zoomOut = false;
 
 		zoomToSelection(selectedProject.position);
@@ -357,8 +349,19 @@ function spheresToCurrent(current) {
 		    	// teaser down. Prevents it from showing on load.
 		    	if (curMouse.x > 0 && curMouse.y > 0) {
 		    		$("#teaserName, #projectTitle").html(current.name);
-
-			    	addProjectContainer(curMouse.x, curMouse.y);
+		    		if (curMouse.x > window.innerWidth/2) {
+		    			if (curMouse.y > window.innerHeight/2) {
+		    				addProjectContainer(curMouse.x - 425, curMouse.y - 300, true);
+		    			} else {
+					    	addProjectContainer(curMouse.x - 425, curMouse.y - 50, false);
+		    			}
+		    		} else {
+		    			if (curMouse.y > window.innerHeight/2) {
+		    				addProjectContainer(curMouse.x + 100, curMouse.y - 300, true);
+		    			} else {
+		    				addProjectContainer(curMouse.x + 100, curMouse.y, false);
+		    			}
+		    		}
 		    	}
 		    })
 		    .start();
@@ -387,14 +390,14 @@ function spheresToRandom() {
 			}, 1250)
 			.easing( TWEEN.Easing.Elastic.InOut )
 			.onStart( function() {
-				$("#teaser").stop().slideUp(250);
+				$("#teaser").removeClass("slide-up").removeClass("slide-down");
 			})
 		    .onUpdate( function() {
 		    	console.log("tweening back");
 		    	renderer.render(scene, camera);
 		    } )
 		    .onComplete( function() {
-		    	$("#teaser").stop().slideUp(250);
+		    	$("#teaser").removeClass("slide-up").removeClass("slide-down");
 		    })
 		    .start();
 		}
@@ -629,7 +632,7 @@ function onNoIntersections(intersects) {
 		isExpanding    = false;
 		intersectMutex = true;
 		if (unIntersectMutex) {
-			$("#teaser").stop().slideUp(250);
+			$("#teaser").removeClass("slide-up").removeClass("slide-down");
 			spheresToRandom();
 			shrinkSphere();
 			unIntersectMutex = false;

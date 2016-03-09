@@ -222,15 +222,42 @@ canvas,
 // box that appears next to the hovered on
 // project.
 .project-teaser {
-  border: 3px solid #fff;
+  // border: 3px solid #fff;
   color: #fff;
-  display: none;
+  // display: none;
+  visibility: hidden;
   overflow: hidden;
   padding: 20px;
   position: absolute;
   width: 300px;
   height: 300px;
   z-index: 1;
+  &::before {
+    background-color: #000;
+    content: "";
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    @include transition( height 750ms ease-in-out );
+  }
+  &.slide-down {
+    // display: block;
+    visibility: visible;
+    &::before {
+      bottom: 0;
+      height: 0;
+    }
+  } 
+  &.slide-up {
+    // display: block;
+    visibility: visible;
+    &::before {
+      top: 0;
+      height: 0;
+    }
+  }
 }
 
 .project-intro {
