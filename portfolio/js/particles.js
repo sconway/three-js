@@ -112,7 +112,7 @@ function init() {
 
 function renderScene() {
 	renderer = new THREE.WebGLRenderer({alpha : true});
-	renderer.setClearColor( 0x000000, 1 );
+	renderer.setClearColor( 0x0e0e15, 1 );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
@@ -339,7 +339,7 @@ function spheresToCurrent(current) {
 				y: current.position.y,
 				z: current.position.z
 			}, 1000)
-			.easing( TWEEN.Easing.Quartic.In )
+			.easing( TWEEN.Easing.Elastic.InOut )
 		    .onUpdate( function() {
 		    	console.log("tweening");
 		    	renderer.render(scene, camera);
@@ -351,15 +351,15 @@ function spheresToCurrent(current) {
 		    		$("#teaserName, #projectTitle").html(current.name);
 		    		if (curMouse.x > window.innerWidth/2) {
 		    			if (curMouse.y > window.innerHeight/2) {
-		    				addProjectContainer(curMouse.x - 425, curMouse.y - 300, true);
+		    				addProjectContainer(curMouse.x - 430, curMouse.y - 275, true);
 		    			} else {
 					    	addProjectContainer(curMouse.x - 425, curMouse.y - 50, false);
 		    			}
 		    		} else {
 		    			if (curMouse.y > window.innerHeight/2) {
-		    				addProjectContainer(curMouse.x + 100, curMouse.y - 300, true);
+		    				addProjectContainer(curMouse.x + 100, curMouse.y - 275, true);
 		    			} else {
-		    				addProjectContainer(curMouse.x + 100, curMouse.y, false);
+		    				addProjectContainer(curMouse.x + 100, curMouse.y - 50, false);
 		    			}
 		    		}
 		    	}

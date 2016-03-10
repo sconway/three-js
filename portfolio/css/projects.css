@@ -203,7 +203,7 @@ canvas,
   height: 300px;
   z-index: 1; }
   .project-teaser::before {
-    background-color: #000;
+    background-color: #0e0e15;
     content: "";
     position: absolute;
     left: 0;
