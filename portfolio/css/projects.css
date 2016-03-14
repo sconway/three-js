@@ -1,3 +1,9 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  width: 100%; }
+
 .loader {
   background-color: #0e0e15;
   opacity: 1;
@@ -122,23 +128,6 @@ canvas,
   -ms-transition: opacity 1.5s ease;
   -o-transition: opacity 1.5s ease;
   transition: opacity 1.5s ease; }
-  canvas::before,
-  .canvas::before {
-    background-color: rgba(51, 51, 51, 0.9);
-    content: "";
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    z-index: 1;
-    opacity: 0;
-    -webkit-transition: opacity 1s ease;
-    -moz-transition: opacity 1s ease;
-    -ms-transition: opacity 1s ease;
-    -o-transition: opacity 1s ease;
-    transition: opacity 1s ease; }
-  canvas.active::before,
-  .canvas.active::before {
-    opacity: 1; }
   canvas.fade-in,
   .canvas.fade-in {
     opacity: 1; }
@@ -256,7 +245,8 @@ canvas,
 .intro-img {
   position: absolute;
   top: 40%;
-  right: 10%; }
+  right: 10%;
+  width: 500px; }
 
 .intro-description {
   color: #fff;
