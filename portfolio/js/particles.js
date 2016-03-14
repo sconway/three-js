@@ -718,6 +718,8 @@ function zoomCameraOut() {
 	    	console.log("done zooming out");
 	    	selectedProject = null;
 			projectInView = false;
+			TWEEN.removeAll();
+			spheresToRandom();
 	    })
 	    .start();
 }
