@@ -150,7 +150,7 @@ function setTeaserContainer(current) {
 		if (curMouse.x > window.innerWidth/2) {
 			// mouse on right bottom of screen (Q4)
 			if (curMouse.y > window.innerHeight/2) {
-				revealTeaser(curMouse.x - 430, curMouse.y - 275, true);
+				revealTeaser(curMouse.x - 475, curMouse.y - 275, true);
 				// addTeaserBackground(current.position.x + 375, 
 				// 					current.position.y - 10, 
 				// 					-350,
@@ -158,7 +158,7 @@ function setTeaserContainer(current) {
 			} 
 			// mouse on right top of screen (Q2)
 			else {
-		    	revealTeaser(curMouse.x - 425, curMouse.y - 60, false);
+		    	revealTeaser(curMouse.x - 475, curMouse.y - 60, false);
 		    	// addTeaserBackground(current.position.x + 375, 
 							// 		current.position.y + 30, 
 							// 		-350,
@@ -167,7 +167,7 @@ function setTeaserContainer(current) {
 		} else {
 			// mouse on the bottom left of screen (Q3)
 			if (curMouse.y > window.innerHeight/2) {
-				revealTeaser(curMouse.x + 115, curMouse.y - 275, true);
+				revealTeaser(curMouse.x + 145, curMouse.y - 275, true);
 				// addTeaserBackground(current.position.x - 375, 
 				// 					current.position.y - 20, 
 				// 					-350,
@@ -175,7 +175,7 @@ function setTeaserContainer(current) {
 			} 
 			// mouse on the top left of screen (Q4)
 			else {
-				revealTeaser(curMouse.x + 115, curMouse.y - 60, false);
+				revealTeaser(curMouse.x + 145, curMouse.y - 60, false);
 				// addTeaserBackground(current.position.x - 375, 
 				// 					current.position.y + 30, 
 				// 					-350,
@@ -223,7 +223,7 @@ function addShapes() {
 							opacity: 0.9
 						}),
 			object = new THREE.Mesh( 
-						new THREE.SphereGeometry( size, 64, 64 ),
+						new THREE.SphereGeometry( 40, 64, 64 ),
 						color
 						);
 
@@ -399,19 +399,17 @@ function revealTeaser(x, y, slideUp) {
 					left: x + "px",
 					top:  y + "px"
 				})
-				.addClass("slide-up");
+				.addClass("active");
 		} else {
 			$("#teaser")
 				.css({
 					left: x + "px",
 					top:  y + "px"
 				})
-				.addClass("slide-down");	
+				.addClass("active");	
 		}
 	}
 }
-
-
 
 
 function onDocumentMouseMove( event ) {
@@ -445,7 +443,7 @@ function zoomToProject() {
 
 		removeText(scene.clone().children.length, "project_name");
 		removeObject("project_teaser");
-		$("#teaser").removeClass("slide-up").removeClass("slide-down");
+		$("#teaser").removeClass("active");
 
 		zoomToSelection(selectedProject.position);
 
@@ -501,7 +499,7 @@ function spinCamera() {
  */
 function spheresToCurrent(current) {
 	// clone the scene so the number of children doesn't change when we remove
-	var children = scene.clone().children; 
+	var children = scene.clone().children, 
 		numChildren = children.length;
 
 	// Tween all project spheres, starting at the second child, since the
@@ -585,7 +583,7 @@ function spheresToRandom() {
 												transparent: true,
 												opacity: 0.9
 											});
-					$("#teaser").removeClass("slide-up").removeClass("slide-down");
+					$("#teaser").removeClass("active");
 				})
 			    .onUpdate( function() {
 			    	renderer.render(scene, camera);
@@ -599,7 +597,7 @@ function spheresToRandom() {
 												transparent: true,
 												opacity: 0.9
 											});
-				    	$("#teaser").removeClass("slide-up").removeClass("slide-down");
+				    	$("#teaser").removeClass("active");
 			    		addNames();
 				    	console.log("Done tweening; adding project names. index is: ", i);
 			    	}
@@ -623,9 +621,9 @@ function expandSphere(object) {
 
 	new TWEEN.Tween(object.scale)
 		.to({
-			x: 4,
-			y: 4,
-			z: 4
+			x: 6,
+			y: 6,
+			z: 6
 		}, 500)
 		.easing( TWEEN.Easing.Circular.Out )
 	    .onStart( function() {
@@ -838,7 +836,7 @@ function onNoIntersections(intersects) {
 		if (unIntersectMutex) {
 			removeText(scene.clone().children.length, "project_name");
 			removeObject("project_teaser");
-			$("#teaser").removeClass("slide-up").removeClass("slide-down");
+			$("#teaser").removeClass("teaser");
 			spheresToRandom();
 			shrinkSphere();
 			unIntersectMutex = false;
