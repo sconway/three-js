@@ -32,6 +32,7 @@ var container,
 	unIntersectMutex = true,
 	isTweening = false,
 	moveCamera = false,
+	rotateSphere = false,
 	scaleToX = window.innerWidth/50,
 	scaleToY = window.innerHeight/50,
 	scaleDown = false,
@@ -62,8 +63,8 @@ var container,
 	loaders = [];
 
 
-init();
-animate();
+// init();
+// animate();
 
                                  
 /**
@@ -148,38 +149,26 @@ function setTeaserContainer(current) {
 		$("#teaserName, #projectTitle").html(current.name);
 
 		if (curMouse.x > window.innerWidth/2) {
+			var xFactor = current.position.z > 0 ? 500 : 470;
+
 			// mouse on right bottom of screen (Q4)
 			if (curMouse.y > window.innerHeight/2) {
-				revealTeaser(curMouse.x - 475, curMouse.y - 275, true);
-				// addTeaserBackground(current.position.x + 375, 
-				// 					current.position.y - 10, 
-				// 					-350,
-				// 					current);
+				revealTeaser(curMouse.x - xFactor, curMouse.y - 275, true);
 			} 
 			// mouse on right top of screen (Q2)
 			else {
-		    	revealTeaser(curMouse.x - 475, curMouse.y - 60, false);
-		    	// addTeaserBackground(current.position.x + 375, 
-							// 		current.position.y + 30, 
-							// 		-350,
-							// 		current);
+		    	revealTeaser(curMouse.x - xFactor, curMouse.y - 60, false);
 			}
 		} else {
+			var xFactor = current.position.z > 0 ? 200 : 170;
+
 			// mouse on the bottom left of screen (Q3)
 			if (curMouse.y > window.innerHeight/2) {
-				revealTeaser(curMouse.x + 145, curMouse.y - 275, true);
-				// addTeaserBackground(current.position.x - 375, 
-				// 					current.position.y - 20, 
-				// 					-350,
-				// 					current);
+				revealTeaser(curMouse.x + xFactor, curMouse.y - 275, true);
 			} 
 			// mouse on the top left of screen (Q4)
 			else {
-				revealTeaser(curMouse.x + 145, curMouse.y - 60, false);
-				// addTeaserBackground(current.position.x - 375, 
-				// 					current.position.y + 30, 
-				// 					-350,
-				// 					current);
+				revealTeaser(curMouse.x + xFactor, curMouse.y - 60, false);
 			}
 		}
 	}
@@ -220,7 +209,7 @@ function addShapes() {
 							color: 0xffffff * Math.random(),
 							side: THREE.DoubleSide,
 							transparent: true,
-							opacity: 0.9
+							opacity: 1
 						}),
 			object = new THREE.Mesh( 
 						new THREE.SphereGeometry( 40, 64, 64 ),
@@ -247,9 +236,10 @@ function addShapes() {
 }
 
 
-function addVideo() {
+function addVideo(name) {
 	// create the video element
-	video = document.getElementById( 'video' );
+	console.log(name);
+	video = document.getElementById( name );
 	video.load(); // must call after setting/changing source
 	video.play();
 	
@@ -269,7 +259,7 @@ function addVideo() {
 	return new THREE.MeshBasicMaterial( { 
 				map: videoTexture, 
 				transparent: true,
-				opacity: 0.7,
+				opacity: 0.9,
 				overdraw: true, 
 				side:THREE.DoubleSide 
 			} );
@@ -334,7 +324,7 @@ function addNames() {
  * Adds lighting to the scene. Stays in a fixed position.
  */
 function addLight() {
-	var light = new THREE.HemisphereLight( 0xdddddd , 0x000000, 0.6 );
+	var light = new THREE.HemisphereLight( 0xdddddd , 0x333333, 0.6 );
 	light.position.set( 1, 1, 1 ).normalize();
 	light.name = "project_light";
 	scene.add( light );
@@ -471,23 +461,36 @@ function backToProjectView() {
  */
 function circleCamera() {
 	theta += 0.2;
-	camera.position.x = radius * Math.cos( THREE.Math.degToRad( theta ) );
-	camera.position.y = radius * Math.cos( THREE.Math.degToRad( theta ) );
+	camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+	camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
 	camera.lookAt( scene.position );
 	camera.updateMatrixWorld();
 	var numChildren = scene.children.length;
 
 	for (var i = 1; i < numChildren; i++) {
-		// if (scene.children[i].name === "project_name") {
-			scene.children[i].lookAt(camera.position);
-		// }
+		scene.children[i].lookAt(camera.position);
 	}
 }
 
 
+/**
+ * Iterate the rotation of the camera just a bit
+ */
 function spinCamera() {
 	camera.rotation.x -= 0.001;
     camera.rotation.y -= 0.001;
+}
+
+
+/**
+ * Iterate the rotation of the current sphere just a bit
+ */
+function spinSphere() {
+	if (curSphere) {
+		console.log("rotating the current sphere");
+		curSphere.rotation.x -= 0.005;
+	    curSphere.rotation.y -= 0.005;
+	}
 }
 
 
@@ -537,7 +540,6 @@ function spheresToCurrent(current) {
 		    		isTweening = false;
 			    	console.log("Done tweening to hovered sphere index is: ", i);
 			    	setTeaserContainer(current);
-			    	current.material = addVideo();	
 		    	}
 		    	
 		    })
@@ -558,7 +560,7 @@ function spheresToRandom() {
 	for (var i = 1; i < numChildren; i++) {
 		var posX = Math.random() * 1000 - 600,
 			posY = Math.random() * 900 - 500,
-			posZ = Math.random() * 1000 - 600,
+			posZ = Math.random() * 900 - 600,
 			vector = new THREE.Vector3(posX, posY, posZ);
 
 		// Make sure we don't tween the current sphere and make sure that the
@@ -634,7 +636,12 @@ function expandSphere(object) {
 	    })
 	    .onComplete( function() {
 	    	console.log("done expanding sphere. Adding video texture.");
-	    	// object.material = addVideo();
+	    	// object.material = new THREE.MeshBasicMaterial( {  
+						// 	map: loaders[names.indexOf(object.name)], 
+						// 	side: THREE.DoubleSide 
+						// });
+			object.material = addVideo(object.name);
+	    	rotateSphere = true;
 	    })
 	    .start();
 }
@@ -839,6 +846,7 @@ function onNoIntersections(intersects) {
 			$("#teaser").removeClass("teaser");
 			spheresToRandom();
 			shrinkSphere();
+			rotateSphere = false;
 			unIntersectMutex = false;
 		}
 	} 
@@ -871,6 +879,10 @@ function render() {
 
 	if (rotateCamera) {
 	    spinCamera();
+	}
+
+	if (rotateSphere) {
+		spinSphere();
 	}
 
 	// updates the sample video 

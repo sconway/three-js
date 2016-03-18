@@ -37,6 +37,10 @@
 		  console.log("Fading loader out");
 		  loader.className += " fade-out";
 		  canvas.className += " fade-in";
+
+		  init();
+		  animate();
+
 		  setTimeout(function() {
 		    body.removeChild(loader);
 		  }, 3000);
@@ -53,8 +57,29 @@
 	</section>
 
 	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
-		<video id="video" autoplay style="display:none">
-			<source src="images/zildjian-vid.mp4" >
+		<video id="Enernoc" autoplay style="display:none">
+			<source src="images/enernoc.mp4" >
+		</video>
+		<video id="Wolf Greenfield" autoplay style="display:none">
+			<source src="images/wolf-greenfield.mp4" >
+		</video>
+		<video id="Copyright Clearance" autoplay style="display:none">
+			<source src="images/copyright.mp4" >
+		</video>
+		<video id="Standish Mellon" autoplay style="display:none">
+			<source src="images/standish.mp4" >
+		</video>
+		<video id="Zildjian Cymbals" autoplay style="display:none">
+			<source src="images/zildjian.mp4" >
+		</video>
+		<video id="Father Peyton" autoplay style="display:none">
+			<source src="images/father-peyton.mp4" >
+		</video>
+		<video id="College Culture" autoplay style="display:none">
+			<source src="images/father-peyton.mp4" >
+		</video>
+		<video id="IHA Today" autoplay style="display:none">
+			<source src="images/father-peyton.mp4" >
 		</video>
 
 		<aside class="project-preview">
