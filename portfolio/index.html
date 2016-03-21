@@ -2,11 +2,12 @@
 <html>
 
 <head>
+
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'> 
   <link href="css/projects.css" media="all" rel="stylesheet" type="text/css">
   <script type="text/javascript">
   	var loaded = false,
 		timedOut = false;
-
 
 		setTimeout(checkLoader, 2500);
 
@@ -49,36 +50,40 @@
 </head>
 
 <body id="body">
+	<!-- LOADER -->
 	<section id="loader" class="loader">
 		<div class="clock">
 		  <div class="clock_knob"></div>
 		  <div class="clock_hand"></div>
 		</div>
 	</section>
+	<!-- END LOADER -->
 
+
+	<!-- MAIN CANVAS -->
 	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
-		<video id="Enernoc" autoplay style="display:none">
+		<video id="Enernoc" preload="auto" style="display:none">
 			<source src="images/enernoc.mp4" >
 		</video>
-		<video id="Wolf Greenfield" autoplay style="display:none">
+		<video id="Wolf Greenfield" preload="auto" style="display:none">
 			<source src="images/wolf-greenfield.mp4" >
 		</video>
-		<video id="Copyright Clearance" autoplay style="display:none">
+		<video id="Copyright Clearance" preload="auto" style="display:none">
 			<source src="images/copyright.mp4" >
 		</video>
-		<video id="Standish Mellon" autoplay style="display:none">
+		<video id="Standish Mellon" preload="auto" style="display:none">
 			<source src="images/standish.mp4" >
 		</video>
-		<video id="Zildjian Cymbals" autoplay style="display:none">
+		<video id="Zildjian Cymbals" preload="auto" style="display:none">
 			<source src="images/zildjian.mp4" >
 		</video>
-		<video id="Father Peyton" autoplay style="display:none">
+		<video id="Father Peyton" preload="auto" style="display:none">
 			<source src="images/father-peyton.mp4" >
 		</video>
-		<video id="College Culture" autoplay style="display:none">
+		<video id="College Culture" preload="auto" style="display:none">
 			<source src="images/father-peyton.mp4" >
 		</video>
-		<video id="IHA Today" autoplay style="display:none">
+		<video id="IHA Today" preload="auto" style="display:none">
 			<source src="images/father-peyton.mp4" >
 		</video>
 
@@ -91,9 +96,13 @@
 			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.</p>
 		</aside>
 	</div>
+	<!-- END MAIN CANVAS -->
 
+	<!-- PROJECT INTRO -->
 	<section class="project-intro">
 		<aside id="backBtn" class="back-btn"><</aside>
+		<aside class="scroll-arrow"></aside>
+		
 		<h1 id="projectTitle">Project Title</h1>
 		<img class="intro-img" src="images/projects/zildjian.png"/>
 		<p class="intro-description">
@@ -101,11 +110,14 @@
 			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.
 		</p>
 	</section>
+	<!-- END PROJECT INTRO -->
 
+	<!-- PROJECT DETAILS -->
 	<section class="project-details">
 		<div class="detail-section"></div>
 		<div class="detail-section"></div>
 	</section>
+	<!-- END PROJECT DETAILS 1 -->
 
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script src="http://threejs.org/build/three.min.js"></script>

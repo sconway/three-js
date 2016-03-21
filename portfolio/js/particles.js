@@ -80,6 +80,33 @@ function rando(min, max) {
 
 
 /**
+ * Helper function that will only be fired once. Thanks to David Walsh for
+ * the code. 
+ *
+ *  @param fn       :  Lambda function
+ *  @param context  :  Object
+ */
+function once(fn, context) { 
+	var result;
+
+	return function() { 
+		if(fn) {
+			result = fn.apply(context || this, arguments);
+			fn = null;
+		}
+
+		return result;
+	};
+}
+
+
+// This guy will only fire once :)
+var canOnlyFireOnce = once(function() {
+	spheresToRandom();
+});
+
+
+/**
  * This function initializes most of the components of this page.
  * It sets up the camera, light, and objects. It also adds the
  * various handlers that are used for interaction.
@@ -140,35 +167,39 @@ function loadFont() {
  * for Q4, place the teaser left and above. Helps keep the page balanced :)
  *
  * @param      current     :     THREE.Mesh
+ * @param      x           :     Integer
+ * @param      y           :     Integer
  *
  */
-function setTeaserContainer(current) {
+function setTeaserContainer(current, x, y) {
+	var distance = camera.position.distanceTo(current.position);
+
 	// make sure the mouse has been moved before dropping the
 	// teaser down. Prevents it from showing on load.
-	if (curMouse.x > 0 && curMouse.y > 0) {
-		$("#teaserName, #projectTitle").html(current.name);
+	if ( x > 0 && y > 0 ) {
+		$("#teaserName, #projectTitle").html(current.children[0].name);
 
-		if (curMouse.x > window.innerWidth/2) {
-			var xFactor = current.position.z > 0 ? 500 : 470;
+		if ( x > window.innerWidth/2 ) {
+			var xFactor = distance < 1500 ? 600 : 520;
 
 			// mouse on right bottom of screen (Q4)
-			if (curMouse.y > window.innerHeight/2) {
-				revealTeaser(curMouse.x - xFactor, curMouse.y - 275, true);
+			if ( y > window.innerHeight/2 ) {
+				revealTeaser(x - xFactor, y - 275, true);
 			} 
 			// mouse on right top of screen (Q2)
 			else {
-		    	revealTeaser(curMouse.x - xFactor, curMouse.y - 60, false);
+		    	revealTeaser(x - xFactor, y - 60, false);
 			}
 		} else {
-			var xFactor = current.position.z > 0 ? 200 : 170;
+			var xFactor = distance < 1500 ? 250 : 210;
 
 			// mouse on the bottom left of screen (Q3)
-			if (curMouse.y > window.innerHeight/2) {
-				revealTeaser(curMouse.x + xFactor, curMouse.y - 275, true);
+			if ( curMouse.y > window.innerHeight/2 ) {
+				revealTeaser(x + xFactor, y - 275, true);
 			} 
 			// mouse on the top left of screen (Q4)
 			else {
-				revealTeaser(curMouse.x + xFactor, curMouse.y - 60, false);
+				revealTeaser(x + xFactor, y - 60, false);
 			}
 		}
 	}
@@ -191,13 +222,7 @@ function addImages() {
 function addShapes() {
 	var numImages = images.length;
 
-	// var map = new THREE.TextureLoader().load( "images/sprite1.png" );
- //    var material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true } );
- //    var sprite = new THREE.Sprite( material );
- //    scene.add( sprite );
-
-
-	for ( var i = 0; i < numImages; i ++ ) {
+	for ( var i = 0; i < numImages; i++ ) {
 		var size     = ((i + 2) * 10) - ((i + 1) * 5),
 		    faceSize = rando(minFace, maxFace),
 		    numFaces = Math.random(),
@@ -213,32 +238,45 @@ function addShapes() {
 						}),
 			object = new THREE.Mesh( 
 						new THREE.SphereGeometry( 40, 64, 64 ),
-						color
-						);
+						color 
+						),
+			group  = new THREE.Object3D();
 
-			// var map = new THREE.TextureLoader().load( "images/sprite1.png" );
-		 //    var material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true } );
-		 //    sprite = new THREE.Sprite( material );
-		 //    scene.add( sprite );
- 
+
+ 		group.name = "project_group";
+
 		object.rotation.x = Math.random() * 2 * Math.PI;
 		object.rotation.y = Math.random() * 2 * Math.PI;
 		object.rotation.z = Math.random() * 2 * Math.PI;
-
 		object.name = names[i];
 
-		// addText(object.name, object.position);
+		text = createText(object.name, object.position);
+
+		group.add( object );
+		group.add( text );
 
 		// controls.push( new THREE.DeviceOrientationControls( object , true ) );
 
-		scene.add( object );
+		scene.add( group );
 	}
+
+	// since there won't be a current sphere on page load, set one initially,
+	// and then move the spheres into a random location in the 3D space.
+	curSphere = scene.clone().children[rando(3,7)].children[0];
+	hideText();
+	spheresToRandom();
 }
 
 
+/**
+ * Creates and returns a THREE.js material with a video mapped to the surface.
+ * The name parameter is used to determine which video to apply.
+ * 
+ * @param      name     :     string
+ *
+ * returns     THREE.material
+ */
 function addVideo(name) {
-	// create the video element
-	console.log(name);
 	video = document.getElementById( name );
 	video.load(); // must call after setting/changing source
 	video.play();
@@ -263,60 +301,6 @@ function addVideo(name) {
 				overdraw: true, 
 				side:THREE.DoubleSide 
 			} );
-	// the geometry on which the movie will be displayed;
-	// 		movie image will be scaled to fit these dimensions.
-	// var movieGeometry = new THREE.PlaneGeometry( 240, 100, 4, 4 );
-	// var movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
-	// movieScreen.position.set(0,50,0);
-	// scene.add(movieScreen);
-	
-	// camera.position.set(0,150,300);
-	// camera.lookAt(movieScreen.position);
-}
-
-
-/**
- * Creates and adds the teaser for the hovered project at the specified
- * position. The position is intended to be relative to the projects
- * current position.
- *
- * @param		x 		: 		Integer
- * @param		y 		: 		Integer
- * @param		z 		: 		Integer
- * @param       cur     :       THREE.Mesh
- */
-function addTeaserBackground(x, y, z, cur) {
-	var geometry = new THREE.PlaneGeometry( 700, 600 ),
-	    material = new THREE.MeshBasicMaterial( 
-	    {
-	    	map: loaders[names.indexOf(cur.name)],
-	    	// color: 0xffff00,
-	    	side: THREE.DoubleSide
-	    }),
-	    plane = new THREE.Mesh( geometry, addVideo() );
-
-	cur.lookAt( camera.position );
-
-	plane.name = "project_teaser";
-	plane.position.x = x;
-	plane.position.y = y;
-	plane.position.z = z;
-
-	scene.add( plane );
-	plane.lookAt( camera.position )
-}
-
-
-
-function addNames() {
-	var len = names.length;
-
-	for (var i = 0; i < len; i++) {
-		var el = scene.getObjectByName(names[i]);
-		if (el.name.length > 0) {
-			addText(el.name, el.position);
-		}
-	}
 }
 
 
@@ -324,21 +308,25 @@ function addNames() {
  * Adds lighting to the scene. Stays in a fixed position.
  */
 function addLight() {
-	var light = new THREE.HemisphereLight( 0xdddddd , 0x333333, 0.6 );
+	var group  = new THREE.Object3D();
+	group.add( new THREE.AmbientLight( 0x222222 ) );
+	light = new THREE.HemisphereLight( 0x666666 , 0x000000);
 	light.position.set( 1, 1, 1 ).normalize();
-	light.name = "project_light";
-	scene.add( light );
+	group.add( light );
+	group.name = "project_light";
+	scene.add( group );
 }
 
 
 /**
- * Creates the 3-D text and adds it to the scene
+ * Creates the 3-D text and returns it
  *
  * @param      text     :     string
  * @param      pos      :     Vector3 object
  *
+ * returns     THREE.Mesh
  */
-function addText(text, pos) {
+function createText(text, pos) {
 	var material = new THREE.MeshPhongMaterial(
 		{
         	color:  0xf8f8f8
@@ -347,7 +335,7 @@ function addText(text, pos) {
     	{
     		font: font,
     		size: 14.0,
-    		height: 25.0,
+    		height: 50.0,
     		bevelThickness: 4.0
     	}),
     	textMesh = new THREE.Mesh( textGeom, material );
@@ -356,10 +344,9 @@ function addText(text, pos) {
     textMesh.position.y = pos.y - 10;
     textMesh.position.z = pos.z - 25;
     textMesh.name = "project_name";
-
-    scene.add( textMesh );
-
     textMesh.lookAt( camera.position );
+
+    return textMesh;
 }
 
 
@@ -371,6 +358,30 @@ function addText(text, pos) {
 function removeText(numItems, name) {
 	for (var i = 0; i < numItems; i++) {
 		removeObject(name);
+	}
+}
+
+
+function hideText() {
+	var numChildren = scene.clone().children.length;
+
+	for (var i = 1; i < numChildren; i++) {
+		// removeObject(name);
+		if (scene.children[i].name === "project_group") {
+			scene.children[i].children[1].material.visible = false;
+		}
+	}
+}
+
+
+function showNames() {
+	var numChildren = scene.clone().children.length;
+
+	for (var i = 1; i < numChildren; i++) {
+		// removeObject(name);
+		if (scene.children[i].name === "project_group") {
+			scene.children[i].children[1].material.visible = true;
+		}
 	}
 }
 
@@ -422,20 +433,23 @@ function handleMotion(event) {
 }
 
 
+/**
+ * This function is called whenever the canvas is clicked on. It sets the
+ * variables used to control the current state, and then calls the function
+ * responsible for zooming the camera toward the selected object.
+ */
 function zoomToProject() {
 	if (!projectInView) {
 		raycaster.setFromCamera( mouse, camera );
 
-		var intersect = raycaster.intersectObjects( scene.children )[0].object;
+		var intersect = raycaster.intersectObjects( scene.children, true )[0].object;
 		selectedProject = intersect;
+		console.log(selectedProject);
 		lastCameraPosition = camera.clone().position;
 		projectInView = true;
-
-		removeText(scene.clone().children.length, "project_name");
-		removeObject("project_teaser");
 		$("#teaser").removeClass("active");
 
-		zoomToSelection(selectedProject.position);
+		zoomToSelection(selectedProject.parent.position);
 
 		$(".project-preview").addClass("hidden");
 	}
@@ -487,9 +501,8 @@ function spinCamera() {
  */
 function spinSphere() {
 	if (curSphere) {
-		console.log("rotating the current sphere");
-		curSphere.rotation.x -= 0.005;
-	    curSphere.rotation.y -= 0.005;
+		curSphere.parent.rotation.x -= 0.005;
+	    curSphere.parent.rotation.y -= 0.005;
 	}
 }
 
@@ -505,45 +518,44 @@ function spheresToCurrent(current) {
 	var children = scene.clone().children, 
 		numChildren = children.length;
 
+	console.log("current: ", current);
+
 	// Tween all project spheres, starting at the second child, since the
 	// first child in the scene is the light.
 	for (var i = 1; i < numChildren; i++) {
-		if (curSphere != scene.children[i] && !isTweening) {
+		if (current != scene.children[i] && !isTweening) {
 			new TWEEN.Tween(scene.children[i].position)
-			.to({
-				x: current.position.x,
-				y: current.position.y,
-				z: current.position.z
-			}, 750)
-			.easing( TWEEN.Easing.Linear.None )
-			.onStart( function() {
-				isTweening = true;
-				// remove all project names from the scene
-				removeText(numChildren, "project_name");
-				removeObject("project_teaser");
-			})
-		    .onUpdate( function() {
-		    	// if the project is hovered off while the other spheres are 
-		    	// moving towards it, reset all tweens and sphere positions.
-		    	if ( !INTERSECTED ) {
-		    		TWEEN.removeAll();
-		    		isTweening = false;
-		    		spheresToRandom();
-		    		shrinkSphere();
-		    		console.log("Project hovered off; Removing all tweens.");
-		    	}
-		    	renderer.render(scene, camera);
-		    })
-		    .onComplete( function() {
-		    	// ensure this is only called once, right when the tween's done
-		    	if ( isTweening ) {
-		    		isTweening = false;
-			    	console.log("Done tweening to hovered sphere index is: ", i);
-			    	setTeaserContainer(current);
-		    	}
-		    	
-		    })
-		    .start();
+				.to({
+					x: current.position.x,
+					y: current.position.y,
+					z: current.position.z
+				}, 750)
+				.easing( TWEEN.Easing.Linear.None )
+				.onStart( function() {
+					isTweening = true;
+				})
+			    .onUpdate( function() {
+			    	// if the project is hovered off while the other spheres are 
+			    	// moving towards it, reset all tweens and sphere positions.
+			    	if ( !INTERSECTED ) {
+			    		TWEEN.removeAll();
+			    		isTweening = false;
+			    		spheresToRandom();
+			    		shrinkSphere();
+			    		console.log("Project hovered off; Removing all tweens.");
+			    	}
+			    	renderer.render(scene, camera);
+			    })
+			    .onComplete( function() {
+			    	// ensure this is only called once, right when the tween's done
+			    	if ( isTweening ) {
+			    		isTweening = false;
+				    	console.log("Done tweening to hovered sphere index is: ", i);
+				    	setTeaserContainer(current, curMouse.x, curMouse.y);
+			    	}
+			    	
+			    })
+			    .start();
 		}
 	}
 }
@@ -558,17 +570,15 @@ function spheresToRandom() {
 	// Tween all project spheres, starting at the second child, since the
 	// first child in the scene is the light.
 	for (var i = 1; i < numChildren; i++) {
-		var posX = Math.random() * 1000 - 600,
-			posY = Math.random() * 900 - 500,
-			posZ = Math.random() * 900 - 600,
+		var posX = (i + 1) * 60 * (i % 2 === 0 ? -1 : 1),
+			posY = Math.random() * 800 - 400,
+			posZ = Math.random() * 800 - 500,
 			vector = new THREE.Vector3(posX, posY, posZ);
 
 		// Make sure we don't tween the current sphere and make sure that the
 		// spheres are not currently being tweened.
-		if (curSphere != scene.children[i] && 
-			!isTweening && 
-			scene.children[i].name !== "project_name" &&
-			scene.children[i].name !== "project_teaser") {
+		if ( curSphere != scene.children[i] && !isTweening && 
+			 curSphere && scene.children[i].name !== "project_name" ) {
 
 			new TWEEN.Tween(scene.children[i].position)
 				.to({
@@ -600,7 +610,7 @@ function spheresToRandom() {
 												opacity: 0.9
 											});
 				    	$("#teaser").removeClass("active");
-			    		addNames();
+			    		showNames();
 				    	console.log("Done tweening; adding project names. index is: ", i);
 			    	}
 			    	
@@ -619,13 +629,14 @@ function spheresToRandom() {
  *
  */
 function expandSphere(object) {
+	console.log("expand sphere called. object is: ", object);
 	var numChildren = scene.clone().children.length;
 
 	new TWEEN.Tween(object.scale)
 		.to({
-			x: 6,
-			y: 6,
-			z: 6
+			x: 8,
+			y: 8,
+			z: 8
 		}, 500)
 		.easing( TWEEN.Easing.Circular.Out )
 	    .onStart( function() {
@@ -654,7 +665,7 @@ function shrinkSphere() {
 	var numChildren = scene.children.length;
 
 	for (var i = 1; i < numChildren; i++) {
-		new TWEEN.Tween(scene.children[i].scale)
+		new TWEEN.Tween(scene.children[i].children[0].scale)
 			.to({
 				x: 1,
 				y: 1,
@@ -668,7 +679,6 @@ function shrinkSphere() {
 		    })
 		    .start();
 	}
-	
 }
 
 
@@ -763,7 +773,7 @@ function handleCameraMovement() {
     }
     if ( keyboard.pressed("c") ) { 
         camera.rotation.z -= 0.01;
-    }
+    } 
     if ( keyboard.pressed("v") ) { 
         camera.rotation.z += 0.01;
     }
@@ -809,11 +819,11 @@ function onIntersection(intersects) {
 	// only run this if the intersected 
  	if ( INTERSECTED != intersects[0].object && 
  		 intersects[0].object.name != "project_name" &&
- 		 intersects[0].object.name != "project_teaser" ) {
+ 		 curMouse.x !== 0 && curMouse.y !== 0 ) {
 
 		$("html").css({cursor: 'pointer'});
 		curSphere = INTERSECTED = intersects[0].object;
-		
+
 		if (!projectInView) {
 			stopCamera = true;
 			unIntersectMutex = true;
@@ -821,10 +831,9 @@ function onIntersection(intersects) {
 
 		if (intersectMutex) {
 			intersectMutex = false;
-			removeText(numChildren, "project_name");
-			removeObject("project_teaser");
+			hideText();
 			expandSphere(curSphere);
-			spheresToCurrent(curSphere);
+			spheresToCurrent(curSphere.parent);
 		}
 	}
 }
@@ -841,11 +850,9 @@ function onNoIntersections(intersects) {
 		stopCamera     = false;
 		intersectMutex = true;
 		if (unIntersectMutex) {
-			removeText(scene.clone().children.length, "project_name");
-			removeObject("project_teaser");
-			$("#teaser").removeClass("teaser");
 			spheresToRandom();
 			shrinkSphere();
+			if (video) video.pause();
 			rotateSphere = false;
 			unIntersectMutex = false;
 		}
@@ -899,7 +906,7 @@ function render() {
 	// find intersections
 	raycaster.setFromCamera( mouse, camera );
 
-	var intersects = raycaster.intersectObjects( scene.children );
+	var intersects = raycaster.intersectObjects( scene.children, true );
 
 	// Check if the mouse pointer has intersected any of the objects
 	if ( intersects.length > 0 ) {

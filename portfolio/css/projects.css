@@ -1,5 +1,6 @@
 html,
 body {
+  font-family: 'Open Sans', sans-serif;
   margin: 0;
   height: 100%;
   width: 100%; }
@@ -184,22 +185,20 @@ canvas,
 
 .project-teaser {
   color: #fff;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 100;
   overflow: hidden;
   opacity: 0;
   padding: 20px;
   position: absolute;
   width: 300px;
-  height: 300px;
+  height: 350px;
   z-index: 1;
   -webkit-transition: opacity 150ms ease-in-out;
   -moz-transition: opacity 150ms ease-in-out;
   -ms-transition: opacity 150ms ease-in-out;
   -o-transition: opacity 150ms ease-in-out;
   transition: opacity 150ms ease-in-out; }
-  .project-teaser.slide-down::before {
-    opacity: 1; }
-  .project-teaser.slide-up::before {
-    opacity: 1; }
   .project-teaser.active {
     -webkit-transition: opacity 750ms ease-in-out;
     -moz-transition: opacity 750ms ease-in-out;
@@ -230,10 +229,11 @@ canvas,
     opacity: 1; }
   .project-intro h1 {
     position: absolute;
-    font-size: 78px;
+    font-size: 68px;
     color: #fff;
     top: 10%;
-    left: 10%; }
+    left: 10%;
+    text-transform: uppercase; }
 
 .intro-img {
   position: absolute;
@@ -250,6 +250,40 @@ canvas,
   left: 10%;
   top: 40%;
   width: 35%; }
+
+.scroll-arrow {
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  height: 50px;
+  width: 50px;
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  -o-transform: translateX(-50%);
+  transform: translateX(-50%); }
+  .scroll-arrow::before, .scroll-arrow::after {
+    background-color: #fff;
+    content: " ";
+    position: absolute;
+    height: 1px;
+    width: 27px; }
+  .scroll-arrow::before {
+    left: 0;
+    top: 50%;
+    -webkit-transform: rotate(30deg);
+    -moz-transform: rotate(30deg);
+    -ms-transform: rotate(30deg);
+    -o-transform: rotate(30deg);
+    transform: rotate(30deg); }
+  .scroll-arrow::after {
+    right: 0;
+    top: 50%;
+    -webkit-transform: rotate(-30deg);
+    -moz-transform: rotate(-30deg);
+    -ms-transform: rotate(-30deg);
+    -o-transform: rotate(-30deg);
+    transform: rotate(-30deg); }
 
 .project-details {
   display: none;

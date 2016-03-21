@@ -4,6 +4,7 @@
 
 html,
 body {
+  font-family: 'Open Sans', sans-serif;
   margin: 0;
   height: 100%;
   width: 100%;
@@ -230,45 +231,25 @@ canvas,
 // box that appears next to the hovered on
 // project.
 .project-teaser {
-  // border: 3px solid #fff;
   color: #fff;
-  // display: none;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 100;
   overflow: hidden;
   opacity: 0;
   padding: 20px;
   position: absolute;
   width: 300px;
-  height: 300px;
+  height: 350px;
   z-index: 1;
   @include transition( opacity 150ms ease-in-out );
-  // &::before {
-  //   background-color: #0e0e15;
-  //   content: "";
-  //   position: absolute;
-  //   left: 0;
-  //   height: 100%;
-  //   width: 100%;
-  //   z-index: 1;
-  //   @include transition( height 750ms ease-in-out );
-  // }
-  &.slide-down {
-    // display: block;
-    &::before {
-      opacity: 1;
-    }
-  } 
-  &.slide-up {
-    // display: block;
-    &::before {
-      opacity: 1;
-    }
-  }
   &.active {
     @include transition( opacity 750ms ease-in-out );
     opacity: 1;
   }
 }
 
+
+// The first section of the project details.
 .project-intro {
   height: 0;
   opacity: 0;
@@ -284,10 +265,11 @@ canvas,
   }
   h1 {
     position: absolute;
-    font-size: 78px;
+    font-size: 68px;
     color: #fff;
     top: 10%;
     left: 10%;
+    text-transform: uppercase;
   }
 }
 
@@ -308,6 +290,35 @@ canvas,
   top: 40%;
   width: 35%;
 }
+
+// The scroll indicator
+.scroll-arrow {
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  height: 50px;
+  width: 50px;
+  @include transform( translateX(-50%) );
+  &::before,
+  &::after {
+    background-color: #fff;
+    content: " ";
+    position: absolute;
+    height: 1px;
+    width: 27px;
+  }
+  &::before {
+    left: 0;
+    top: 50%;
+    @include transform( rotate(30deg) );
+  }
+  &::after {
+    right: 0;
+    top: 50%;
+    @include transform( rotate(-30deg) );
+  }
+}
+
 
 .project-details {
   display: none;
