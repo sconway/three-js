@@ -439,7 +439,7 @@ function handleMotion(event) {
  * responsible for zooming the camera toward the selected object.
  */
 function zoomToProject() {
-	if (!projectInView) {
+	if (!projectInView && !isTweening) {
 		raycaster.setFromCamera( mouse, camera );
 
 		var intersect = raycaster.intersectObjects( scene.children, true )[0].object;
@@ -599,7 +599,7 @@ function spheresToRandom() {
 				})
 			    .onUpdate( function() {
 			    	renderer.render(scene, camera);
-			    } )
+			    })
 			    .onComplete( function() {
 			    	if (isTweening){
 			    		isTweening = false;
@@ -816,8 +816,12 @@ function onIntersection(intersects) {
 		children      = scene.clone().children,
 		numChildren   = children.length;
 
+		console.log("INTERSECTED: ", INTERSECTED);
+		console.log("CURRENT: ", curSphere);
+
 	// only run this if the intersected 
  	if ( INTERSECTED != intersects[0].object && 
+ 		 !isTweening &&
  		 intersects[0].object.name != "project_name" &&
  		 curMouse.x !== 0 && curMouse.y !== 0 ) {
 
