@@ -238,6 +238,20 @@ canvas,
     transition: opacity 750ms ease-in-out;
     opacity: 1; }
 
+.project-teaser--back {
+  float: left;
+  text-transform: uppercase; }
+  @media (min-width: 1024px) {
+    .project-teaser--back {
+      display: none; } }
+
+.project-teaser--more {
+  float: right;
+  text-transform: uppercase; }
+  @media (min-width: 1024px) {
+    .project-teaser--more {
+      display: none; } }
+
 .project-intro {
   height: 0;
   opacity: 0;

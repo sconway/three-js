@@ -254,6 +254,22 @@ canvas,
   }
 }
 
+.project-teaser--back {
+  float: left;
+  text-transform: uppercase;
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.project-teaser--more {
+  float: right;
+  text-transform: uppercase;
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
 
 // The first section of the project details.
 .project-intro {

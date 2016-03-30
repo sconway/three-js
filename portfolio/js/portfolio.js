@@ -140,7 +140,14 @@ function init() {
 			showProject(event);
 		}
 	});
-	$("#backBtn").click(function() { backToProjectView(); });
+
+	$(".js-project-details").click(function(event) { 
+		event.stopPropagation();
+
+		zoomToProject(); 
+	});
+
+	$(".js-back-to-project").click(function() { backToProjectView(); });
 	
 	var windowResize = new THREEx.WindowResize(renderer, camera);
 }
@@ -422,8 +429,8 @@ function revealTeaser(x, y) {
 		console.log("revealing Teaser");
 		$("#teaser")
 			.css({
-				left: window.innerwidth > 1000 ? x + "px" : "50%",
-				top:  window.innerwidth > 1000 ? y + "px" : "50%",
+				left: window.innerWidth > 1000 ? (x + "px") : "50%",
+				top:  window.innerWidth > 1000 ? (y + "px") : "50%"
 			})
 			.addClass("active");	
 	}
@@ -493,8 +500,9 @@ function zoomToProject() {
 	if (!projectInView && !isTweening) {
 		raycaster.setFromCamera( mouse, camera );
 
-		var intersect = raycaster.intersectObjects( scene.children, true )[0].object;
-		selectedProject = intersect;
+		// var intersect = raycaster.intersectObjects( scene.children, true )[0].object;
+		// selectedProject = intersect;
+		selectedProject = curSphere;
 		console.log(selectedProject);
 		lastCameraPosition = camera.clone().position;
 		projectInView = true;
@@ -577,9 +585,9 @@ function spheresToCurrent(current) {
 		if (current != scene.children[i] && !isTweening) {
 			new TWEEN.Tween(scene.children[i].position)
 				.to({
-					x: current.position.x,
-					y: current.position.y,
-					z: current.position.z
+					x: window.innerWidth > 1000 ? current.position.x : 0,
+					y: window.innerWidth > 1000 ? current.position.y : 350,
+					z: window.innerWidth > 1000 ? current.position.z : 0
 				}, 750)
 				.easing( TWEEN.Easing.Linear.None )
 				.onStart( function() {
@@ -616,22 +624,22 @@ function spheresToCurrent(current) {
  * Moves all spheres on the scene to a random location.
  */
 function spheresToRandom() {
-	var numChildren = scene.children.length;
+	var numChildren = objects.length;
 
-	// Tween all project spheres, starting at the second child, since the
+	// Tween all project spheres, starting at the second child, since the(i * 65 - (i * 4)) 
 	// first child in the scene is the light.
-	for (var i = 1; i < numChildren; i++) {
-		var posX = window.innerWidth > 1000 ? (i + 1) * 60 * (i % 2 === 0 ? -1 : 1) : rando(-60, -40),
-			posY = window.innerWidth > 1000 ? (Math.random() * 800 - 400) : (i * 65 - (i * 4)) * (i % 2 === 0 ? -1 : 1),
-			posZ = Math.random() * 800 - 500,
+	for ( var i = 0; i < numChildren; i++ ) {
+		var posX = window.innerWidth > 1000 ? (-600 + ((i+1) * 100)) * (i % 2 === 0 ? 1 : -1) : -60,
+			posY = window.innerWidth > 1000 ? ((i + 1) * 60 * (i % 2 === 0 ? 1 : -1)) : (i * (65 - i)) * (i % 2 === 0 ? -1 : 1),
+			posZ = window.innerWidth > 1000 ? (Math.random() * 700 - 300) : rando(200, 400),
 			vector = new THREE.Vector3(posX, posY, posZ);
 
 		// Make sure we don't tween the current sphere and make sure that the
 		// spheres are not currently being tweened.
-		if ( curSphere != scene.children[i] && !isTweening && 
-			 curSphere && scene.children[i].name !== "project_name" ) {
+		if ( curSphere != objects[i] && !isTweening && 
+			 curSphere && objects[i].name !== "project_name" ) {
 
-			new TWEEN.Tween(scene.children[i].position)
+			new TWEEN.Tween(objects[i].position)
 				.to({
 					x: posX,
 					y: posY,
@@ -754,13 +762,15 @@ function moveSphereUp(sphere) {
 			x: 0,
 			y: 350,
 			z: 0
-		}, 750)
+		}, 500)
 		.easing( TWEEN.Easing.Circular.Out )
+		.onStart( function() {
+			spheresToCurrent(sphere);
+		})
 	    .onUpdate( function() {
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
-	    	spheresToCurrent(sphere);
 	    })
 	    .start();
 }
@@ -944,7 +954,6 @@ function onMobileIntersection(intersects) {
 		hideText();
 		expandSphere(curSphere.parent);
 		moveSphereUp(curSphere.parent);
-		// spheresToCurrent(curSphere.parent);
 	}
 
 }
