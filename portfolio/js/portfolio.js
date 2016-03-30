@@ -32,6 +32,7 @@ var container,
 	unIntersectMutex = true,
 	isTweening = false,
 	moveCamera = false,
+	clickedOnce = false,
 	mouseDown = false,
 	rotateSphere = false,
 	scaleToX = window.innerWidth/50,
@@ -421,8 +422,8 @@ function revealTeaser(x, y) {
 		console.log("revealing Teaser");
 		$("#teaser")
 			.css({
-				left: x + "px",
-				top:  y + "px"
+				left: window.innerwidth > 1000 ? x + "px" : "50%",
+				top:  window.innerwidth > 1000 ? y + "px" : "50%",
 			})
 			.addClass("active");	
 	}
@@ -467,12 +468,16 @@ function showProject(event) {
 
 	// Make sure there are intersects.
 	if ( intersects.length > 0 ) {
-		if ( curSphere === intersects[0].object  ) {
+
+		if ( curSphere === intersects[0].object && clickedOnce ) {
+			clickedOnce = false;
 			zoomToProject();
 		} else {
+			clickedOnce = true;
 			onMobileIntersection(intersects);
 		}
 	} else {
+		clickedOnce = false;
 		onNoMobileIntersection();
 	}
 
@@ -525,10 +530,10 @@ function circleCamera() {
 	camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
 	camera.lookAt( scene.position );
 	camera.updateMatrixWorld();
-	var numChildren = scene.children.length;
+	var numChildren = objects.length;
 
-	for (var i = 1; i < numChildren; i++) {
-		scene.children[i].lookAt(camera.position);
+	for (var i = 0; i < numChildren; i++) {
+		objects[i].lookAt(camera.position);
 	}
 }
 
@@ -617,7 +622,7 @@ function spheresToRandom() {
 	// first child in the scene is the light.
 	for (var i = 1; i < numChildren; i++) {
 		var posX = window.innerWidth > 1000 ? (i + 1) * 60 * (i % 2 === 0 ? -1 : 1) : rando(-60, -40),
-			posY = window.innerWidth > 1000 ? (Math.random() * 800 - 400) : (i * 70 - (i * 4)) * (i % 2 === 0 ? -1 : 1),
+			posY = window.innerWidth > 1000 ? (Math.random() * 800 - 400) : (i * 65 - (i * 4)) * (i % 2 === 0 ? -1 : 1),
 			posZ = Math.random() * 800 - 500,
 			vector = new THREE.Vector3(posX, posY, posZ);
 
@@ -702,8 +707,8 @@ function expandSphere(object) {
 						// 	map: loaders[names.indexOf(object.name)], 
 						// 	side: THREE.DoubleSide 
 						// });
+			sphere.material = addVideo(sphere.name);
 			if ( window.innerWidth > 1000 ) {
-				sphere.material = addVideo(sphere.name);
 	    		rotateSphere = true;
 	    	}
 	    })
@@ -747,7 +752,7 @@ function moveSphereUp(sphere) {
 	new TWEEN.Tween(sphere.position)
 		.to({
 			x: 0,
-			y: 400,
+			y: 350,
 			z: 0
 		}, 750)
 		.easing( TWEEN.Easing.Circular.Out )
@@ -810,9 +815,12 @@ function zoomCameraOut() {
 	    .onComplete( function() {
 	    	selectedProject = null;
 			projectInView = false;
+			stopCamera = false;
+			intersectMutex = true;
 			spinTheta = 0.005;
 			TWEEN.removeAll();
 			spheresToRandom();
+			shrinkSphere();
 	    })
 	    .start();
 }
@@ -927,6 +935,7 @@ function onMobileIntersection(intersects) {
 		unIntersectMutex = true;
 	}
 
+	console.log("INTERSECTED", curSphere);
 	// Only call this once, and if a click has been made.
 	// Prevents it from being called initially.
 	if ( intersectMutex ) {
@@ -1041,14 +1050,7 @@ function render() {
 		} else {
 			onNoIntersections();
 		}
-	} else {
-		// if ( intersects.length > 0 ) {
-		// 	onMobileIntersection(intersects);
-		// } else {
-		// 	onNoMobileIntersection();
-		// }
 	}
-	
 
 	renderer.render( scene, camera );
 }

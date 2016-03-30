@@ -204,18 +204,32 @@ canvas,
   color: #fff;
   font-family: 'Open Sans', sans-serif;
   font-weight: 100;
-  overflow: hidden;
+  overflow: scroll;
   opacity: 0;
   padding: 20px;
   position: absolute;
   width: 300px;
-  height: 350px;
+  height: 250px;
   z-index: 1;
   -webkit-transition: opacity 150ms ease-in-out;
   -moz-transition: opacity 150ms ease-in-out;
   -ms-transition: opacity 150ms ease-in-out;
   -o-transition: opacity 150ms ease-in-out;
-  transition: opacity 150ms ease-in-out; }
+  transition: opacity 150ms ease-in-out;
+  -webkit-transform: translate(-50%, -20%);
+  -moz-transform: translate(-50%, -20%);
+  -ms-transform: translate(-50%, -20%);
+  -o-transform: translate(-50%, -20%);
+  transform: translate(-50%, -20%); }
+  @media (min-width: 1000px) {
+    .project-teaser {
+      height: 350px;
+      overflow: hidden;
+      -webkit-transform: none;
+      -moz-transform: none;
+      -ms-transform: none;
+      -o-transform: none;
+      transform: none; } }
   .project-teaser.active {
     -webkit-transition: opacity 750ms ease-in-out;
     -moz-transition: opacity 750ms ease-in-out;
