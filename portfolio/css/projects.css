@@ -298,7 +298,7 @@ canvas,
 
 .scroll-arrow {
   position: absolute;
-  bottom: 20px;
+  bottom: 0px;
   left: 50%;
   height: 50px;
   width: 50px;
@@ -307,6 +307,9 @@ canvas,
   -ms-transform: translateX(-50%);
   -o-transform: translateX(-50%);
   transform: translateX(-50%); }
+  @media (min-width: 1024px) {
+    .scroll-arrow {
+      bottom: 20px; } }
   .scroll-arrow::before, .scroll-arrow::after {
     background-color: #fff;
     content: " ";

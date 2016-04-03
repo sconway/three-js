@@ -316,11 +316,14 @@ canvas,
 // The scroll indicator
 .scroll-arrow {
   position: absolute;
-  bottom: 20px;
+  bottom: 0px;
   left: 50%;
   height: 50px;
   width: 50px;
   @include transform( translateX(-50%) );
+  @media (min-width: 1024px) {
+    bottom: 20px;
+  }
   &::before,
   &::after {
     background-color: #fff;

@@ -35,6 +35,7 @@ var container,
 	clickedOnce = false,
 	mouseDown = false,
 	rotateSphere = false,
+	rotateScene = false, 
 	scaleToX = window.innerWidth/50,
 	scaleToY = window.innerHeight/50,
 	scaleDown = false,
@@ -84,6 +85,15 @@ function rando(min, max) {
 
 
 /**
+ * Helper function that returns a boolean. 
+ * True if the client device is "mobile", false otherwise.
+ */
+ function isMobile() {
+ 	return (window.innerWidth < 1024);
+ }
+
+
+/**
  * Helper function that will only be fired once. Thanks to David Walsh for
  * the code. 
  *
@@ -106,7 +116,7 @@ function once(fn, context) {
 
 // This guy will only fire once :)
 var canOnlyFireOnce = once(function() {
-	spheresToRandom();
+	spheresToRandom(1250);
 });
 
 
@@ -292,7 +302,7 @@ function addShapes() {
 	// and then move the spheres into a random location in the 3D space.
 	curSphere = scene.clone().children[rando(3,7)].children[0];
 	hideText();
-	spheresToRandom();
+	spheresToRandom(1250);
 }
 
 
@@ -362,7 +372,7 @@ function createText(text, pos) {
     	textGeom = new THREE.TextGeometry( text , 
     	{
     		font: font,
-    		size: window.innerWidth > 1000 ? 14.0 : 22.0,
+    		size: window.innerWidth > 1000 ? 18.0 : 22.0,
     		height: 50.0,
     		bevelThickness: 4.0
     	}),
@@ -497,7 +507,7 @@ function showProject(event) {
  * responsible for zooming the camera toward the selected object.
  */
 function zoomToProject() {
-	if (!projectInView && !isTweening) {
+	if (!projectInView && !isTweening && INTERSECTED) {
 		raycaster.setFromCamera( mouse, camera );
 
 		// var intersect = raycaster.intersectObjects( scene.children, true )[0].object;
@@ -533,16 +543,61 @@ function backToProjectView() {
  * the project names to be viewing the camera.
  */
 function circleCamera() {
-	theta += 0.2;
-	camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
-	camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
-	camera.lookAt( scene.position );
-	camera.updateMatrixWorld();
+	// no need to move the camera if we are on a mobile device
+	if ( !isMobile() ) {
+		theta += 0.2;
+		camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+		camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
+		camera.lookAt( scene.position );
+		camera.updateMatrixWorld();
+	}
+	
 	var numChildren = objects.length;
 
 	for (var i = 0; i < numChildren; i++) {
 		objects[i].lookAt(camera.position);
 	}
+}
+
+
+function moveSpheresRandomly() {
+	TWEEN.removeAll();
+
+	if (!projectInView && !isTweening && !INTERSECTED) {
+		createjs.MotionGuidePlugin.install();
+		var numObjects = objects.length;
+
+		for ( var i = 0; i < numObjects; i++ ) {
+			var x = objects[i].position.x,
+				y = objects[i].position.y,
+				path = [x,y, rx(),ry(),rx(),ry(), rx(),ry(),x,y] ;
+
+			createjs.Tween.get(objects[i].position, { loop: true })
+				.to({
+					guide:{ 
+						path: path
+					}
+				},100000);
+		}
+	}
+}
+
+
+function rx() {
+    return rando(-window.innerWidth, window.innerWidth);
+}
+
+function ry() {
+    return rando(-window.innerHeight, window.innerHeight);
+}
+
+function rc() {
+    return Math.round(Math.random() * 0xED + 0x12).toString(16);
+}
+
+
+function tick(event) {
+    // stage.update();
 }
 
 
@@ -552,6 +607,12 @@ function circleCamera() {
 function spinCamera() {
 	camera.rotation.x -= 0.001;
     camera.rotation.y -= 0.001;
+}
+
+
+function spinScene() {
+	camera.rotation.x -= 0.0003;
+    camera.rotation.y -= 0.0003;
 }
 
 
@@ -599,7 +660,7 @@ function spheresToCurrent(current) {
 			    	if ( !INTERSECTED ) {
 			    		TWEEN.removeAll();
 			    		isTweening = false;
-			    		spheresToRandom();
+			    		spheresToRandom(1250);
 			    		shrinkSphere();
 			    		console.log("Project hovered off; Removing all tweens.");
 			    	}
@@ -623,28 +684,27 @@ function spheresToCurrent(current) {
 /**
  * Moves all spheres on the scene to a random location.
  */
-function spheresToRandom() {
+function spheresToRandom(duration) {
 	var numChildren = objects.length;
 
 	// Tween all project spheres, starting at the second child, since the(i * 65 - (i * 4)) 
 	// first child in the scene is the light.
 	for ( var i = 0; i < numChildren; i++ ) {
-		var posX = window.innerWidth > 1000 ? (-600 + ((i+1) * 100)) * (i % 2 === 0 ? 1 : -1) : -60,
-			posY = window.innerWidth > 1000 ? ((i + 1) * 60 * (i % 2 === 0 ? 1 : -1)) : (i * (65 - i)) * (i % 2 === 0 ? -1 : 1),
-			posZ = window.innerWidth > 1000 ? (Math.random() * 700 - 300) : rando(200, 400),
+		var posX = !isMobile() ? (-650 + ((i+1) * 150)) * (i % 2 === 0 ? 1 : 1) : -100,
+			posY = !isMobile() ? (550 - ((i+1) * 100)) * (i % 2 === 0 ? -1 : 1) : (-450 + ((i+1) * 100)),
+			posZ = !isMobile() ? (Math.random() * 700 - 300) : 300,
 			vector = new THREE.Vector3(posX, posY, posZ);
 
 		// Make sure we don't tween the current sphere and make sure that the
 		// spheres are not currently being tweened.
-		if ( curSphere != objects[i] && !isTweening && 
-			 curSphere && objects[i].name !== "project_name" ) {
+		if ( !isTweening && curSphere && objects[i].name !== "project_name" ) {
 
 			new TWEEN.Tween(objects[i].position)
 				.to({
 					x: posX,
 					y: posY,
 					z: posZ
-				}, 1250)
+				}, duration)
 				.easing( TWEEN.Easing.Elastic.InOut )
 				.onStart( function() {
 					isTweening = true;
@@ -674,6 +734,14 @@ function spheresToRandom() {
 			    		shrinkSphere();
 				    	$("#teaser").removeClass("active");
 			    		showNames();
+			    		// Wave effect on mobile devices and a 
+			    		// random motion effect on larger screens.
+			    		if ( isMobile() ) {
+			    			waveSpheres();
+			    		} else {
+			    			// moveSpheresRandomly();
+			    			rotateScene = true;
+			    		}
 			    	}
 			    	
 			    })
@@ -681,6 +749,81 @@ function spheresToRandom() {
 		}
 	}
 		
+}
+
+
+/**
+ * Moves all spheres on the scene to a random location.
+ */
+function spheresToRandom2(duration) {
+	var numChildren = objects.length;
+
+	// Tween all project spheres, starting at the second child, since the(i * 65 - (i * 4)) 
+	// first child in the scene is the light.
+	for ( var i = 0; i < numChildren; i++ ) {
+		var posX = window.innerWidth > 1000 ? (-600 + ((i+1) * 100)) * (i % 2 === 0 ? 1 : -1) : -100,
+			posY = window.innerWidth > 1000 ? ((i + 1) * 60 * (i % 2 === 0 ? 1 : -1)) : (-450 + ((i+1) * 100)),
+			posZ = window.innerWidth > 1000 ? (Math.random() * 700 - 300) : 300,
+			vector = new THREE.Vector3(posX, posY, posZ);
+
+		// Make sure we don't tween the current sphere and make sure that the
+		// spheres are not currently being tweened.
+		// if ( !isTweening && curSphere && objects[i].name !== "project_name" ) {
+
+			var tween = new TWEEN.Tween(objects[i].position)
+				.to({
+					x: posX,
+					y: posY,
+					z: posZ
+				}, duration)
+				.easing( TWEEN.Easing.Elastic.InOut )
+				.onStart( function() {
+					// isTweening = true;
+				})
+				.onUpdate( function() {
+			    	renderer.render(scene, camera);
+			    })
+				.start();
+
+			tween.chain(tween);
+	}
+}
+
+
+function waveSpheres() {
+	var numChildren = objects.length;
+
+	// Tween all project spheres
+	for ( var i = 0; i < numChildren; i++ ) {
+		var tweenTo = new TWEEN.Tween(objects[i].position)
+			.to({
+				z: 400
+			}, 2000)
+			.delay( (i*400) )
+			.easing( TWEEN.Easing.Linear.None )
+			.onStart( function() {})
+			.onUpdate( function() {
+		    	renderer.render(scene, camera);
+		    })
+		    .onComplete( function() {});
+
+		var tweenBack = new TWEEN.Tween(objects[i].position)
+			.to({
+				z: 300
+			}, 2000)
+			.delay(0)
+			.easing( TWEEN.Easing.Linear.None )
+			.onStart( function() {})
+			.onUpdate( function() {
+		    	renderer.render(scene, camera);
+		    })
+		    .onComplete( function() {});
+
+		tweenTo.chain(tweenBack);
+		tweenBack.chain(tweenTo);
+
+		tweenTo.start();
+	}
 }
 
 
@@ -829,7 +972,7 @@ function zoomCameraOut() {
 			intersectMutex = true;
 			spinTheta = 0.005;
 			TWEEN.removeAll();
-			spheresToRandom();
+			spheresToRandom(1250);
 			shrinkSphere();
 	    })
 	    .start();
@@ -927,6 +1070,7 @@ function onIntersection(intersects) {
 
 		if ( intersectMutex ) {
 			intersectMutex = false;
+			rotateScene = false;
 			hideText();
 			expandSphere(curSphere.parent);
 			spheresToCurrent(curSphere.parent);
@@ -945,11 +1089,10 @@ function onMobileIntersection(intersects) {
 		unIntersectMutex = true;
 	}
 
-	console.log("INTERSECTED", curSphere);
 	// Only call this once, and if a click has been made.
 	// Prevents it from being called initially.
 	if ( intersectMutex ) {
-		console.log("mobile intersection");
+		TWEEN.removeAll();
 		intersectMutex = false;
 		hideText();
 		expandSphere(curSphere.parent);
@@ -969,8 +1112,9 @@ function onNoMobileIntersection() {
 		// Prevents it from being called initially since there
 		// will be no intersections on load.
 		if ( unIntersectMutex ) {
-			console.log("no intersections");
-			spheresToRandom();
+			// prevent extra tweens on objects
+			TWEEN.removeAll(); 
+			spheresToRandom(1250);
 			shrinkSphere();
 			if ( video ) video.pause();
 			rotateSphere = false;
@@ -995,7 +1139,7 @@ function onNoIntersections(intersects) {
 		stopCamera     = false;
 		intersectMutex = true;
 		if ( unIntersectMutex ) {
-			spheresToRandom();
+			spheresToRandom(1250);
 			shrinkSphere();
 			if ( video ) video.pause();
 			rotateSphere = false;
@@ -1031,6 +1175,10 @@ function render() {
 
 	if ( rotateCamera ) {
 	    spinCamera();
+	}
+
+	if ( rotateScene ) {
+		spinScene();
 	}
 
 	if ( rotateSphere ) {
