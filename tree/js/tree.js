@@ -85,11 +85,13 @@ function init() {
  * the project names to be viewing the camera.
  */
 function circleCamera() {
-    theta += 0.2;
-    camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
-    camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
-    camera.lookAt( scene.position );
-    camera.updateMatrixWorld();
+    // theta += 0.2;
+    // camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+    // camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
+    // camera.lookAt( scene.position );
+    // camera.updateMatrixWorld();
+    line.rotation.x += 0.002;
+    line.rotation.y += 0.002;
 }
 
 
