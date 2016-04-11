@@ -44,7 +44,7 @@ var container,
 	zoomOut = false,
 	stopCamera = false,
 	projectInView = false,
-	radius = window.innerWidth/2, 
+	radius = window.innerWidth/3, 
 	theta = 0,
 	spinTheta = 0.005,
 	cameraZ = 1500,
@@ -89,8 +89,21 @@ function rando(min, max) {
  * True if the client device is "mobile", false otherwise.
  */
  function isMobile() {
- 	return (window.innerWidth < 1024);
+ 	return (window.innerWidth < 992);
  }
+
+
+/**
+ * This function is responsible for scrolling the page to the supplied
+ * center point. It creates an interval and calls the scrollBy method
+ * within that interval to slide up or down the page.
+ *
+ *  @param scrollPoint : Integer
+ *  @param duration    : Integer
+ */
+function handleSectionScroll(scrollPoint, duration) {
+    $('html, body').stop().animate({scrollTop: scrollPoint}, duration, "linear");
+}
 
 
 /**
@@ -143,7 +156,7 @@ function init() {
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	// window.addEventListener("devicemotion", handleMotion, false);
 	$(".canvas").click( function(event) { 
-		if ( window.innerWidth > 1000 ) {
+		if ( !isMobile() ) {
 			zoomToProject();
 		} else {
 			mouseDown = true;
@@ -157,7 +170,10 @@ function init() {
 		zoomToProject(); 
 	});
 
+
+	// Click handlers for the back and scroll buttons inside the project view.
 	$(".js-back-to-project").click(function() { backToProjectView(); });
+	$(".js-scroll-down").click(function() { handleSectionScroll(window.innerHeight, 1000); });
 	
 	var windowResize = new THREEx.WindowResize(renderer, camera);
 }
@@ -186,6 +202,26 @@ function loadFont() {
 }
 
 
+function get2DPosition(obj, camera) {
+	var vector = new THREE.Vector3();
+
+    var widthHalf = 0.5*renderer.context.canvas.width;
+    var heightHalf = 0.5*renderer.context.canvas.height;
+
+    obj.updateMatrixWorld();
+    vector.setFromMatrixPosition(obj.matrixWorld);
+    vector.project(camera);
+
+    vector.x = ( vector.x * widthHalf ) + widthHalf;
+    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+    return { 
+        x: vector.x,
+        y: vector.y
+    };
+}
+
+
 /**
  * Places the project teaser in a position relative to the hovered project.
  * This function treats the screen as a cartesinal coordinate plane, and 
@@ -200,36 +236,42 @@ function loadFont() {
  *
  */
 function setTeaserContainer(current, x, y) {
-	var distance = camera.position.distanceTo(current.position);
+	var distance = camera.position.distanceTo(current.position),
+		position = get2DPosition(current, camera);
+
 	console.log("distance: ", distance);
+	console.log("position: ", position);
+
 
 	// make sure the mouse has been moved before dropping the
 	// teaser down. Prevents it from showing on load.
 	if ( (x > 0 && y > 0) || mouseDown ) {
 		$("#teaserName, #projectTitle").html(current.children[0].name);
+		
 
-		if ( window.innerWidth > 1000 ) {
-			if ( x > window.innerWidth/2 ) {
-				var xFactor = distance < window.innerWidth ? 650 : 600;
+		if ( !isMobile() ) {
+			if ( position.x > window.innerWidth/2 ) {
+				// var xFactor = distance < 1300 ? 725 : (distance < 1400 ? 700 : (distance < 1500 ? 650 : 600));
+				var xFactor = distance < 1200 ? 725 : (distance < 1300 ? 650 : (distance < 1500 ? 600 : 550));
 
 				// mouse on right bottom of screen (Q4)
-				if ( y > window.innerHeight/2 ) {
-					revealTeaser(x - xFactor, y - 275);
+				if ( position.y > window.innerHeight/2 ) {
+					revealTeaser(position.x - xFactor, position.y - 275);
 				} 
 				// mouse on right top of screen (Q2)
 				else {
-			    	revealTeaser(x - xFactor, y - 60);
+			    	revealTeaser(position.x - xFactor, position.y - 60);
 				}
 			} else {
-				var xFactor = distance < window.innerWidth ? 300 : 250;
+				var xFactor = distance < 1200 ? 350 : (distance < 1300 ? 325 : (distance < 1500 ? 300 : 275));
 
 				// mouse on the bottom left of screen (Q3)
 				if ( curMouse.y > window.innerHeight/2 ) {
-					revealTeaser(x + xFactor, y - 275);
+					revealTeaser(position.x + xFactor, position.y - 275);
 				} 
 				// mouse on the top left of screen (Q4)
 				else {
-					revealTeaser(x + xFactor, y - 60);
+					revealTeaser(position.x + xFactor, position.y - 60);
 				}
 			}
 		} else {
@@ -262,20 +304,7 @@ function addShapes() {
 							map: loaders[i], 
 							side: THREE.DoubleSide 
 						}),
-			color    = new THREE.ShaderMaterial( {
-						    uniforms: 
-							{ 
-								"c": { type: "f", value: 1.0 },
-								"p": { type: "f", value: 1.0 },
-								glowColor: { type: "c", value: new THREE.Color(0xffffff * Math.random()) },
-								viewVector: { type: "v3", value: camera.position }
-							},
-							vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
-							fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-							side: THREE.FrontSide,
-							blending: THREE.AdditiveBlending,
-							transparent: true
-						} ),
+			color    = createGlowMaterial(),
 			moonGlow   = new THREE.Mesh( 
 						new THREE.SphereGeometry( 40, 64, 64 ),
 						color.clone()
@@ -343,6 +372,28 @@ function addVideo(name) {
 
 
 /**
+ * Creates and returns a material with a glowing effect.
+ */
+function createGlowMaterial() {
+	return new THREE.ShaderMaterial( {
+			    uniforms: 
+				{ 
+					"c":   { type: "f", value: 1.0 },
+					"p":   { type: "f", value: 1.0 },
+					glowColor: { type: "c", value: new THREE.Color(0xffffff * Math.random()) },
+					viewVector: { type: "v3", value: camera.position }
+				},
+				vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+				fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+				side: THREE.FrontSide,
+				blending: THREE.AdditiveBlending,
+				transparent: true
+			} );
+}
+
+
+
+/**
  * Adds lighting to the scene. Stays in a fixed position.
  */
 function addLight() {
@@ -372,7 +423,7 @@ function createText(text, pos) {
     	textGeom = new THREE.TextGeometry( text , 
     	{
     		font: font,
-    		size: window.innerWidth > 1000 ? 18.0 : 22.0,
+    		size: !isMobile() ? 18.0 : 22.0,
     		height: 50.0,
     		bevelThickness: 4.0
     	}),
@@ -439,8 +490,8 @@ function revealTeaser(x, y) {
 		console.log("revealing Teaser");
 		$("#teaser")
 			.css({
-				left: window.innerWidth > 1000 ? (x + "px") : "50%",
-				top:  window.innerWidth > 1000 ? (y + "px") : "50%"
+				left: !isMobile() ? (x + "px") : "50%",
+				top:  !isMobile() ? (y + "px") : "50%"
 			})
 			.addClass("active");	
 	}
@@ -611,8 +662,8 @@ function spinCamera() {
 
 
 function spinScene() {
-	camera.rotation.x -= 0.0003;
-    camera.rotation.y -= 0.0003;
+	camera.rotation.x -= 0.003;
+    camera.rotation.y -= 0.003;
 }
 
 
@@ -638,17 +689,15 @@ function spheresToCurrent(current) {
 	var children = scene.clone().children, 
 		numChildren = children.length;
 
-	console.log("current: ", current);
-
 	// Tween all project spheres, starting at the second child, since the
 	// first child in the scene is the light.
 	for (var i = 1; i < numChildren; i++) {
 		if (current != scene.children[i] && !isTweening) {
 			new TWEEN.Tween(scene.children[i].position)
 				.to({
-					x: window.innerWidth > 1000 ? current.position.x : 0,
-					y: window.innerWidth > 1000 ? current.position.y : 350,
-					z: window.innerWidth > 1000 ? current.position.z : 0
+					x: !isMobile() ? current.position.x : 0,
+					y: !isMobile() ? current.position.y : 350,
+					z: !isMobile() ? current.position.z : 0
 				}, 750)
 				.easing( TWEEN.Easing.Linear.None )
 				.onStart( function() {
@@ -691,8 +740,8 @@ function spheresToRandom(duration) {
 	// first child in the scene is the light.
 	for ( var i = 0; i < numChildren; i++ ) {
 		var posX = !isMobile() ? (-650 + ((i+1) * 150)) * (i % 2 === 0 ? 1 : 1) : -100,
-			posY = !isMobile() ? (550 - ((i+1) * 100)) * (i % 2 === 0 ? -1 : 1) : (-450 + ((i+1) * 100)),
-			posZ = !isMobile() ? (Math.random() * 700 - 300) : 300,
+			posY = !isMobile() ? (500 - ((i+1) * 90)) * (i % 2 === 0 ? -1 : 1) : (-450 + ((i+1) * 100)),
+			posZ = !isMobile() ? rando(-400, 300) : 300,
 			vector = new THREE.Vector3(posX, posY, posZ);
 
 		// Make sure we don't tween the current sphere and make sure that the
@@ -708,20 +757,7 @@ function spheresToRandom(duration) {
 				.easing( TWEEN.Easing.Elastic.InOut )
 				.onStart( function() {
 					isTweening = true;
-					curSphere.material = new THREE.ShaderMaterial( {
-						    uniforms: 
-							{ 
-								"c":   { type: "f", value: 1.0 },
-								"p":   { type: "f", value: 1.0 },
-								glowColor: { type: "c", value: new THREE.Color(0xffffff * Math.random()) },
-								viewVector: { type: "v3", value: camera.position }
-							},
-							vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
-							fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-							side: THREE.FrontSide,
-							blending: THREE.AdditiveBlending,
-							transparent: true
-						} );
+					curSphere.material = createGlowMaterial();
 					$("#teaser").removeClass("active");
 				})
 			    .onUpdate( function() {
@@ -761,9 +797,9 @@ function spheresToRandom2(duration) {
 	// Tween all project spheres, starting at the second child, since the(i * 65 - (i * 4)) 
 	// first child in the scene is the light.
 	for ( var i = 0; i < numChildren; i++ ) {
-		var posX = window.innerWidth > 1000 ? (-600 + ((i+1) * 100)) * (i % 2 === 0 ? 1 : -1) : -100,
-			posY = window.innerWidth > 1000 ? ((i + 1) * 60 * (i % 2 === 0 ? 1 : -1)) : (-450 + ((i+1) * 100)),
-			posZ = window.innerWidth > 1000 ? (Math.random() * 700 - 300) : 300,
+		var posX = !isMobile() ? (-600 + ((i+1) * 100)) * (i % 2 === 0 ? 1 : -1) : -100,
+			posY = !isMobile() ? ((i + 1) * 60 * (i % 2 === 0 ? 1 : -1)) : (-450 + ((i+1) * 100)),
+			posZ = !isMobile() ? (Math.random() * 700 - 300) : 300,
 			vector = new THREE.Vector3(posX, posY, posZ);
 
 		// Make sure we don't tween the current sphere and make sure that the
@@ -835,10 +871,8 @@ function waveSpheres() {
  */
 function expandSphere(object) {
 	var numChildren = scene.clone().children.length,
-		scaleSize   = window.innerWidth > 1000 ? 8 : 4,
+		scaleSize   = !isMobile() ? 8 : 4,
 		sphere      = object.children[0];
-
-	console.log("expand sphere called: ", object);
 
 	new TWEEN.Tween(object.scale)
 		.to({
@@ -859,7 +893,7 @@ function expandSphere(object) {
 						// 	side: THREE.DoubleSide 
 						// });
 			sphere.material = addVideo(sphere.name);
-			if ( window.innerWidth > 1000 ) {
+			if ( !isMobile() ) {
 	    		rotateSphere = true;
 	    	}
 	    })
@@ -972,8 +1006,8 @@ function zoomCameraOut() {
 			intersectMutex = true;
 			spinTheta = 0.005;
 			TWEEN.removeAll();
-			spheresToRandom(1250);
 			shrinkSphere();
+			spheresToRandom(1250);
 	    })
 	    .start();
 }
@@ -1178,7 +1212,7 @@ function render() {
 	}
 
 	if ( rotateScene ) {
-		spinScene();
+		// spinScene();
 	}
 
 	if ( rotateSphere ) {
@@ -1201,7 +1235,7 @@ function render() {
 	var intersects = raycaster.intersectObjects( scene.children, true );
 
 	// Check if the mouse pointer has intersected any of the objects
-	if ( window.innerWidth > 1000 ) {
+	if ( !isMobile() ) {
 		if ( intersects.length > 0 ) {
 			onIntersection(intersects);
 		} else {
