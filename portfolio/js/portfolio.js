@@ -304,7 +304,7 @@ function addShapes() {
 							map: loaders[i], 
 							side: THREE.DoubleSide 
 						}),
-			color    = createGlowMaterial(),
+			color    = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial() ,
 			moonGlow   = new THREE.Mesh( 
 						new THREE.SphereGeometry( 40, 64, 64 ),
 						color.clone()
@@ -316,6 +316,9 @@ function addShapes() {
  		group.name = "project_group";
 
 		text = createText(moonGlow.name, moonGlow.position);
+
+		// if ( i === 5 && !isMobile() )
+		// 	text.position.x = -220;
 
 		group.add( moonGlow );
 		group.add( text );
@@ -746,7 +749,7 @@ function spheresToRandom(duration) {
 
 		// Make sure we don't tween the current sphere and make sure that the
 		// spheres are not currently being tweened.
-		if ( !isTweening && curSphere && objects[i].name !== "project_name" ) {
+		if ( !isTweening ) {
 
 			new TWEEN.Tween(objects[i].position)
 				.to({
@@ -757,7 +760,7 @@ function spheresToRandom(duration) {
 				.easing( TWEEN.Easing.Elastic.InOut )
 				.onStart( function() {
 					isTweening = true;
-					curSphere.material = createGlowMaterial();
+					curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial(),
 					$("#teaser").removeClass("active");
 				})
 			    .onUpdate( function() {
@@ -836,7 +839,7 @@ function waveSpheres() {
 				z: 400
 			}, 2000)
 			.delay( (i*400) )
-			.easing( TWEEN.Easing.Linear.None )
+			.easing( TWEEN.Easing.Quadratic.InOut )
 			.onStart( function() {})
 			.onUpdate( function() {
 		    	renderer.render(scene, camera);
@@ -848,7 +851,7 @@ function waveSpheres() {
 				z: 300
 			}, 2000)
 			.delay(0)
-			.easing( TWEEN.Easing.Linear.None )
+			.easing( TWEEN.Easing.Quadratic.InOut )
 			.onStart( function() {})
 			.onUpdate( function() {
 		    	renderer.render(scene, camera);

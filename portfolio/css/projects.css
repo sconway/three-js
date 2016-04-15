@@ -569,6 +569,8 @@ canvas,
     max-width: none;
     padding-left: 0;
     padding-right: 0; }
+    .detail-section--row.img__full img {
+      width: 100%; }
 
 .detail-section--text {
   padding-top: 30px; }
