@@ -61,7 +61,7 @@ var container,
 	images = [ "college-culture.png", "copyright.png", "father-peyton.png", 
 			   "iha-today.png", "standish-home.png", "wolf-greenfield.png",
 			   "zildjian.png", "enernoc.png" ],
-	names  = [ "College Culture", "Copyright Clearance", "Father Peyton",
+	names  = [ "Wentworth", "Copyright Clearance", "Father Peyton",
 			   "IHA Today", "Standish Mellon", "Wolf Greenfield", 
 			   "Zildjian Cymbals", "Enernoc" ],
 	loaders = [],
@@ -223,6 +223,31 @@ function get2DPosition(obj, camera) {
 
 
 /**
+ * This function returns the visible height of an object in pixels.
+ * It uses the supplied distance from the object to the camera, along
+ * with some trig functions, to compute the fraction of the field of 
+ * view that the object takes up. Multiplying this by the canvas height
+ * gives us the height in pixels.
+ *
+ * @param      dist     :     Integer
+ *
+ * Returns     Integer
+ *
+ */
+function getSize(dist) {
+    // convert vertical fov to radians
+	var vFOV = camera.fov * Math.PI / 180;       
+	// visible height
+	var height = 1.4 * Math.tan( vFOV / 2 ) * dist; 
+	// fraction of the canvas height the object takes up.
+	// radius is 40 and it is scaled by 8
+	var fraction = 320 / height;  
+
+	return $(container).height() * fraction;
+}
+
+
+/**
  * Places the project teaser in a position relative to the hovered project.
  * This function treats the screen as a cartesinal coordinate plane, and 
  * performs the following logic: If the project is in the first quadrant
@@ -237,9 +262,11 @@ function get2DPosition(obj, camera) {
  */
 function setTeaserContainer(current, x, y) {
 	var distance = camera.position.distanceTo(current.position),
-		position = get2DPosition(current, camera);
+		position = get2DPosition(current, camera),
+		size     = getSize(distance);
 
 	console.log("distance: ", distance);
+	console.log("size: ", size);
 	console.log("position: ", position);
 
 
@@ -251,8 +278,7 @@ function setTeaserContainer(current, x, y) {
 
 		if ( !isMobile() ) {
 			if ( position.x > window.innerWidth/2 ) {
-				// var xFactor = distance < 1300 ? 725 : (distance < 1400 ? 700 : (distance < 1500 ? 650 : 600));
-				var xFactor = distance < 1200 ? 725 : (distance < 1300 ? 650 : (distance < 1500 ? 600 : 550));
+				var xFactor = $("#teaser").width() + size;
 
 				// mouse on right bottom of screen (Q4)
 				if ( position.y > window.innerHeight/2 ) {
@@ -263,15 +289,13 @@ function setTeaserContainer(current, x, y) {
 			    	revealTeaser(position.x - xFactor, position.y - 60);
 				}
 			} else {
-				var xFactor = distance < 1200 ? 350 : (distance < 1300 ? 325 : (distance < 1500 ? 300 : 275));
-
 				// mouse on the bottom left of screen (Q3)
 				if ( curMouse.y > window.innerHeight/2 ) {
-					revealTeaser(position.x + xFactor, position.y - 275);
+					revealTeaser(position.x + size, position.y - 275);
 				} 
 				// mouse on the top left of screen (Q4)
 				else {
-					revealTeaser(position.x + xFactor, position.y - 60);
+					revealTeaser(position.x + size, position.y - 60);
 				}
 			}
 		} else {
