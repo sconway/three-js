@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'> 
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
   <link href="css/projects.css" media="all" rel="stylesheet" type="text/css">
   <script type="text/javascript">
   	var loaded = false,
@@ -130,7 +130,8 @@
 	</div>
 	<!-- END MAIN CANVAS -->
 
-	<!-- PROJECT INTRO -->
+
+	<!-- PROJECT DETAILS -->
 	<section class="project-intro">
 		<div class="js-back-to-project" id="fpc_effect-back">
 			<div id="fpc_box">
@@ -146,58 +147,43 @@
 			</div>
 		</div>
 
-		<!-- <aside id="backBtn" class="js-back-to-project back-btn"><</aside> -->
-		<aside class="scroll-arrow js-scroll-down"></aside>
-		<div class="intro-wrapper">
-			<h1 id="projectTitle">Project Title</h1>
-			<img class="intro-img" src="images/projects/zildjian.png"/>
-			<p class="intro-description">
-				Lorem ipsum dolor sit amet, pri assentior temporibus liberavisse in, ad nec mazim euripidis definitionem. Omnes repudiandae neglegentur et qui, augue primis epicurei ea mei. Cu has persecuti incorrupte, cum augue partiendo ocurreret id, te sit nibh causae imperdiet. Epicurei eleifend platonem no vix.
-				Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.
-			</p>			
-		</div>
-	</section>
-	<!-- END PROJECT INTRO -->
-
-	<!-- PROJECT DETAILS -->
-	<section class="project-details">
-		<div class="detail-section">
-
-			 <section class="detail-section--row">
-			 	<div class="detail-section--img">
-				 	<img src="images/projects/zildjian.png"/>
-			 	</div>
-			 	<div class="detail-section--text">
-			 		<p>Lorem ipsum dolor sit amet, pri assentior temporibus liberavisse in, ad nec mazim euripidis definitionem. Omnes repudiandae neglegentur et qui, augue primis epicurei ea mei. Cu has persecuti incorrupte, cum augue partiendo ocurreret id, te sit nibh causae imperdiet. Epicurei eleifend platonem no vix.
-			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.</p>
-			 	</div>
-			 </section>
-
-			 <section class="detail-section--row img__right">
-			 	<div class="detail-section--img">
-				 	<img src="images/projects/zildjian.png"/>
-			 	</div>
-			 	<div class="detail-section--text">
-			 		<p>Lorem ipsum dolor sit amet, pri assentior temporibus liberavisse in, ad nec mazim euripidis definitionem. Omnes repudiandae neglegentur et qui, augue primis epicurei ea mei. Cu has persecuti incorrupte, cum augue partiendo ocurreret id, te sit nibh causae imperdiet. Epicurei eleifend platonem no vix.
-			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.</p>
-			 	</div>
-			 </section>
-
-			 <section class="detail-section--row img__full">
+		<main class="project-details">
+			<section class="detail--row img__full">
 			 	<img src="images/projects/zildjian.png"/>
-			 </section>
+			</section>
 
-			 <section class="detail-section--row">
-			 	<div class="detail-section--text">
-			 		<p>Lorem ipsum dolor sit amet, pri assentior temporibus liberavisse in, ad nec mazim euripidis definitionem. Omnes repudiandae neglegentur et qui, augue primis epicurei ea mei. Cu has persecuti incorrupte, cum augue partiendo ocurreret id, te sit nibh causae imperdiet. Epicurei eleifend platonem no vix.
-			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.</p>
-			 	</div>
-			 </section>
+			<section class="detail--row code-sample">
+			 	<img class="code-snippit" src="http://placehold.it/375x225">
+			 	<img class="image-snippit" src="http://placehold.it/640x420">
+			</section>
 
+			<section class="detail--row description">
+			 	<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included creating all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
+			</section>
 
-		</div>
+			<section class="detail--row code-sample code-sample__alt">
+			 	<img class="code-snippit" src="http://placehold.it/375x225">
+			 	<img class="image-snippit" src="http://placehold.it/640x420">
+			</section>
+			
+			<nav class="project-nav">
+				<ul>
+					<li class="project-nav--control prev">
+						<p class="control--btn">Prev Project</p>
+						<p id="prevProjectName" class="project-name">Project Name</p>
+					</li>
+					<li class="project-nav--control next">
+						<p class="control--btn">Next Project</p>
+						<p id="nextProjectName" class="project-name">Project Name</p>
+					</li>
+				</ul>
+			</nav>
+		</main>
+
 	</section>
-	<!-- END PROJECT DETAILS 1 -->
+	<!-- END PROJECT DETAILS -->
+
+
 
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script src="http://threejs.org/build/three.min.js"></script>

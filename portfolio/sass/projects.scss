@@ -4,7 +4,7 @@
 
 html,
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   margin: 0;
   height: 100%;
   width: 100%;
@@ -395,9 +395,9 @@ canvas,
 // project.
 .project-teaser {
   color: #fff;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 100;
-  overflow: scroll;
+  letter-spacing: 1px;
+  overflow-y: scroll;
   opacity: 0;
   padding: 20px;
   position: absolute;
@@ -406,15 +406,25 @@ canvas,
   z-index: 1;
   @include transition( opacity 150ms ease-in-out );
   @include transform( translate(-50%, -20%) );
+  @media (min-width: 768px) {
+    width: 400px;
+    height: 400px;
+  }
   @media (min-width: 1000px) {
     height: 350px;
     overflow: hidden;
+    width: 300px;
     @include transform( none );
   } 
   &.active {
     @include transition( opacity 750ms ease-in-out );
     opacity: 1;
   }
+}
+
+.project-teaser--name {
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .project-teaser--back {
@@ -433,26 +443,11 @@ canvas,
   }
 }
 
-
-.intro-wrapper {
-  margin: 0 auto;
-  max-width: 1200px;
-  padding: 15px;
-  @media (min-width: 768px) {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-}
-
-
 // The first section of the project details.
 .project-intro {
   height: 0;
   opacity: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   position: absolute;
   top: 0;
   width: 100%;
@@ -462,48 +457,6 @@ canvas,
     @include transition(opacity 1s ease );
     height: 100%;
     opacity: 1;
-  }
-  h1 {
-    font-size: 22px;
-    color: #000;
-    margin-top: 60px;
-    text-align: center;
-    text-transform: uppercase;
-    @media (min-width: 768px) {
-      flex: 1 100%;
-      font-size: 44px;
-    }
-    @media (min-width: 1024px) {
-      font-size: 68px;
-    }
-  }
-}
-
-.intro-img {
-  @media (min-width: 768px) {
-    padding: 15px;
-    width: 50%;
-  }
-}
-
-// Text block in the first part of the
-// project details.
-.intro-description {
-  color: #000;
-  font-size: 18px;
-  overflow: scroll;
-  max-height: 225px;
-  padding: 20px 0; 
-  @media (min-width: 768px) {  
-    flex: 1;
-    font-size: 20px;
-    max-height: 450px;
-    overflow: hidden;
-    padding: 15px;
-    width: 50%;
-  }
-  @media (min-width: 1024px) {
-    padding-left: 45px;
   }
 }
 
@@ -539,82 +492,188 @@ canvas,
 }
 
 
-// ================================= PROJECT DETAILS ================================
 
+// ================================= PROJECT DETAILS ================================
 .project-details {
+  background-color: #fff;
   display: none;
-  position: absolute;
-  top: 100%;
-  height: 0%;
+  // height: 0%;
   width: 100%;
   @include transition(all 1s ease);
   &.active {
     display: block;
-    height: 100%
+    // height: 100%
   }
 }
 
-.detail-section {
-  position: relative;
-  height: 100%;
-}
 
 // Container for the image and associated
 // text in the project details section.
-.detail-section--row {
+.detail--row {
   padding: 30px;
   margin: 0 auto;
-  max-width: 1200px;
-  @media (min-width: 768px) { 
+  max-width: $max-width;
+  &.description {
+    max-width: $max-width / 1.5;
+    .text {
+      line-height: 1.6;
+      text-align: center;
+    }
+  }
+}
+
+
+// use on elements that contain an image 
+// that should span the full width of the page
+.img__full {
+  margin-bottom: 40px;
+  max-width: none;
+  padding: 0;
+  img {
+    width: 100%;
+  }
+}
+
+
+// used for the detail rows that have an image
+// of a code snippit paired with an image
+// of the corresponding site element.
+.code-sample {
+  text-align: center;
+  @media (min-width: 1024px) {
     display: flex;
     align-items: center;
-    padding: 60px;
   }
-  &.img__right {
-    @media (min-width: 768px) { 
-      flex-direction: row-reverse;
-      .detail-section--text {
-        padding-left: 0;
-        padding-right: 30px;
-      }
-    }
-    @media (min-width: 1024px) { 
-      .detail-section--text {      
-        padding-right: 60px;
-      }
+}
+
+
+// Same as the general code sample, except the 
+// code sample is on the right and the the 
+// image is to the left.
+.code-sample__alt {
+  @media (min-width: 1024px) {
+    flex-direction: row-reverse;
+  }
+  .code-snippit {
+    @media (min-width: 1024px) {
+      left: -30px;
     }
   }
-  &.img__full {
-    max-width: none;
-    padding-left: 0;
-    padding-right: 0;
-    img {
-      width: 100%;
+  .image-snippit {
+    @media (min-width: 1024px) {
+      left: 30px;
     }
   }
 }
 
-// Contains the text that occurs as part
-// of the project details.
-.detail-section--text {
-  padding-top: 30px;
-  @media (min-width: 768px) { 
-    flex: 1 0;
-    font-size: 18px;
-    padding-left: 30px;
-  }
-  @media (min-width: 1024px) { 
-    font-size: 22px;
-    padding-left: 60px;
+
+// sample of code that appears next to the
+// corresponding image that it produces.
+.code-snippit {
+  z-index: 1;
+  @media (min-width: 1024px) {
+    position: relative;
+    left: 30px;
   }
 }
 
-.detail-section--img {
-  @media (min-width: 768px) { 
-    flex: 1 0;
+
+// Image that shows what the code next to
+// it produces.
+.image-snippit {
+  @media (min-width: 1024px) {
+    position: relative;
+    left: -30px;
   }
 }
 
+
+// Contains the prev/next buttons for each project
+.project-nav {
+  margin-top: 40px;
+  ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+
+// Individual navigation buttons (prev and next)
+.project-nav--control {
+  background-size: cover;
+  background-position: 50%;
+  list-style: none;
+  height: 100px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  @media (min-width: 768px) {
+    height: 200px;
+  }
+  @media (min-width: 1024px) {
+    height: 300px;
+  }
+  @media (min-width: 1200px) {
+    height: 350px;
+  }
+  @media (min-width: 1400px) {
+    height: 400px;
+  }
+  @media (min-width: 1600px) {
+    height: 450px;
+  }
+  &.prev {
+    background-image: url("../images/projects/enernoc.png");
+  }
+  &.next {
+    background-image: url("../images/projects/wolf-greenfield.png");
+  }
+  &::before {
+    background-color: rgba(51, 51, 51, 0.8);
+    content: "";
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    @include transition( all 500ms ease );
+  }
+  &:hover {
+    cursor: pointer;
+    &::before {
+      background-color: rgba(51, 51, 51, 0);
+    }
+    .project-name,
+    .control--btn {
+      color: transparent;
+    }
+  }
+}
+
+
+// Text in the control button regions
+.project-name,
+.control--btn {
+  color: #fff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin: 0;
+  z-index: 1;
+  @include transition( all 500ms ease );
+  @media (min-width: 768px) {
+    font-size: 24px;
+  }
+}
+
+
+.control--btn {
+  font-size: 10px;
+  margin-bottom: 10px;
+}
 
 
 

@@ -362,11 +362,14 @@ function removeText(numItems, name) {
 }
 
 
+/**
+ * Used to hide the text that is next to each project sphere. Gets
+ * called when a sphere is hovered on.
+ */
 function hideText() {
 	var numChildren = scene.clone().children.length;
 
 	for (var i = 1; i < numChildren; i++) {
-		// removeObject(name);
 		if (scene.children[i].name === "project_group") {
 			scene.children[i].children[1].material.visible = false;
 		}
@@ -374,6 +377,10 @@ function hideText() {
 }
 
 
+/**
+ * Basically the opposite of hideText(). Sets the sphere text to be
+ * visible after the spheres go back to a random position. 
+ */
 function showNames() {
 	var numChildren = scene.clone().children.length;
 
@@ -439,14 +446,17 @@ function handleMotion(event) {
  * responsible for zooming the camera toward the selected object.
  */
 function zoomToProject() {
+	
+	// Make sure we're not already viewing a project, and not animating
 	if (!projectInView && !isTweening) {
 		raycaster.setFromCamera( mouse, camera );
 
 		var intersect = raycaster.intersectObjects( scene.children, true )[0].object;
 		selectedProject = intersect;
-		console.log(selectedProject);
 		lastCameraPosition = camera.clone().position;
 		projectInView = true;
+		rotateSphere = false;
+
 		$("#teaser").removeClass("active");
 
 		zoomToSelection(selectedProject.parent.position);
@@ -508,7 +518,8 @@ function spinSphere() {
 
 
 /**
- * Moves all spheres on the scene to the location of the intersected object.
+ * Moves all spheres on the scene to the location of the intersected(hovered) 
+ * object.
  *
  * @param      current     :     THREE.Mesh
  *
@@ -562,7 +573,9 @@ function spheresToCurrent(current) {
 
 
 /**
- * Moves all spheres on the scene to a random location.
+ * Moves all spheres on the scene to a random location. Called after a
+ * project is zoomed back out, on load, and after a project sphere is 
+ * hovered off of. 
  */
 function spheresToRandom() {
 	var numChildren = scene.children.length;
@@ -740,46 +753,6 @@ function zoomCameraOut() {
 }
 
 
-function handleCameraMovement() {
-    if ( keyboard.pressed("q") ) { 
-        camera.position.x -= 1;
-    }
-    if ( keyboard.pressed("w") ) { 
-        camera.position.x += 1;
-    }
-    if ( keyboard.pressed("a") ) { 
-        camera.position.y -= 1;
-    }
-    if ( keyboard.pressed("s") ) { 
-        camera.position.y += 1;
-    }
-    if ( keyboard.pressed("z") ) { 
-        camera.position.z -= 1;
-    }
-    if ( keyboard.pressed("x") ) { 
-        camera.position.z += 1;
-    }
-    if ( keyboard.pressed("e") ) { 
-        camera.rotation.x -= 0.01;
-    }
-    if ( keyboard.pressed("r") ) { 
-        camera.rotation.x += 0.01;
-    }
-    if ( keyboard.pressed("d") ) { 
-        camera.rotation.y -= 0.01;
-    }
-    if ( keyboard.pressed("f") ) { 
-        camera.rotation.y += 0.01;
-    }
-    if ( keyboard.pressed("c") ) { 
-        camera.rotation.z -= 0.01;
-    } 
-    if ( keyboard.pressed("v") ) { 
-        camera.rotation.z += 0.01;
-    }
-}
-
-
 function updateControls() {
 	var numControls = controls.length;
 
@@ -904,8 +877,6 @@ function render() {
 				videoTexture.needsUpdate = true;
 		}
 	}
-	
-
 
 	// find intersections
 	raycaster.setFromCamera( mouse, camera );

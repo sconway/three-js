@@ -202,6 +202,12 @@ function loadFont() {
 }
 
 
+/**
+ * Used to convert the object's position in 3D space to a
+ * 2D vector. 
+ *
+ * Returns        2D Vector
+ */
 function get2DPosition(obj, camera) {
 	var vector = new THREE.Vector3();
 
@@ -594,6 +600,7 @@ function zoomToProject() {
 		console.log(selectedProject);
 		lastCameraPosition = camera.clone().position;
 		projectInView = true;
+		rotateSphere  = false;
 		$("#teaser").removeClass("active");
 
 		zoomToSelection(selectedProject.parent.position);
@@ -635,47 +642,6 @@ function circleCamera() {
 	for (var i = 0; i < numChildren; i++) {
 		objects[i].lookAt(camera.position);
 	}
-}
-
-
-function moveSpheresRandomly() {
-	TWEEN.removeAll();
-
-	if (!projectInView && !isTweening && !INTERSECTED) {
-		createjs.MotionGuidePlugin.install();
-		var numObjects = objects.length;
-
-		for ( var i = 0; i < numObjects; i++ ) {
-			var x = objects[i].position.x,
-				y = objects[i].position.y,
-				path = [x,y, rx(),ry(),rx(),ry(), rx(),ry(),x,y] ;
-
-			createjs.Tween.get(objects[i].position, { loop: true })
-				.to({
-					guide:{ 
-						path: path
-					}
-				},100000);
-		}
-	}
-}
-
-
-function rx() {
-    return rando(-window.innerWidth, window.innerWidth);
-}
-
-function ry() {
-    return rando(-window.innerHeight, window.innerHeight);
-}
-
-function rc() {
-    return Math.round(Math.random() * 0xED + 0x12).toString(16);
-}
-
-
-function tick(event) {
-    // stage.update();
 }
 
 
@@ -802,7 +768,6 @@ function spheresToRandom(duration) {
 			    		if ( isMobile() ) {
 			    			waveSpheres();
 			    		} else {
-			    			// moveSpheresRandomly();
 			    			rotateScene = true;
 			    		}
 			    	}
@@ -915,14 +880,8 @@ function expandSphere(object) {
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
-	    	// object.material = new THREE.MeshBasicMaterial( {  
-						// 	map: loaders[names.indexOf(object.name)], 
-						// 	side: THREE.DoubleSide 
-						// });
 			sphere.material = addVideo(sphere.name);
-			if ( !isMobile() ) {
-	    		rotateSphere = true;
-	    	}
+    		rotateSphere = true;
 	    })
 	    .start();
 }
@@ -1000,7 +959,7 @@ function zoomToSelection(target) {
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
-	    	rotateCamera = true;
+	    	// rotateCamera = true;
 	    	spinTheta = 0.001;
 			$(".project-details, .project-intro, .canvas").addClass("active");
 	    })
@@ -1173,6 +1132,7 @@ function onNoMobileIntersection() {
 		// Prevents it from being called initially since there
 		// will be no intersections on load.
 		if ( unIntersectMutex ) {
+			console.log("no mobile intersection. Fired once");
 			// prevent extra tweens on objects
 			TWEEN.removeAll(); 
 			spheresToRandom(1250);
@@ -1236,10 +1196,6 @@ function render() {
 
 	if ( rotateCamera ) {
 	    spinCamera();
-	}
-
-	if ( rotateScene ) {
-		// spinScene();
 	}
 
 	if ( rotateSphere ) {
