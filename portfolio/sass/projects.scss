@@ -11,7 +11,6 @@ body {
 }
 
 .loader {
-  // display: none;
   background-color: #0e0e15;
   opacity: 1;
   position: fixed;
@@ -155,6 +154,8 @@ background-color: #000; //#eeeef4; /* some background color to match corner insi
 width: 100%;/* trivial */
 font: 12pt arial,sans-serif,helvetica,verdana;/* trivial */ 
 color: #666;//trivial
+position: absolute;
+z-index: 1;
 }
 #fpc_effect-back * {
   box-sizing: border-box;
@@ -163,6 +164,12 @@ color: #666;//trivial
   width: 500px;/*any relative or absolute*/
   position: relative;
   background-color: #FFF;
+  opacity: 1;
+  @include transition(opacity 1500ms ease);
+  &.faded {
+    @include transition(opacity 250ms ease);
+    opacity: 0;
+  }
 }
 #fpc_content {
     padding: 20px;
@@ -301,9 +308,45 @@ color: #666;//trivial
   font-weight: bold;
   display: block;
 }
-
-
 // ================================== END CORNER PEEL ================================
+
+
+
+// ================================== CAROUSEL ================================
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  @include transform-style( preserve-3d );
+  @include transition (transform 1s linear 0.5s);
+}
+
+.carousel-stop {
+  background: #fff;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.carousel-wrapper {
+  position: absolute;
+  overflow: hidden;
+  height: 100vh;
+  width: 100%;
+  @include perspective(1100px);
+  @include transform( scale(1) );
+  @include transition(all 0.5s ease);
+  &.zoomed {
+    @include transform( scale(0.8) );
+  }
+}
+// ================================== END CAROUSEL ================================
+
+
 img {
   max-width: 100%;
   height: auto;
@@ -445,6 +488,7 @@ canvas,
 
 // The first section of the project details.
 .project-intro {
+  background-color: #0e0e15;
   height: 0;
   opacity: 0;
   overflow-x: hidden;
@@ -492,21 +536,43 @@ canvas,
 }
 
 
+// ================================= PROJECT IMAGES ================================
+.bg-college-culture {
+  background-image: url("../images/projects/college-culture.png");
+}
 
-// ================================= PROJECT DETAILS ================================
-.project-details {
-  background-color: #fff;
-  display: none;
-  // height: 0%;
-  width: 100%;
-  @include transition(all 1s ease);
-  &.active {
-    display: block;
-    // height: 100%
-  }
+.bg-copyright {
+  background-image: url("../images/projects/copyright.png");
+}
+
+.bg-enernoc {
+  background-image: url("../images/projects/enernoc.png");
+}
+
+.bg-father-peyton {
+  background-image: url("../images/projects/father-peyton.png");
+}
+
+.bg-iha {
+  background-image: url("../images/projects/iha-today.png");
+}
+
+.bg-standish {
+  background-image: url("../images/projects/standish-home.png");
+}
+
+.bg-wolf {
+  background-image: url("../images/projects/wolf-greenfield.png");
+}
+
+.bg-zildjian {
+  background-image: url("../images/projects/zildjian.png");
 }
 
 
+
+
+// ================================= PROJECT DETAILS ================================
 // Container for the image and associated
 // text in the project details section.
 .detail--row {
@@ -526,12 +592,14 @@ canvas,
 // use on elements that contain an image 
 // that should span the full width of the page
 .img__full {
+  background-position: 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
   margin-bottom: 40px;
   max-width: none;
   padding: 0;
-  img {
-    width: 100%;
-  }
+  height: 80vh;
+  width: 100%;
 }
 
 
@@ -611,6 +679,7 @@ canvas,
   align-items: center;
   justify-content: center;
   position: relative;
+  text-align: center;
   @media (min-width: 768px) {
     height: 200px;
   }
@@ -625,12 +694,6 @@ canvas,
   }
   @media (min-width: 1600px) {
     height: 450px;
-  }
-  &.prev {
-    background-image: url("../images/projects/enernoc.png");
-  }
-  &.next {
-    background-image: url("../images/projects/wolf-greenfield.png");
   }
   &::before {
     background-color: rgba(51, 51, 51, 0.8);

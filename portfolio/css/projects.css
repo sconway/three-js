@@ -121,7 +121,9 @@ body {
   /* trivial */
   font: 12pt arial,sans-serif,helvetica,verdana;
   /* trivial */
-  color: #666; }
+  color: #666;
+  position: absolute;
+  z-index: 1; }
 
 #fpc_effect-back * {
   box-sizing: border-box; }
@@ -130,7 +132,20 @@ body {
   width: 500px;
   /*any relative or absolute*/
   position: relative;
-  background-color: #FFF; }
+  background-color: #FFF;
+  opacity: 1;
+  -webkit-transition: opacity 1500ms ease;
+  -moz-transition: opacity 1500ms ease;
+  -ms-transition: opacity 1500ms ease;
+  -o-transition: opacity 1500ms ease;
+  transition: opacity 1500ms ease; }
+  #fpc_box.faded {
+    -webkit-transition: opacity 250ms ease;
+    -moz-transition: opacity 250ms ease;
+    -ms-transition: opacity 250ms ease;
+    -o-transition: opacity 250ms ease;
+    transition: opacity 250ms ease;
+    opacity: 0; }
 
 #fpc_content {
   padding: 20px; }
@@ -279,6 +294,58 @@ body {
   font-size: 13px;
   font-weight: bold;
   display: block; }
+
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+  -o-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -webkit-transition: transform 1s linear 0.5s;
+  -moz-transition: transform 1s linear 0.5s;
+  -ms-transition: transform 1s linear 0.5s;
+  -o-transition: transform 1s linear 0.5s;
+  transition: transform 1s linear 0.5s; }
+
+.carousel-stop {
+  background: #fff;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; }
+
+.carousel-wrapper {
+  position: absolute;
+  overflow: hidden;
+  height: 100vh;
+  width: 100%;
+  -webkit-perspective: 1100px;
+  -moz-perspective: 1100px;
+  -ms-perspective: 1100px;
+  -o-perspective: 1100px;
+  perspective: 1100px;
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transform: scale(1);
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease; }
+  .carousel-wrapper.zoomed {
+    -webkit-transform: scale(0.8);
+    -moz-transform: scale(0.8);
+    -ms-transform: scale(0.8);
+    -o-transform: scale(0.8);
+    transform: scale(0.8); }
 
 img {
   max-width: 100%;
@@ -431,6 +498,7 @@ canvas,
       display: none; } }
 
 .project-intro {
+  background-color: #0e0e15;
   height: 0;
   opacity: 0;
   overflow-x: hidden;
@@ -489,17 +557,29 @@ canvas,
     -o-transform: rotate(-30deg);
     transform: rotate(-30deg); }
 
-.project-details {
-  background-color: #fff;
-  display: none;
-  width: 100%;
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
-  -ms-transition: all 1s ease;
-  -o-transition: all 1s ease;
-  transition: all 1s ease; }
-  .project-details.active {
-    display: block; }
+.bg-college-culture {
+  background-image: url("../images/projects/college-culture.png"); }
+
+.bg-copyright {
+  background-image: url("../images/projects/copyright.png"); }
+
+.bg-enernoc {
+  background-image: url("../images/projects/enernoc.png"); }
+
+.bg-father-peyton {
+  background-image: url("../images/projects/father-peyton.png"); }
+
+.bg-iha {
+  background-image: url("../images/projects/iha-today.png"); }
+
+.bg-standish {
+  background-image: url("../images/projects/standish-home.png"); }
+
+.bg-wolf {
+  background-image: url("../images/projects/wolf-greenfield.png"); }
+
+.bg-zildjian {
+  background-image: url("../images/projects/zildjian.png"); }
 
 .detail--row {
   padding: 30px;
@@ -512,11 +592,14 @@ canvas,
       text-align: center; }
 
 .img__full {
+  background-position: 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
   margin-bottom: 40px;
   max-width: none;
-  padding: 0; }
-  .img__full img {
-    width: 100%; }
+  padding: 0;
+  height: 80vh;
+  width: 100%; }
 
 .code-sample {
   text-align: center; }
@@ -564,7 +647,8 @@ canvas,
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative; }
+  position: relative;
+  text-align: center; }
   @media (min-width: 768px) {
     .project-nav--control {
       height: 200px; } }
@@ -580,10 +664,6 @@ canvas,
   @media (min-width: 1600px) {
     .project-nav--control {
       height: 450px; } }
-  .project-nav--control.prev {
-    background-image: url("../images/projects/enernoc.png"); }
-  .project-nav--control.next {
-    background-image: url("../images/projects/wolf-greenfield.png"); }
   .project-nav--control::before {
     background-color: rgba(51, 51, 51, 0.8);
     content: "";

@@ -27,6 +27,7 @@ var container,
 	rotateZUp,
 	rotateZDown,
 	cameraUpX,
+	carousel,
 	video, videoImage, videoImageContext, videoTexture,
 	intersectMutex = true,
 	unIntersectMutex = true,
@@ -58,7 +59,7 @@ var container,
 	curMouse = new THREE.Vector2(), 
 	INTERSECTED,
 	aspect = window.innerWidth / window.innerHeight,
-	images = [ "college-culture.png", "copyright.png", "father-peyton.png", 
+	images = [ "copyright.png", "father-peyton.png", 
 			   "iha-today.png", "standish-home.png", "wolf-greenfield.png",
 			   "zildjian.png", "enernoc.png" ],
 	names  = [ "Wentworth", "Copyright Clearance", "Father Peyton",
@@ -68,8 +69,115 @@ var container,
 	objects = [];
 
 
-// init();
-// animate();
+
+/**
+ * This function initializes the carousel that is used on the work section
+ * of the portfolio. It handles setting up the various panels, moving them
+ * into 3D space and keeping them evenly spaced out and rotated. 
+ */
+var initCarousel = function() {
+    carousel   = new Carousel3D( document.getElementById('carousel') );
+
+    var panelCount = $("#carousel").children().length,
+        axisButton = document.getElementById('toggle-axis');
+
+    var transformProp = Modernizr.prefixed('transform');
+
+    // Represents our 3d carousel and associated properties
+    function Carousel3D ( el ) {
+        this.element = el;
+        this.rotation = 0;
+        this.panelCount = 0;
+        this.totalPanelCount = this.element.children.length;
+        this.theta = 0;
+        this.isHorizontal = false;
+    }
+
+    Carousel3D.prototype.modify = function() {
+        var panel, angle, i, spacing;
+
+        // Displays the carousel in a horizontal fasion if the screen
+        // width is smaller that the screen height. Vertical otherwise.
+        if (window.outerWidth > window.outerHeight) {
+            console.log("horizontal");
+            this.isHorizontal = true;
+            spacing = 0.75;
+        } else {
+            console.log("vertical");
+            this.isHorizontal = false;
+            spacing = 1.75;
+        }
+
+        this.panelSize = this.element[ this.isHorizontal ? 'offsetWidth' : 'offsetHeight' ];
+        this.rotateFn = this.isHorizontal ? 'rotateY' : 'rotateX';
+        this.theta = 360 / this.panelCount;
+
+        // do some trig to figure out how big the carousel is in 3D space
+        this.radius = Math.round( ( this.panelSize / spacing) / Math.tan( Math.PI / this.panelCount ) );
+
+        for ( i = 0; i < this.panelCount; i++ ) {
+            panel = this.element.children[i];
+            angle = this.theta * i;
+            // rotate panel, then push it out in 3D space
+            panel.style[ transformProp ] = this.rotateFn + '(' + angle + 'deg) translateZ(' + this.radius + 'px)';
+        }
+
+        // hide other panels
+        for (  ; i < this.totalPanelCount; i++ ) {
+            panel = this.element.children[i];
+            panel.style[ transformProp ] = 'none';
+        }
+
+        // adjust rotation so panels are always flat
+        this.rotation = Math.round( this.rotation / this.theta ) * this.theta;
+        this.transform();
+    };
+
+    // scales the carousel down, rotates it, then scales it back up
+    Carousel3D.prototype.transform = function() {
+        $(".carousel-wrapper").addClass("zoomed");
+        $("#fpc_box").addClass("faded");
+
+        this.element.style[ transformProp ] = 'translateZ(-' +this.radius+ 'px) ' +
+                                               this.rotateFn + 
+                                               '(' +this.rotation+ 'deg)';
+
+        console.log("transform prop: ", this.element.style[ transformProp ]);
+
+        // After the carousel transforms, zoom it back in and scroll the other
+        // carousel stops up so they are at their top.
+        setTimeout(function () {
+            $(".carousel-wrapper").removeClass("zoomed");
+            $("#fpc_box").removeClass("faded");
+            $(".carousel-stop").stop().animate({scrollTop: 0}, 250);
+        }, 1500);
+    };
+
+    $(".cycle-carousel").click(function(event) {
+        var increment = parseInt( $(this).attr('data-increment'), 10 );
+        carousel.rotation += carousel.theta * increment * -1;
+        carousel.transform();
+    });
+
+    // populate on startup
+    carousel.panelCount = parseInt( panelCount, 10 );
+    carousel.modify();
+
+    // $(window).resize(function() {
+    //     waitForFinalEvent(function() {
+    //         carousel.modify();
+    //     }, 200, "");
+    // });
+
+    // handleUI(carousel);
+};
+
+
+
+
+
+
+// ========================================================================
 
                                  
 /**
@@ -102,6 +210,7 @@ function rando(min, max) {
  *  @param duration    : Integer
  */
 function handleSectionScroll(scrollPoint, duration) {
+	console.log("called");
     $('html, body').stop().animate({scrollTop: scrollPoint}, duration, "linear");
 }
 
@@ -146,8 +255,10 @@ function init() {
 	ogCameraPosition = camera.position.clone();
 	scene = new THREE.Scene();
 
+
+	initCarousel();
 	addLight();
-	addImages();
+	// addImages();
 
 	loadFont();
 	raycaster = new THREE.Raycaster();
@@ -312,13 +423,13 @@ function setTeaserContainer(current, x, y) {
 }
 
 
-function addImages() {
-	for (var i = 0; i < images.length; i++) {
-		var loader = new THREE.TextureLoader().load('images/projects/' + images[i]);
-	    loader.wrapS = loader.wrapT = THREE.RepeatWrapping;
-	    loaders.push(loader);
-	}
-}
+// function addImages() {
+// 	for (var i = 0; i < images.length; i++) {
+// 		var loader = new THREE.TextureLoader().load('images/projects/' + images[i]);
+// 	    loader.wrapS = loader.wrapT = THREE.RepeatWrapping;
+// 	    loaders.push(loader);
+// 	}
+// }
 
 
 /**
@@ -326,16 +437,12 @@ function addImages() {
  *  and placing them in random locations in 3D space
  */
 function addShapes() {
-	var numImages = images.length;
+	var numChildren = names.length;
 
-	for ( var i = 0; i < numImages; i++ ) {
+	for ( var i = 0; i < numChildren; i++ ) {
 		var size     = ((i + 2) * 10) - ((i + 1) * 5),
-			material = new THREE.MeshBasicMaterial( {  
-							map: loaders[i], 
-							side: THREE.DoubleSide 
-						}),
 			color    = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial() ,
-			moonGlow   = new THREE.Mesh( 
+			moonGlow = new THREE.Mesh( 
 						new THREE.SphereGeometry( 40, 64, 64 ),
 						color.clone()
 						),
@@ -346,9 +453,6 @@ function addShapes() {
  		group.name = "project_group";
 
 		text = createText(moonGlow.name, moonGlow.position);
-
-		// if ( i === 5 && !isMobile() )
-		// 	text.position.x = -220;
 
 		group.add( moonGlow );
 		group.add( text );
@@ -600,7 +704,7 @@ function zoomToProject() {
 		console.log(selectedProject);
 		lastCameraPosition = camera.clone().position;
 		projectInView = true;
-		rotateSphere  = false;
+		rotateSphere = false;
 		$("#teaser").removeClass("active");
 
 		zoomToSelection(selectedProject.parent.position);
@@ -616,7 +720,7 @@ function zoomToProject() {
  * zoom the camera to the original position.
  */
 function backToProjectView() {
-	$(".project-details, .project-intro, .canvas").removeClass("active");
+	$(".project-intro, .canvas").removeClass("active");
 	zoomCameraOut();
 	rotateCamera = false;
 }
@@ -729,13 +833,19 @@ function spheresToCurrent(current) {
 function spheresToRandom(duration) {
 	var numChildren = objects.length;
 
-	// Tween all project spheres, starting at the second child, since the(i * 65 - (i * 4)) 
+	// Tween all project spheres, starting at the second child, since the
 	// first child in the scene is the light.
 	for ( var i = 0; i < numChildren; i++ ) {
 		var posX = !isMobile() ? (-650 + ((i+1) * 150)) * (i % 2 === 0 ? 1 : 1) : -100,
 			posY = !isMobile() ? (500 - ((i+1) * 90)) * (i % 2 === 0 ? -1 : 1) : (-450 + ((i+1) * 100)),
 			posZ = !isMobile() ? rando(-400, 300) : 300,
 			vector = new THREE.Vector3(posX, posY, posZ);
+
+		// For this one example, move it out of the way so nothing overlaps.
+		if (i === 4) {
+			posX = -500;
+			vector = new THREE.Vector3(posX, posY, posZ);
+		}
 
 		// Make sure we don't tween the current sphere and make sure that the
 		// spheres are not currently being tweened.
@@ -750,7 +860,7 @@ function spheresToRandom(duration) {
 				.easing( TWEEN.Easing.Elastic.InOut )
 				.onStart( function() {
 					isTweening = true;
-					curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial(),
+					curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial();
 					$("#teaser").removeClass("active");
 				})
 			    .onUpdate( function() {
@@ -954,14 +1064,26 @@ function zoomToSelection(target) {
 			z: target.z
 		}, 3000)
 		.easing( TWEEN.Easing.Linear.None )
+		.onStart(function() {
+			// As we zoom to the project, rotate the carousel so that
+			// selected project is the current one.
+			var index = $.inArray(curSphere.name, names),
+			    rotation = carousel.rotation % 360,
+            	theta = carousel.theta,
+            	destRotation = -1 * index * theta;
+
+	        carousel.rotation = destRotation;
+	        carousel.transform();
+		})
 	    .onUpdate( function() {
-	    	// camera.lookAt(selectedProject.position);
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
-	    	// rotateCamera = true;
-	    	spinTheta = 0.001;
-			$(".project-details, .project-intro, .canvas").addClass("active");
+	    	// When we're done zooming in, stop the current video and sphere
+	    	// rotateion, and display the current project.
+	    	document.getElementById(curSphere.name).pause();
+	    	rotateSphere = false;
+			$(".project-intro, .canvas").addClass("active");
 	    })
 	    .start();
 }
