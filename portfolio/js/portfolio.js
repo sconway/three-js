@@ -9,24 +9,9 @@ var container,
 	selectedProject,
 	ogCameraPosition,
 	lastCameraPosition,
-	scaleXDown,
-	absolute,
 	curSphere,
-	alpha,
-	beta,
-	gamma,
 	font,
 	sprite,
-	scaleXUp,
-	scaleYDown,
-	scaleYUp,
-	rotateXUp,
-	rotateXDown,
-	rotateYUp,
-	rotateYDown,
-	rotateZUp,
-	rotateZDown,
-	cameraUpX,
 	carousel,
 	video, videoImage, videoImageContext, videoTexture,
 	intersectMutex = true,
@@ -322,8 +307,8 @@ function loadFont() {
 function get2DPosition(obj, camera) {
 	var vector = new THREE.Vector3();
 
-    var widthHalf = 0.5*renderer.context.canvas.width;
-    var heightHalf = 0.5*renderer.context.canvas.height;
+    var widthHalf = 0.5 * renderer.context.canvas.width;
+    var heightHalf = 0.5 * renderer.context.canvas.height;
 
     obj.updateMatrixWorld();
     vector.setFromMatrixPosition(obj.matrixWorld);
@@ -555,7 +540,8 @@ function addLight() {
 function createText(text, pos) {
 	var material = new THREE.MeshPhongMaterial(
 		{
-        	color:  0xf8f8f8
+        	// color:  0xf8f8f8
+        	color: 0xffffff
     	}),
     	textGeom = new THREE.TextGeometry( text , 
     	{
@@ -644,15 +630,15 @@ function onDocumentMouseMove( event ) {
 }
 
 
-function handleMotion(event) {
-  // absolute = event.absolute;
-  alpha    = event.rotationRate.alpha;
-  beta     = event.rotationRate.beta;
-  gamma    = event.rotationRate.gamma;
+// function handleMotion(event) {
+//   // absolute = event.absolute;
+//   alpha    = event.rotationRate.alpha;
+//   beta     = event.rotationRate.beta;
+//   gamma    = event.rotationRate.gamma;
 
-  // Do stuff with the new orientation data
-  console.log(gamma);
-}
+//   // Do stuff with the new orientation data
+//   console.log(gamma);
+// }
 
 
 /**
