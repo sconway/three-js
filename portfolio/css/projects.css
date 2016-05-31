@@ -315,10 +315,7 @@ body {
   background: #fff;
   position: absolute;
   height: 100%;
-  width: 100%;
-  overflow-y: scroll;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden; }
+  width: 100%; }
 
 .carousel-wrapper {
   position: absolute;
@@ -345,7 +342,14 @@ body {
     -moz-transform: scale(0.8);
     -ms-transform: scale(0.8);
     -o-transform: scale(0.8);
-    transform: scale(0.8); }
+    transform: scale(0.8);
+    overflow: visible; }
+
+.scroll-container {
+  overflow-y: scroll;
+  position: absolute;
+  height: 100%;
+  width: 100%; }
 
 img {
   max-width: 100%;

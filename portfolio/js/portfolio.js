@@ -134,14 +134,19 @@ var initCarousel = function() {
         setTimeout(function () {
             $(".carousel-wrapper").removeClass("zoomed");
             $("#fpc_box").removeClass("faded");
-            $(".carousel-stop").stop().animate({scrollTop: 0}, 250);
+            $(".carousel-stop .scroll-container").stop().animate({scrollTop: 0}, 250);
         }, 1500);
     };
 
     $(".cycle-carousel").click(function(event) {
-        var increment = parseInt( $(this).attr('data-increment'), 10 );
+        var increment = parseInt( $(this).attr('data-increment'), 10 ),
+            parent    = $(this).closest(".carousel-stop"),
+        	nextStop  = parent.next(".carousel-stop"),
+        	prevStop  = parent.prev(".carousel-stop");
+
         carousel.rotation += carousel.theta * increment * -1;
         carousel.transform();
+		$(".carousel-stop").removeClass("z1");
     });
 
     // populate on startup
@@ -262,7 +267,6 @@ function init() {
 
 	$(".js-project-details").click(function(event) { 
 		event.stopPropagation();
-
 		zoomToProject(); 
 	});
 
@@ -828,7 +832,7 @@ function spheresToRandom(duration) {
 			vector = new THREE.Vector3(posX, posY, posZ);
 
 		// For this one example, move it out of the way so nothing overlaps.
-		if (i === 4) {
+		if (i === 4 && !isMobile()) {
 			posX = -500;
 			vector = new THREE.Vector3(posX, posY, posZ);
 		}
@@ -945,7 +949,6 @@ function waveSpheres() {
 
 		tweenTo.chain(tweenBack);
 		tweenBack.chain(tweenTo);
-
 		tweenTo.start();
 	}
 }
@@ -1053,10 +1056,13 @@ function zoomToSelection(target) {
 		.onStart(function() {
 			// As we zoom to the project, rotate the carousel so that
 			// selected project is the current one.
-			var index = $.inArray(curSphere.name, names),
+			var index    = $.inArray(curSphere.name, names),
 			    rotation = carousel.rotation % 360,
-            	theta = carousel.theta,
+            	theta    = carousel.theta,
             	destRotation = -1 * index * theta;
+
+            // raise the current project so nothing shows behind it.
+           	$($(".carousel-stop").get(index)).addClass("z1");
 
 	        carousel.rotation = destRotation;
 	        carousel.transform();
