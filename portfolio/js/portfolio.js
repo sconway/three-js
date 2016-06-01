@@ -250,6 +250,21 @@ function init() {
 	addLight();
 	// addImages();
 
+
+	//Space background is a large sphere
+	// var spacetex = THREE.ImageUtils.loadTexture("https://s3-us-west-2.amazonaws.com/s.cdpn.io/96252/space.jpg");
+	var spacetex = THREE.ImageUtils.loadTexture('images/earth-moon.jpg');
+	spacetex.wrapS = spacetex.wrapT = THREE.RepeatWrapping;
+	var spacesphereGeo = new THREE.SphereGeometry(2000,64,64);
+	var spacesphereMat = new THREE.MeshBasicMaterial({ 
+		map: spacetex,
+		side: THREE.DoubleSide
+	});
+
+	var spacesphere = new THREE.Mesh(spacesphereGeo,spacesphereMat);
+	spacesphere.name = "space";
+	scene.add(spacesphere);
+
 	loadFont();
 	raycaster = new THREE.Raycaster();
 	renderScene();
@@ -1192,6 +1207,7 @@ function onIntersection(intersects) {
 	// only run this if the intersected 
  	if ( INTERSECTED != intersects[0].object && !isTweening && 
  		 intersects[0].object.name != "project_name" &&
+ 		 intersects[0].object.name != "space" &&
  		 curMouse.x !== 0 && curMouse.y !== 0 ) {
 
 		$("html").css({cursor: 'pointer'});
@@ -1334,7 +1350,11 @@ function render() {
 	// Check if the mouse pointer has intersected any of the objects
 	if ( !isMobile() ) {
 		if ( intersects.length > 0 ) {
-			onIntersection(intersects);
+			if ( intersects[0].object.name === "space" ){
+				onNoIntersections();
+			} else {
+				onIntersection(intersects);
+			}
 		} else {
 			onNoIntersections();
 		}
