@@ -788,14 +788,13 @@ function spinSphere() {
  */
 function spheresToCurrent(current) {
 	// clone the scene so the number of children doesn't change when we remove
-	var children = scene.clone().children, 
-		numChildren = children.length;
+	var numChildren = objects.length;
 
 	// Tween all project spheres, starting at the second child, since the
 	// first child in the scene is the light.
-	for (var i = 1; i < numChildren; i++) {
-		if (current != scene.children[i] && !isTweening) {
-			new TWEEN.Tween(scene.children[i].position)
+	for (var i = 0; i < numChildren; i++) {
+		if (current != objects[i] && !isTweening) {
+			new TWEEN.Tween(objects[i].position)
 				.to({
 					x: !isMobile() ? current.position.x : 0,
 					y: !isMobile() ? current.position.y : 350,
