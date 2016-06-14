@@ -584,7 +584,7 @@ canvas,
 }
 
 .bg-zildjian {
-  background-image: url("../images/projects/zildjian.png");
+  background-image: url("../images/projects/zildjian/home.jpg");
 }
 
 
@@ -629,6 +629,7 @@ canvas,
   @media (min-width: 1024px) {
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 }
 
@@ -658,6 +659,7 @@ canvas,
 .code-snippit {
   z-index: 1;
   @media (min-width: 1024px) {
+    max-width: 400px;
     position: relative;
     left: 30px;
   }
@@ -668,8 +670,9 @@ canvas,
 // it produces.
 .image-snippit {
   @media (min-width: 1024px) {
-    position: relative;
     left: -30px;
+    position: relative;
+    max-width: 650px;
   }
 }
 
