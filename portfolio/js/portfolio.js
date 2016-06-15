@@ -12,7 +12,7 @@ var container,
 	curSphere,
 	font,
 	sprite,
-	carousel,
+	carousel, spacesphere, 
 	video, videoImage, videoImageContext, videoTexture,
 	intersectMutex = true,
 	unIntersectMutex = true,
@@ -50,6 +50,16 @@ var container,
 	names  = [ "Wentworth", "Copyright Clearance", "Father Peyton",
 			   "IHA Today", "Standish Mellon", "Wolf Greenfield", 
 			   "Zildjian Cymbals", "Enernoc" ],
+    descriptions = [ 
+    "Wentworth Intstitute of Technology is a prestigeous technical university located in Boston, MA. This project involved re-designing and re-building their existing site in the Drupal content management system, while also adding additional features to create a new experience for prospective and current students.",
+    "Copyright Description",
+    "Father Peyton was a member of Holy Cross Family Ministries who had this site commissioned when he was nominated for sainthood. This site chronicles the life of Father Patrick Peyton, highlighting the moments in his life that made him such a venerable figure.", 
+    "IHA Today Description",
+    "Standish Description",	
+    "Wolf Description",
+    "Zildjian is a world renowned cymbal maker, dating back to the 17th century. This project was a complete redesign of their pre-existing site, incorporating new web technologies to create a much more pleasant user experience, and a more profitable online store.",
+    "Enernoc Description"
+    				],
 	loaders = [],
 	objects = [];
 
@@ -178,7 +188,7 @@ var initCarousel = function() {
  *  @param max  :  Integer
  */
 function rando(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 
@@ -244,31 +254,16 @@ function init() {
 
 	ogCameraPosition = camera.position.clone();
 	scene = new THREE.Scene();
+	raycaster = new THREE.Raycaster();
 
-
-	initCarousel();
+	addBackground();
 	addLight();
+	initCarousel();
 	// addImages();
 
-
-	//Space background is a large sphere
-	// var spacetex = THREE.ImageUtils.loadTexture("https://s3-us-west-2.amazonaws.com/s.cdpn.io/96252/space.jpg");
-	var spacetex = THREE.ImageUtils.loadTexture('images/earth-moon.jpg');
-	spacetex.wrapS = spacetex.wrapT = THREE.RepeatWrapping;
-	var spacesphereGeo = new THREE.SphereGeometry(2000,64,64);
-	var spacesphereMat = new THREE.MeshBasicMaterial({ 
-		map: spacetex,
-		side: THREE.DoubleSide
-	});
-
-	var spacesphere = new THREE.Mesh(spacesphereGeo,spacesphereMat);
-	spacesphere.name = "space";
-	scene.add(spacesphere);
-
 	loadFont();
-	raycaster = new THREE.Raycaster();
 	renderScene();
-
+ 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	// window.addEventListener("devicemotion", handleMotion, false);
 	$(".canvas").click( function(event) { 
@@ -294,6 +289,10 @@ function init() {
 }
 
 
+/**
+ * This function sets up the scene renderer and sets things like
+ * the size color, ratio, etc.
+ */
 function renderScene() {
 	renderer = new THREE.WebGLRenderer({alpha : true});
 	renderer.setClearColor( 0x0e0e15, 1 );
@@ -301,6 +300,28 @@ function renderScene() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
 	container.appendChild(renderer.domElement);
+}
+
+
+/**
+ * This function adds the space background to the scene. It is 
+ * implemented as a giant sphere with an image on both sides.
+ * The main content is inside of it.
+ */
+function addBackground() {
+	// Space background is a large sphere 
+	var spacetex = THREE.ImageUtils.loadTexture('images/earth-moon.jpg');
+	spacetex.wrapS = spacetex.wrapT = THREE.RepeatWrapping;
+	var spacesphereGeo = new THREE.SphereGeometry(2000,64,64);
+	var spacesphereMat = new THREE.MeshBasicMaterial({ 
+		map: spacetex,
+		side: THREE.DoubleSide
+	});
+
+	spacesphere = new THREE.Mesh(spacesphereGeo, spacesphereMat);
+	spacesphere.rotation.x = -0.5;
+	spacesphere.name = "space";
+	scene.add(spacesphere);
 }
 
 
@@ -384,18 +405,22 @@ function getSize(dist) {
 function setTeaserContainer(current, x, y) {
 	var distance = camera.position.distanceTo(current.position),
 		position = get2DPosition(current, camera),
-		size     = getSize(distance);
+		size     = getSize(distance),
+		curName  = current.children[0].name,
+		index    = $.inArray(curName, names),
+		descText = descriptions[index];
 
-	console.log("distance: ", distance);
-	console.log("size: ", size);
-	console.log("position: ", position);
-
+	// console.log("distance: ", distance);
+	// console.log("size: ", size);
+	// console.log("position: ", position);
 
 	// make sure the mouse has been moved before dropping the
 	// teaser down. Prevents it from showing on load.
 	if ( (x > 0 && y > 0) || mouseDown ) {
-		$("#teaserName, #projectTitle").html(current.children[0].name);
-		
+
+		// set the text of the teaser block
+		$("#teaserName").html(curName);
+		$("#teaserDescription").html(descText);
 
 		if ( !isMobile() ) {
 			if ( position.x > window.innerWidth/2 ) {

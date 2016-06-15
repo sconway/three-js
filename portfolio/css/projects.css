@@ -360,6 +360,19 @@ body {
   height: 100%;
   width: 100%; }
 
+h1 {
+  font-size: 26px;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  text-transform: uppercase; }
+  @media (min-width: 1024px) {
+    h1 {
+      font-size: 34px; } }
+
+p {
+  font-size: 14px;
+  line-height: 1.4; }
+
 img {
   max-width: 100%;
   height: auto; }
@@ -457,7 +470,7 @@ canvas,
   opacity: 0;
   padding: 20px;
   position: absolute;
-  width: 300px;
+  width: 250px;
   height: 250px;
   z-index: 1;
   -webkit-transition: opacity 150ms ease-in-out;
@@ -494,6 +507,7 @@ canvas,
 
 .project-teaser--name {
   letter-spacing: 2px;
+  font-size: 20px;
   text-transform: uppercase; }
 
 .project-teaser--back {
@@ -604,6 +618,30 @@ canvas,
       line-height: 1.6;
       text-align: center; }
 
+.detail--intro {
+  color: #fff;
+  position: absolute;
+  left: 50%;
+  max-width: 400px;
+  top: 40%;
+  width: 80%;
+  z-index: 1;
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); }
+  @media (min-width: 768px) {
+    .detail--intro {
+      top: 50%; } }
+  @media (min-width: 1024px) {
+    .detail--intro {
+      width: auto;
+      left: auto;
+      right: 10%;
+      transform: none;
+      top: 35%; } }
+
 .img__full {
   background-position: 50%;
   background-size: cover;
@@ -611,8 +649,23 @@ canvas,
   margin-bottom: 40px;
   max-width: none;
   padding: 0;
+  position: relative;
   height: 80vh;
   width: 100%; }
+  .img__full::before {
+    background: rgba(51, 51, 51, 0.5);
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1; }
+  .img__full.bg-zildjian {
+    background-position: 0% 50%; }
+    @media (min-width: 1024px) {
+      .img__full.bg-zildjian {
+        background-position: 50%; } }
 
 .code-sample {
   text-align: center; }
