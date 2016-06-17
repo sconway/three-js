@@ -7,7 +7,6 @@ var container,
 	raycaster, 
 	renderer,
 	selectedProject,
-	ogCameraPosition,
 	lastCameraPosition,
 	curSphere,
 	font,
@@ -55,10 +54,10 @@ var container,
     "Copyright Description",
     "Father Peyton was a member of Holy Cross Family Ministries who had this site commissioned when he was nominated for sainthood. This site chronicles the life of Father Patrick Peyton, highlighting the moments in his life that made him such a venerable figure.", 
     "IHA Today Description",
-    "Standish Description",	
-    "Wolf Description",
+    "Standish Mellon is a leading asset management firm located in downtown Boston. The re-design and content audit of their current site helps to showcase the experience and proven track record that makes Standish Mellon an industry leader, while also engaging the user in a clear and informative manner.",	
+    "Wolf Greenfield is a law firm that has been specializing in intellectual property law for the last 90 years. The re-design and development of their new site uses the latest interactive web technologies to engage the user in an enjoyable experience, while presenting relevant information for potential clients.",
     "Zildjian is a world renowned cymbal maker, dating back to the 17th century. This project was a complete redesign of their pre-existing site, incorporating new web technologies to create a much more pleasant user experience, and a more profitable online store.",
-    "Enernoc Description"
+    "Enernoc is a wordwide energy software company that helps organizations and intstitutions track and manage how they consume energy. This project highlighted the benefits of Enernoc's product through the usage of numerous statistics and case studies displayed in an elegant and informative manner."
     				],
 	loaders = [],
 	objects = [];
@@ -252,20 +251,14 @@ function init() {
 	camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
 	camera.position.set(0, 0, cameraZ);
 
-	ogCameraPosition = camera.position.clone();
 	scene = new THREE.Scene();
 	raycaster = new THREE.Raycaster();
 
 	addBackground();
-	addLight();
-	initCarousel();
-	// addImages();
-
-	loadFont();
-	renderScene();
  
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	// window.addEventListener("devicemotion", handleMotion, false);
+
 	$(".canvas").click( function(event) { 
 		if ( !isMobile() ) {
 			zoomToProject();
@@ -279,7 +272,6 @@ function init() {
 		event.stopPropagation();
 		zoomToProject(); 
 	});
-
 
 	// Click handlers for the back and scroll buttons inside the project view.
 	$(".js-back-to-project").click(function() { backToProjectView(); });
@@ -310,19 +302,47 @@ function renderScene() {
  */
 function addBackground() {
 	// Space background is a large sphere 
-	var spacetex = THREE.ImageUtils.loadTexture('images/earth-moon.jpg');
-	spacetex.wrapS = spacetex.wrapT = THREE.RepeatWrapping;
 	var spacesphereGeo = new THREE.SphereGeometry(2000,64,64);
-	var spacesphereMat = new THREE.MeshBasicMaterial({ 
-		map: spacetex,
-		side: THREE.DoubleSide
-	});
 
-	spacesphere = new THREE.Mesh(spacesphereGeo, spacesphereMat);
-	spacesphere.rotation.x = -0.5;
-	spacesphere.name = "space";
-	scene.add(spacesphere);
+	var loader = new THREE.TextureLoader();
+
+	loader.load('images/earth-moon.jpg', function(texture) {
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+		var spacesphereMat = new THREE.MeshBasicMaterial({ 
+			map: texture,
+			side: THREE.DoubleSide
+		});
+
+		spacesphere = new THREE.Mesh(spacesphereGeo, spacesphereMat);
+		spacesphere.rotation.x = -0.5;
+		spacesphere.name = "space";
+		scene.add(spacesphere);
+
+		fadeLoader();
+		addLight();
+		initCarousel();
+		// addImages();
+		loadFont();
+		renderScene();
+	});
 }
+
+
+function fadeLoader() {
+	var body   = document.getElementById("body"),
+		loader = document.getElementById("loader"),
+		canvas = document.getElementById("container");
+
+	console.log("Fading loader out");
+	loader.className += " fade-out";
+	canvas.className += " fade-in";
+
+	setTimeout(function() {
+		body.removeChild(loader);
+	}, 3000);
+}
+
 
 
 /**
@@ -728,10 +748,8 @@ function zoomToProject() {
 	if (!projectInView && !isTweening && INTERSECTED) {
 		raycaster.setFromCamera( mouse, camera );
 
-		// var intersect = raycaster.intersectObjects( scene.children, true )[0].object;
-		// selectedProject = intersect;
 		selectedProject = curSphere;
-		console.log(selectedProject);
+		// console.log(selectedProject);
 		lastCameraPosition = camera.clone().position;
 		projectInView = true;
 		rotateSphere = false;

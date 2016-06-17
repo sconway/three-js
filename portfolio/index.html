@@ -9,7 +9,7 @@
   <link href="css/projects.css" media="all" rel="stylesheet" type="text/css">
   <script type="text/javascript">
   	var loaded = false,
-		timedOut = false;
+		    timedOut = false;
 
 		setTimeout(checkLoader, 2500);
 
@@ -33,20 +33,20 @@
 		}
 
 		function fadeLoaderOut() {
-		  var body   = document.getElementById("body"),
-		      loader = document.getElementById("loader"),
-		      canvas = document.getElementById("container");
+		  // var body   = document.getElementById("body"),
+		  //     loader = document.getElementById("loader"),
+		  //     canvas = document.getElementById("container");
 
-		  console.log("Fading loader out");
-		  loader.className += " fade-out";
-		  canvas.className += " fade-in";
+		  // console.log("Fading loader out");
+		  // loader.className += " fade-out";
+		  // canvas.className += " fade-in";
 
 		  init();
 		  animate();
 
-		  setTimeout(function() {
-		    body.removeChild(loader);
-		  }, 3000);
+		  // setTimeout(function() {
+		  //   body.removeChild(loader);
+		  // }, 3000);
 		}
   </script>		
 </head>
