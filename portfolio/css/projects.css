@@ -525,14 +525,14 @@ canvas,
 .project-teaser--back {
   float: left;
   text-transform: uppercase; }
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     .project-teaser--back {
       display: none; } }
 
 .project-teaser--more {
   float: right;
   text-transform: uppercase; }
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     .project-teaser--more {
       display: none; } }
 
@@ -596,26 +596,15 @@ canvas,
     -o-transform: rotate(-30deg);
     transform: rotate(-30deg); }
 
-.bg-college-culture {
-  background-image: url("../images/projects/college-culture.png"); }
-
-.bg-copyright {
-  background-image: url("../images/projects/copyright.png"); }
+.bg-wentworth {
+  background-image: url("../images/projects/wentworth/wentworth-home.png"); }
 
 .bg-enernoc {
-  background-image: url("../images/projects/enernoc.png"); }
+  background-image: url("../images/projects/enernoc/enernoc-home.png");
+  background-position: 0 !important; }
 
 .bg-father-peyton {
-  background-image: url("../images/projects/father-peyton.png"); }
-
-.bg-iha {
-  background-image: url("../images/projects/iha-today.png"); }
-
-.bg-standish {
-  background-image: url("../images/projects/standish-home.png"); }
-
-.bg-wolf {
-  background-image: url("../images/projects/wolf-greenfield.png"); }
+  background-image: url("../images/projects/father-peyton/home.png"); }
 
 .bg-zildjian {
   background-image: url("../images/projects/zildjian/home.jpg"); }

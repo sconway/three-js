@@ -254,6 +254,7 @@ function init() {
 	scene = new THREE.Scene();
 	raycaster = new THREE.Raycaster();
 
+	renderScene();
 	addBackground();
  
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -277,7 +278,7 @@ function init() {
 	$(".js-back-to-project").click(function() { backToProjectView(); });
 	$(".js-scroll-down").click(function() { handleSectionScroll(window.innerHeight, 1000); });
 	
-	var windowResize = new THREEx.WindowResize(renderer, camera);
+	// var windowResize = new THREEx.WindowResize(renderer, camera);
 }
 
 
@@ -292,6 +293,7 @@ function renderScene() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
 	container.appendChild(renderer.domElement);
+	var windowResize = new THREEx.WindowResize(renderer, camera);
 }
 
 
@@ -324,11 +326,108 @@ function addBackground() {
 		initCarousel();
 		// addImages();
 		loadFont();
-		renderScene();
 	});
 }
 
 
+/**
+ * Adds lighting to the scene. Stays in a fixed position.
+ */
+function addLight() {
+	var group  = new THREE.Object3D();
+	group.add( new THREE.AmbientLight( 0x222222 ) );
+	light = new THREE.HemisphereLight( 0x666666 , 0x000000 );
+	light.position.set( 1, 1, 1 ).normalize();
+	group.add( light );
+	group.name = "project_light";
+	scene.add( group );
+}
+
+
+/**
+ * 	This function is responsible for adding the various shapes to the canvas
+ *  and placing them in random locations in 3D space
+ */
+function addShapes() {
+	var numChildren = names.length;
+
+	for ( var i = 0; i < numChildren; i++ ) {
+		var size     = ((i + 2) * 10) - ((i + 1) * 5),
+			color    = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial() ,
+			moonGlow = new THREE.Mesh( 
+						new THREE.SphereGeometry( 40, 64, 64 ),
+						color.clone()
+						),
+			group    = new THREE.Object3D();
+
+		moonGlow.scale.multiplyScalar(1.2);
+		moonGlow.name = names[i];
+ 		group.name = "project_group";
+
+		text = createText(moonGlow.name, moonGlow.position);
+
+		group.add( moonGlow );
+		group.add( text );
+
+		// controls.push( new THREE.DeviceOrientationControls( group , true ) );
+
+		objects.push( group );
+		scene.add( group );
+	}
+
+
+	// since there won't be a current sphere on page load, set one initially,
+	// and then move the spheres into a random location in the 3D space.
+	curSphere = scene.clone().children[rando(3,7)].children[0];
+	hideText();
+	spheresToRandom(1250);
+}
+
+
+/**
+ * Creates a THREE.js material with a video mapped to the surface.
+ * The sphere name parameter is used to determine which video to apply.
+ * The supplied sphere object 
+ * 
+ * @param      sphere     :     THREE.Mesh
+ *
+ */
+function addVideo(sphere) {
+	video = document.getElementById( sphere.name );
+	video.load(); // must call after setting/changing source
+	
+	videoImage = document.createElement( 'canvas' );
+	videoImage.width = 852;
+	videoImage.height = 478;
+
+	videoImageContext = videoImage.getContext( '2d' );
+	videoImageContext.fillStyle = '#FFFFFF';
+	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
+
+	videoTexture = new THREE.Texture( videoImage );
+	videoTexture.minFilter = THREE.LinearFilter;
+	videoTexture.magFilter = THREE.LinearFilter;
+
+	// Wait until the video is fully loaded before changing the material.
+	video.addEventListener('loadeddata', function(e) {
+	    sphere.material = new THREE.MeshBasicMaterial( { 
+							map: videoTexture, 
+							transparent: true,
+							opacity: 0.9,
+							overdraw: true, 
+							side:THREE.DoubleSide 
+						}  );
+
+	    video.play();
+	});
+
+}
+
+
+/**
+ * This function is called after the page loads and adds the classes
+ * that fade the loading animation out. 
+ */
 function fadeLoader() {
 	var body   = document.getElementById("body"),
 		loader = document.getElementById("loader"),
@@ -342,7 +441,6 @@ function fadeLoader() {
 		body.removeChild(loader);
 	}, 3000);
 }
-
 
 
 /**
@@ -482,82 +580,6 @@ function setTeaserContainer(current, x, y) {
 
 
 /**
- * 	This function is responsible for adding the various shapes to the canvas
- *  and placing them in random locations in 3D space
- */
-function addShapes() {
-	var numChildren = names.length;
-
-	for ( var i = 0; i < numChildren; i++ ) {
-		var size     = ((i + 2) * 10) - ((i + 1) * 5),
-			color    = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial() ,
-			moonGlow = new THREE.Mesh( 
-						new THREE.SphereGeometry( 40, 64, 64 ),
-						color.clone()
-						),
-			group    = new THREE.Object3D();
-
-		moonGlow.scale.multiplyScalar(1.2);
-		moonGlow.name = names[i];
- 		group.name = "project_group";
-
-		text = createText(moonGlow.name, moonGlow.position);
-
-		group.add( moonGlow );
-		group.add( text );
-
-		// controls.push( new THREE.DeviceOrientationControls( group , true ) );
-
-		objects.push(group);
-		scene.add( group );
-	}
-
-
-	// since there won't be a current sphere on page load, set one initially,
-	// and then move the spheres into a random location in the 3D space.
-	curSphere = scene.clone().children[rando(3,7)].children[0];
-	hideText();
-	spheresToRandom(1250);
-}
-
-
-/**
- * Creates and returns a THREE.js material with a video mapped to the surface.
- * The name parameter is used to determine which video to apply.
- * 
- * @param      name     :     string
- *
- * returns     THREE.material
- */
-function addVideo(name) {
-	video = document.getElementById( name );
-	video.load(); // must call after setting/changing source
-	video.play();
-	
-	videoImage = document.createElement( 'canvas' );
-	videoImage.width = 852;
-	videoImage.height = 478;
-
-	videoImageContext = videoImage.getContext( '2d' );
-	// background color if no video present
-	videoImageContext.fillStyle = '#000000';
-	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
-
-	videoTexture = new THREE.Texture( videoImage );
-	videoTexture.minFilter = THREE.LinearFilter;
-	videoTexture.magFilter = THREE.LinearFilter;
-	
-	return new THREE.MeshBasicMaterial( { 
-				map: videoTexture, 
-				transparent: true,
-				opacity: 0.9,
-				overdraw: true, 
-				side:THREE.DoubleSide 
-			} );
-}
-
-
-/**
  * Creates and returns a material with a glowing effect.
  */
 function createGlowMaterial() {
@@ -575,21 +597,6 @@ function createGlowMaterial() {
 				blending: THREE.AdditiveBlending,
 				transparent: true
 			} );
-}
-
-
-
-/**
- * Adds lighting to the scene. Stays in a fixed position.
- */
-function addLight() {
-	var group  = new THREE.Object3D();
-	group.add( new THREE.AmbientLight( 0x222222 ) );
-	light = new THREE.HemisphereLight( 0x666666 , 0x000000);
-	light.position.set( 1, 1, 1 ).normalize();
-	group.add( light );
-	group.name = "project_light";
-	scene.add( group );
 }
 
 
@@ -1036,7 +1043,8 @@ function expandSphere(object) {
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
-			sphere.material = addVideo(sphere.name);
+			// sphere.material = addVideo(sphere.name);
+			addVideo(sphere);
     		rotateSphere = true;
 	    })
 	    .start();
