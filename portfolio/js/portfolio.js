@@ -130,7 +130,7 @@ var initCarousel = function() {
     // scales the carousel down, rotates it, then scales it back up
     Carousel3D.prototype.transform = function() {
         $(".carousel-wrapper").addClass("zoomed");
-        $("#fpc_box").addClass("faded");
+        $(".fade-out").addClass("faded");
 
         this.element.style[ transformProp ] = 'translateZ(-' +this.radius+ 'px) ' +
                                                this.rotateFn + 
@@ -142,11 +142,12 @@ var initCarousel = function() {
         // carousel stops up so they are at their top.
         setTimeout(function () {
             $(".carousel-wrapper").removeClass("zoomed");
-            $("#fpc_box").removeClass("faded");
+            $(".fade-out").removeClass("faded");
             $(".carousel-stop .scroll-container").stop().animate({scrollTop: 0}, 250);
         }, 1500);
     };
 
+    // handle the clicks that will either cycle the carousel forwards or backwards
     $(".cycle-carousel").click(function(event) {
         var increment = parseInt( $(this).attr('data-increment'), 10 ),
             parent    = $(this).closest(".carousel-stop"),

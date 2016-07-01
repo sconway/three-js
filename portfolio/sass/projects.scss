@@ -1,6 +1,7 @@
 @import "mixins";
 @import "vars";
 @import "_flexbox";
+@import "carousel";
 
 
 html,
@@ -34,6 +35,14 @@ body {
     -ms-transform: $transform;
     -o-transform: $transform;
     transform: $transform;
+}
+
+@mixin transform-origin($transform) {
+    -webkit-transform-origin: $transform;
+    -moz-transform-origin: $transform;
+    -ms-transform-origin: $transform;
+    -o-transform-origin: $transform;
+    transform-origin: $transform;
 }
 
 @mixin animation($animation) {
@@ -148,225 +157,6 @@ $clock_border_color: #686868;
 
 
 
-// ============================ CORNER PEEL ===========================
-// thanks to "socialblogsite" for the majority of this code
-#fpc_effect-back {
-background-color: #000; //#eeeef4; /* some background color to match corner inside's */
-width: 100%;/* trivial */
-font: 12pt arial,sans-serif,helvetica,verdana;/* trivial */ 
-color: #666;//trivial
-position: absolute;
-z-index: 1;
-}
-#fpc_effect-back * {
-  box-sizing: border-box;
-}
-#fpc_box {
-  width: 500px;/*any relative or absolute*/
-  position: relative;
-  background-color: #FFF;
-  opacity: 1;
-  @include transition(opacity 1500ms ease);
-  &.faded {
-    @include transition(opacity 250ms ease);
-    opacity: 0;
-  }
-}
-#fpc_content {
-    padding: 20px;
-}
-#fpc_content:before {
-  content:"";
-  width: 80px;
-  height: 80px;
-  float: right;
-}
-#fpc_page-tip:before, #fpc_page-tip:after {
-  background-color: rgba(232, 232, 232, 0.3);
-  position: absolute;
-  display: block;
-  z-index: 2;
-  border-top-right-radius: 60%;
-  width: 50%;
-  height: 50%;
-  content: "";
-}
-#fpc_page-tip:before {
-  right: calc(100% - 2px);
-  top: 0%;
-  background: -webkit-radial-gradient(-180% 200%, circle, rgba(255,255,255,0) 85%, rgba(0,0,0,.1) 93%);
-  background: -moz-radial-gradient(-180% 200%, circle, rgba(255,255,255,0) 85%, rgba(0,0,0,.1) 93%);
-}
-#fpc_box:hover #fpc_page-tip:before {
-  border-right: solid 1px rgba(232, 232, 232, 0.6);
-}
-#fpc_box div#fpc_corner-box:hover #fpc_page-tip:before {
-  border-right: solid 2px rgba(232, 232, 232, 0.6);
-}
-#fpc_page-tip:after {
-  top: calc(100% - 2px);
-  right: 0%;
-  background: -webkit-radial-gradient(-250% 320%, circle, rgba(255,255,255,0) 85%, rgba(0,0,0,.10) 93%);
-  background: -moz-radial-gradient(-250% 320%, circle, rgba(255,255,255,0) 85%, rgba(0,0,0,.10) 93%);
-}
-#fpc_box:hover #fpc_page-tip:after {
-  border-top: solid 1px rgba(232, 232, 232, 0.6);
-}
-#fpc_box div#fpc_corner-box:hover #fpc_page-tip:after {
-  border-top: solid 2px rgba(232, 232, 232, 0.6);
-}
-#fpc_corner-box {  /* edit these sizes for the default revealing corner size */
-  height: 50px;
-  width: 50px;
-  left: 0;
-  top: 0;
-  position: absolute;
-  overflow: visible;
-  @include transform( rotate(-90deg) );
-}
-#fpc_box:hover #fpc_corner-box { /* edit corner size (First animation, when the whole page is rollovered) */
-  height: 50px;
-  width: 50px;
-}
-#fpc_box div#fpc_corner-box:hover { /* edit corner size (Second animation, when the corner itself is rollovered) */
-  height: 100px;
-  width: 100px;
-}
-#fpc_corner-box:before {
-  position: absolute;
-  top: 0;
-  right: 0;
-  content: "";
-  display: block;
-  width: 133%;
-  height: 133%;
-}
-#fpc_corner-contents:after {
-  position: absolute;
-  top: 0;
-  right: 0;
-  content: "";
-  background:  -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0) 37%, #DDD 62%, rgba(230, 230, 230, 0.1) 64%, rgba(255, 255, 255, 0) 67%), -webkit-radial-gradient(-50% 150%, circle, transparent 74%, rgba(0, 0, 0, 0.2) 74%, transparent 81%);
-  background:  -moz-linear-gradient(45deg, rgba(255, 255, 255, 0) 37%, #DDD 62%, rgba(230, 230, 230, 0.1) 64%, rgba(255, 255, 255, 0) 67%), -webkit-radial-gradient(-50% 150%, circle, transparent 74%, rgba(0, 0, 0, 0.2) 74%, transparent 81%);
-  display: block;
-  width: 133%;
-  height: 133%;
-}
-#fpc_page-tip {
-  position: absolute;
-  top: 0;
-  right: 0;
-  content: "";
-  background: -webkit-linear-gradient(45deg, #ddd 17%, #dfdfdf 18%, #f5f5f5 30%, #f8f8f8 34%, #eee 39%, rgba(200,200,200,0) 41%);
-  background: -moz-linear-gradient(45deg, #ddd 17%, #dfdfdf 18%, #f5f5f5 30%, #f8f8f8 34%, #eee 39%, rgba(200,200,200,0) 41%);
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-#fpc_corner-button {
-  background: -webkit-radial-gradient(circle at 20px 20px, rgb(42, 153, 23), #000);
-  background: -moz-radial-gradient(circle at 20px 20px, rgb(42, 153, 23), #000);
-  background: radial-gradient(circle at 20px 20px, rgb(42, 153, 23), #000);
-  position: absolute;
-  height: 50px;
-  width: 50px;
-  top: 10px;
-  right: 10px;
-  color: #d8d9d8;
-  font-family: Verdana, Geneva, sans-serif;
-  text-align: center;
-  padding: 8px 5px;
-  border-radius: 50%;
-  @include flexbox();
-  @include align-items( center );
-  @include justify-content(center);
-  font-size: 11px;
-  @include transform( rotate(90deg) );
-}
-#fpc_corner-contents {
-  width: 125%;
-  position: absolute;
-  display: block;
-  overflow: hidden;
-  -webkit-mask: -webkit-linear-gradient(45deg, transparent 49%, #000 53%);
-  -webkit-mask: -moz-linear-gradient(45deg, transparent 49%, #000 53%);
-  top: 0;
-  right: 0;
-  height: 125%;
-}
-#fpc_corner-contents:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  content: "";
-  display: block;
-  width: 100%;
-  height: 100%;
-  background-color: #000;//#eeeef4; /* Match this background color to #fpc_effect-back */
-}
-#fpc_corner-box, #fpc_corner-contents, #fpc_page-tip {
-  -webkit-transition-property: all;
-  -moz-transition-property: all;
-  -webkit-transition-duration: .3s;
-  -moz-transition-duration: .3s;
-  -webkit-transition-timing-function: cubic-bezier(0, 0.35, .5, 1.7);
-  -moz-transition-timing-function: cubic-bezier(0, 0.35, .5, 1.7);
-}
-#fpc_corner-button strong {
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-}
-// ================================== END CORNER PEEL ================================
-
-
-
-// ================================== CAROUSEL ================================
-.carousel {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  margin: 0 auto;
-  @include transform-style( preserve-3d );
-  @include transition (transform 1s linear 0.5s);
-}
-
-.carousel-stop {
-  background: #fff;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  // overflow-y: scroll;
-  // overflow: hidden;
-  // backface-visibility: hidden;
-  // -webkit-backface-visibility: hidden;
-}
-
-.carousel-wrapper {
-  position: absolute;
-  overflow: hidden;
-  height: 100vh;
-  width: 100%;
-  @include perspective(1100px);
-  @include transform( scale(1) );
-  @include transition(all 0.5s ease);
-  &.zoomed {
-    @include transform( scale(0.8) );
-    overflow: visible;
-  }
-}
-
-.scroll-container {
-  overflow-y: scroll; 
-  position: absolute;
-  height: 100%;
-  width: 100%;
-}
-// ================================== END CAROUSEL ================================
-
-
-
 h1 {
   font-size: 26px;
   letter-spacing: 2px;
@@ -420,6 +210,7 @@ canvas,
   }
 }
 
+
 .absolute-center {
   position: absolute;
   top: 50%;
@@ -427,43 +218,71 @@ canvas,
   @include transform( translate(-50%, -50%) );
 }
 
-.back-btn {
-  color: #fff;
-  font-size: 72px;
-  position: fixed;
-  top: 0;
-  left: 25px;
-  &:hover {
-    cursor: pointer;
+
+.fade-out {
+  @include transition(opacity 500ms ease);
+  &.faded {
+    opacity: 0;
   }
 }
 
-.project-preview {
-  display: none;
-  opacity: 1;
-  position: absolute;
-  height: 100% ;
-  width: 100%;
-  right: 0;
+
+.back-btn {
+  background-color: #35FDFF;
+  color: #fff;
+  font-size: 16px;
+  height: 50px;
+  width: 50px;
+  position: fixed;
+  left: 0;
   top: 0;
-  @include transition(opacity 1s ease);
-  @media (min-width: 768px) {
-    display: block;
+  z-index: 1;
+  &:hover {
+    cursor: pointer;
   }
-  &::before {
-    background-color: rgba(51, 51, 61, 0.5);
-    content: " ";
+  span {
+    background: #092D2D;
+    height: 1px;
+    width: 50%;
     position: absolute;
-    height: 100%;
-    width: 100%;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    @include transform-origin( center );
+    @include transform( translate(-50%, -50%) rotate(45deg) );
+    &:nth-child(2) {
+      @include transform( translate(-50%, -50%) rotate(-45deg) );      
+    }
   }
-  &.hidden {
-    opacity: 0;
-  }
-  img {
-    width: 100%;
-    height: 100%;
-  }
+}
+
+
+// previous button that appears in the
+// header of the project details.
+.prev-btn {
+  color: #fff;
+  font-size: 12px; 
+  letter-spacing: 3px;
+  position: absolute;
+  top: 40%;
+  text-transform: uppercase;
+  z-index: 1;
+  @include transform( translate(-35%, -50%) rotate(-90deg) );
+}
+
+
+// previous button that appears in the
+// header of the project details.
+.next-btn {
+  color: #fff;
+  font-size: 12px; 
+  letter-spacing: 3px;
+  position: absolute;
+  top: 40%;
+  right: 0;
+  text-transform: uppercase;
+  z-index: 1;
+  @include transform( translate(20%, -50%) rotate(-90deg) );
 }
 
 
@@ -499,11 +318,13 @@ canvas,
   }
 }
 
+
 .project-teaser--name {
   letter-spacing: 2px;
   font-size: 20px;
   text-transform: uppercase;
 }
+
 
 .project-teaser--back {
   float: left;
@@ -513,6 +334,7 @@ canvas,
   }
 }
 
+
 .project-teaser--more {
   float: right;
   text-transform: uppercase;
@@ -520,6 +342,7 @@ canvas,
     display: none;
   }
 }
+
 
 // The first section of the project details.
 .project-intro {
@@ -539,36 +362,6 @@ canvas,
   }
 }
 
-// The scroll indicator
-.scroll-arrow {
-  position: absolute;
-  bottom: 0px;
-  left: 50%;
-  height: 50px;
-  width: 50px;
-  @include transform( translateX(-50%) );
-  @media (min-width: 1024px) {
-    bottom: 20px;
-  }
-  &::before,
-  &::after {
-    background-color: #000;
-    content: " ";
-    position: absolute;
-    height: 1px;
-    width: 27px;
-  }
-  &::before {
-    left: 0;
-    top: 50%;
-    @include transform( rotate(30deg) );
-  }
-  &::after {
-    right: 0;
-    top: 50%;
-    @include transform( rotate(-30deg) );
-  }
-}
 
 
 // ================================= PROJECT IMAGES ================================
@@ -642,11 +435,10 @@ canvas,
   @media (min-width: 1024px) {
     width: auto;
     left: auto;
-    right: 10%;
+    right: 15%;
     transform: none;
-    top: 35%;
+    top: 45%;
   }
-
 }
 
 
