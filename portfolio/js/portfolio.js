@@ -920,14 +920,21 @@ function spheresToRandom(duration) {
 				})
 			    .onUpdate( function() {
 			    	renderer.render(scene, camera);
+
+			    	// if the current sphere's material is still
+			    	// a video map, reset it back.
+			    	if ( curSphere.material.map ) {
+			    		curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial();
+			    	}
 			    })
 			    .onComplete( function() {
 			    	// called once when the tween completes
 			    	if ( isTweening ) {
 			    		isTweening = false;
 			    		shrinkSphere();
-				    	$("#teaser").removeClass("active");
 			    		showNames();
+				    	$("#teaser").removeClass("active");
+
 			    		// Wave effect on mobile devices and a 
 			    		// random motion effect on larger screens.
 			    		if ( isMobile() ) {

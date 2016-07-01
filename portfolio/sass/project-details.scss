@@ -1,0 +1,213 @@
+// ================================= PROJECT DETAILS ================================
+// Container for the image and associated
+// code/text in the project details section.
+.detail--row {
+  padding: 30px;
+  margin: 0 auto;
+  max-width: $max-width;
+  &.description {
+    max-width: $max-width / 1.5;
+    .text {
+      line-height: 1.6;
+      text-align: center;
+    }
+  }
+}
+
+
+// Small text snippit at the top of each
+// project detail section.
+.detail--intro {
+  color: #fff; 
+  position: absolute;
+  left: 50%;
+  max-width: 400px;
+  top: 40%;
+  width: 80%;
+  z-index: 1;
+  @include transform( translate(-50%, -50%) );
+  @media (min-width: 768px) {
+    top: 50%;
+  }
+  @media (min-width: 1024px) {
+    width: auto;
+    left: auto;
+    right: 15%;
+    transform: none;
+    top: 45%;
+  }
+}
+
+
+// use on elements that contain an image 
+// that should span the full width of the page
+.img__full {
+  // background-attachment: fixed;
+  background-position: 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-bottom: 40px;
+  max-width: none;
+  padding: 0;
+  position: relative;
+  height: 80vh;
+  width: 100%;
+  &::before {
+    background: rgba(51, 51, 51, 0.5);
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+  }
+  // specific styles to get certain 
+  // images to appear correctly.
+  &.bg-zildjian {
+    background-position: 0% 50%;
+    @media (min-width: 1024px) {
+      background-position: 50%;
+    }
+  }
+}
+
+
+// used for the detail rows that have an image
+// of a code snippit paired with an image
+// of the corresponding site element.
+.code-sample {
+  text-align: center;
+  @media (min-width: 1024px) {
+    @include flexbox();
+    @include align-items( center );
+    @include justify-content(center);
+  }
+}
+
+
+// Same as the general code sample, except the 
+// code sample is on the right and the the 
+// image is to the left.
+.code-sample__alt {
+  @media (min-width: 1024px) {
+    @include flex-direction( row-reverse );
+  }
+  .code-snippit {
+    @media (min-width: 1024px) {
+      left: -30px;
+    }
+  }
+  .image-snippit {
+    @media (min-width: 1024px) {
+      left: 30px;
+    }
+  }
+}
+
+
+// sample of code that appears next to the
+// corresponding image that it produces.
+.code-snippit {
+  z-index: 1;
+  @media (min-width: 1024px) {
+    max-width: 400px;
+    position: relative;
+    left: 30px;
+  }
+}
+
+
+// Image that shows what the code next to
+// it produces.
+.image-snippit {
+  @media (min-width: 1024px) {
+    left: -30px;
+    position: relative;
+    max-width: 650px;
+  }
+}
+
+
+// Contains the prev/next buttons for each project
+.project-nav {
+  margin-top: 40px;
+  ul {
+    @include flexbox();
+    margin: 0;
+    padding: 0;
+  }
+}
+
+
+// Individual navigation buttons (prev and next)
+.project-nav--control {
+  background-size: cover;
+  background-position: 50%;
+  list-style: none;
+  height: 100px;
+  flex: 1;
+  @include flexbox();
+  @include flex-direction( column );
+  @include align-items( center );
+  @include justify-content(center);
+  position: relative;
+  text-align: center;
+  @media (min-width: 768px) {
+    height: 200px;
+  }
+  @media (min-width: 1024px) {
+    height: 300px;
+  }
+  @media (min-width: 1200px) {
+    height: 350px;
+  }
+  @media (min-width: 1400px) {
+    height: 400px;
+  }
+  @media (min-width: 1600px) {
+    height: 450px;
+  }
+  &::before {
+    background-color: rgba(51, 51, 51, 0.8);
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    @include transition( all 500ms ease );
+  }
+  &:hover {
+    cursor: pointer;
+    &::before {
+      background-color: rgba(51, 51, 51, 0);
+    }
+    .project-name,
+    .control--btn {
+      color: transparent;
+    }
+  }
+}
+
+
+// Text in the control button regions
+.project-name,
+.control--btn {
+  color: #fff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin: 0;
+  z-index: 1;
+  @include transition( all 500ms ease );
+  @media (min-width: 768px) {
+    font-size: 24px;
+  }
+}
+
+
+.control--btn {
+  font-size: 10px;
+  margin-bottom: 10px;
+}
