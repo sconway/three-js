@@ -1,7 +1,7 @@
 // (function() {
 
 var container, 
-	controls = [],
+	controls,
 	camera, 
 	scene, 
 	raycaster, 
@@ -10,7 +10,7 @@ var container,
 	lastCameraPosition,
 	curSphere,
 	font,
-	sprite,
+	mainMesh,
 	carousel, spacesphere, 
 	video, videoImage, videoImageContext, videoTexture,
 	intersectMutex = true,
@@ -252,12 +252,13 @@ function init() {
 	camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
 	camera.position.set(0, 0, cameraZ);
 
-	scene = new THREE.Scene();
+	scene     = new THREE.Scene();
 	raycaster = new THREE.Raycaster();
 
 	renderScene();
 	addBackground();
  
+
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	// window.addEventListener("devicemotion", handleMotion, false);
 
@@ -322,6 +323,8 @@ function addBackground() {
 		spacesphere.name = "space";
 		scene.add(spacesphere);
 
+		controls  = new THREE.TrackballControls( camera );
+
 		fadeLoader();
 		addLight();
 		initCarousel();
@@ -335,13 +338,48 @@ function addBackground() {
  * Adds lighting to the scene. Stays in a fixed position.
  */
 function addLight() {
-	var group  = new THREE.Object3D();
-	group.add( new THREE.AmbientLight( 0x222222 ) );
-	light = new THREE.HemisphereLight( 0x666666 , 0x000000 );
-	light.position.set( 1, 1, 1 ).normalize();
-	group.add( light );
-	group.name = "project_light";
-	scene.add( group );
+	// var group  = new THREE.Object3D();
+	// ambLight = new THREE.AmbientLight( 0x222222 );
+
+	// light = new THREE.HemisphereLight( 0x666666 , 0x000000 );
+	// light.position.set( 1, 1, 1 ).normalize();
+
+	// spotLight = new THREE.PointLight(0xffffff, 10);
+	// spotLight.position.set( 200, 500, 200 ).normalize();
+
+
+	// scene.add( ambLight );
+	// scene.add( light );
+	// scene.add( spotLight );
+	// scene.add( lightHelper );
+	// scene.add( new THREE.PointLightHelper( spotLight, 1 ) );
+}
+
+
+function addMainShape() {
+	var material     = new THREE.MeshPhongMaterial({
+							color: 0xffffff,
+							transparent: true,
+							specular: 0xe7e7e7,
+							shininess: 50
+						}),
+		geometry     = new THREE.SphereGeometry( 400, 64, 64 ),
+		glowMaterial = new THREE.ShaderMaterial({
+							    uniforms: {  },
+								vertexShader:   document.getElementById( 'vertexShader2'   ).textContent,
+								fragmentShader: document.getElementById( 'fragmentShader2' ).textContent,
+								side: THREE.BackSide,
+								blending: THREE.AdditiveBlending,
+								transparent: true
+							}),
+		glowMesh     = new THREE.Mesh( geometry, glowMaterial );
+
+	mainMesh = new THREE.Mesh( geometry, material );
+	glowMesh.scale.set( 1.2, 1.2, 1.2 );
+
+
+	scene.add( mainMesh );
+	scene.add( glowMesh );
 }
 
 
@@ -354,7 +392,7 @@ function addShapes() {
 
 	for ( var i = 0; i < numChildren; i++ ) {
 		var size     = ((i + 2) * 10) - ((i + 1) * 5),
-			color    = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial() ,
+			color    = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial(),
 			moonGlow = new THREE.Mesh( 
 						new THREE.SphereGeometry( 40, 64, 64 ),
 						color.clone()
@@ -365,10 +403,10 @@ function addShapes() {
 		moonGlow.name = names[i];
  		group.name = "project_group";
 
-		text = createText(moonGlow.name, moonGlow.position);
+		// text = createText(moonGlow.name, moonGlow.position);
 
 		group.add( moonGlow );
-		group.add( text );
+		// group.add( text );
 
 		// controls.push( new THREE.DeviceOrientationControls( group , true ) );
 
@@ -379,8 +417,8 @@ function addShapes() {
 
 	// since there won't be a current sphere on page load, set one initially,
 	// and then move the spheres into a random location in the 3D space.
-	curSphere = scene.clone().children[rando(3,7)].children[0];
-	hideText();
+	curSphere = objects[rando(3,6)];
+	// hideText();
 	spheresToRandom(1250);
 }
 
@@ -411,7 +449,7 @@ function addVideo(sphere) {
 
 	// Wait until the video is fully loaded before changing the material.
 	video.addEventListener('loadeddata', function(e) {
-	    sphere.material = new THREE.MeshBasicMaterial( { 
+	    mainMesh.material = new THREE.MeshBasicMaterial( { 
 							map: videoTexture, 
 							transparent: true,
 							opacity: 0.9,
@@ -452,6 +490,7 @@ function loadFont() {
 	var loader = new THREE.FontLoader();
 		loader.load( 'js/helvetiker_regular.typeface.js', function ( response ) {
 			font = response;
+			addMainShape();
 			addShapes();
 		} );
 }
@@ -894,28 +933,64 @@ function spheresToRandom(duration) {
 		var posX = !isMobile() ? (-650 + ((i+1) * 150)) * (i % 2 === 0 ? 1 : 1) : -100,
 			posY = !isMobile() ? (500 - ((i+1) * 90)) * (i % 2 === 0 ? -1 : 1) : (-450 + ((i+1) * 100)),
 			posZ = !isMobile() ? rando(-400, 300) : 300,
-			vector = new THREE.Vector3(posX, posY, posZ);
+			vector;
 
-		// For this one example, move it out of the way so nothing overlaps.
-		if (i === 4 && !isMobile()) {
-			posX = -500;
-			vector = new THREE.Vector3(posX, posY, posZ);
+
+		switch (i) {
+			case 0:
+				vector = new THREE.Vector3(-200, 200, 300);
+				break;
+			case 1:
+				vector = new THREE.Vector3(200, 200, 300);
+				break;
+			case 2:
+				vector = new THREE.Vector3(-75, 100, 350);
+				break;
+			case 3:
+				vector = new THREE.Vector3(300, 50, 300);
+				break;
+			case 4:
+				vector = new THREE.Vector3(-300, 0, 300);
+				break;
+			case 5:
+				vector = new THREE.Vector3(120, -150, 350);
+				break;
+			case 6:
+				vector = new THREE.Vector3(-120, -200, 300);
+				break;
+			case 7:
+				vector = new THREE.Vector3(120, 50, 350);
+				break;
+			default:
+				break;
 		}
 
-		// Make sure we don't tween the current sphere and make sure that the
+		// // For this one example, move it out of the way so nothing overlaps.
+		// if (i === 4 && !isMobile()) {
+		// 	posX = -500;
+		// 	vector = new THREE.Vector3(posX, posY, posZ);
+		// }
+
+		 // Make sure we don't tween the current sphere and make sure that the
 		// spheres are not currently being tweened.
 		if ( !isTweening ) {
 
 			new TWEEN.Tween(objects[i].position)
 				.to({
-					x: posX,
-					y: posY,
-					z: posZ
+					x: vector.x,
+					y: vector.y,
+					z: vector.z
 				}, duration)
 				.easing( TWEEN.Easing.Elastic.InOut )
 				.onStart( function() {
 					isTweening = true;
-					curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial();
+					mainMesh.material = new THREE.MeshPhongMaterial({
+						color: 0xffffff,
+						transparent: true,
+						specular: 0xe7e7e7,
+						shininess: 50
+					})
+					// curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial();
 					$("#teaser").removeClass("active");
 				})
 			    .onUpdate( function() {
@@ -923,16 +998,16 @@ function spheresToRandom(duration) {
 
 			    	// if the current sphere's material is still
 			    	// a video map, reset it back.
-			    	if ( curSphere.material.map ) {
-			    		curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial();
-			    	}
+			    	// if ( curSphere.material.map ) {
+			    	// 	curSphere.material = isMobile() ? new THREE.MeshLambertMaterial({color: 0xffffff * Math.random() }) : createGlowMaterial();
+			    	// }
 			    })
 			    .onComplete( function() {
 			    	// called once when the tween completes
 			    	if ( isTweening ) {
 			    		isTweening = false;
 			    		shrinkSphere();
-			    		showNames();
+			    		// showNames();
 				    	$("#teaser").removeClass("active");
 
 			    		// Wave effect on mobile devices and a 
@@ -1032,12 +1107,12 @@ function waveSpheres() {
  * @param      object     :     THREE.Mesh
  *
  */
-function expandSphere(object) {
+function expandSphere( object ) {
 	var numChildren = scene.clone().children.length,
-		scaleSize   = !isMobile() ? 8 : 4,
-		sphere      = object.children[0];
+		scaleSize   = !isMobile() ? 2 : 4,
+		sphere      = object.children[ 0 ];
 
-	new TWEEN.Tween(object.scale)
+	new TWEEN.Tween( object.scale )
 		.to({
 			x: scaleSize,
 			y: scaleSize,
@@ -1045,14 +1120,13 @@ function expandSphere(object) {
 		}, 500)
 		.easing( TWEEN.Easing.Circular.Out )
 	    .onStart( function() {
-	    	
+	    	addVideo( sphere );
 	    })
 	    .onUpdate( function() {
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
 			// sphere.material = addVideo(sphere.name);
-			addVideo(sphere);
     		rotateSphere = true;
 	    })
 	    .start();
@@ -1241,8 +1315,8 @@ function updateControls() {
  * @param    name    :    string
  *
  */
-function removeObject(name) {
-	var selectedObject = scene.getObjectByName(name);
+function removeObject( name ) {
+	var selectedObject = scene.getObjectByName( name );
 
     if (selectedObject) {
 		scene.remove( selectedObject );
@@ -1263,13 +1337,13 @@ function onIntersection(intersects) {
 		numChildren   = children.length;
 
 	// only run this if the intersected 
- 	if ( INTERSECTED != intersects[0].object && !isTweening && 
- 		 intersects[0].object.name != "project_name" &&
- 		 intersects[0].object.name != "space" &&
+ 	if ( INTERSECTED != intersects[ 0 ].object && !isTweening && 
+ 		 intersects[ 0 ].object.name != "project_name" &&
+ 		 intersects[ 0 ].object.name != "space" &&
  		 curMouse.x !== 0 && curMouse.y !== 0 ) {
 
 		$("html").css({cursor: 'pointer'});
-		curSphere = INTERSECTED = intersects[0].object;
+		curSphere = INTERSECTED = intersects[ 0 ].object;
 
 		if ( !projectInView ) {
 			stopCamera = true;
@@ -1279,9 +1353,9 @@ function onIntersection(intersects) {
 		if ( intersectMutex ) {
 			intersectMutex = false;
 			rotateScene = false;
-			hideText();
-			expandSphere(curSphere.parent);
-			spheresToCurrent(curSphere.parent);
+			// hideText();
+			expandSphere( curSphere.parent );
+			// spheresToCurrent(curSphere.parent);
 		}
 	}
 }
@@ -1302,7 +1376,7 @@ function onMobileIntersection(intersects) {
 	if ( intersectMutex ) {
 		TWEEN.removeAll();
 		intersectMutex = false;
-		hideText();
+		// hideText();
 		expandSphere(curSphere.parent);
 		moveSphereUp(curSphere.parent);
 	}
@@ -1323,7 +1397,7 @@ function onNoMobileIntersection() {
 			console.log("no mobile intersection. Fired once");
 			// prevent extra tweens on objects
 			TWEEN.removeAll(); 
-			spheresToRandom(1250);
+			spheresToRandom( 1250 );
 			shrinkSphere();
 			if ( video ) video.pause();
 			rotateSphere = false;
@@ -1357,7 +1431,6 @@ function onNoIntersections(intersects) {
 	} 
 
 	$("html").css({cursor: 'initial'});
-	$("#previewImg").attr("src", null);
 
 	INTERSECTED = null;
 }
@@ -1379,7 +1452,7 @@ function render() {
 	// cirlcle the camera around as long as there isn't a project
 	// in view or one being hovered on.
 	if ( !projectInView && !stopCamera ) {
-		circleCamera();
+		// circleCamera();
 	}
 
 	if ( rotateCamera ) {
@@ -1403,7 +1476,7 @@ function render() {
 	// find intersections
 	raycaster.setFromCamera( mouse, camera );
 
-	var intersects = raycaster.intersectObjects( scene.children, true );
+	var intersects = raycaster.intersectObjects( objects, true );
 
 	// Check if the mouse pointer has intersected any of the objects
 	if ( !isMobile() ) {
@@ -1411,12 +1484,15 @@ function render() {
 			if ( intersects[0].object.name === "space" ){
 				onNoIntersections();
 			} else {
-				onIntersection(intersects);
+				onIntersection( intersects );
 			}
 		} else {
 			onNoIntersections();
 		}
 	}
+
+	if ( controls )
+		controls.update();
 
 	renderer.render( scene, camera );
 }

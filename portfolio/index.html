@@ -11,7 +11,7 @@
   	var loaded = false,
 		    timedOut = false;
 
-		setTimeout(checkLoader, 2500);
+		setTimeout(checkLoader, 2000);
 
 		window.addEventListener('load', function () {
 		  loaded = true;
@@ -78,6 +78,28 @@
 		    gl_FragColor = vec4( glow, 0.9 );
 		}
 	</script>
+
+
+	<!-- ---------------- Custom Shader Code ------------------------ -->
+	<script id="vertexShader2" type="x-shader/x-vertex">
+		varying vec3 vNormal;
+		void main() 
+		{
+		    vNormal = normalize( normalMatrix * normal );
+		    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		}
+	</script>
+
+	<!-- fragment shader a.k.a. pixel shader -->
+	<script id="fragmentShader2" type="x-shader/x-vertex"> 
+		varying vec3 vNormal;
+		void main() 
+		{
+			float intensity = pow( 0.7 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 4.0 ); 
+		    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+		}
+	</script>
+	<!-- ----------------------------------------------------------- -->
 
 
 	<!-- LOADER -->
@@ -478,13 +500,14 @@
 	<script type="text/javascript" src="js/tween.js"></script>
 	<!-- <script type="text/javascript" src="js/create.min.js"></script> -->
 	<!-- <script type="text/javascript" src="http://sole.github.io/tween.js/build/tween.min.js"></script> -->
-	<script type="text/javascript" src="js/orbit-controls.js"></script>
+	<script type="text/javascript" src="js/controls/TrackballControls.js"></script>
 	<script type="text/javascript" src="js/keyboard-state.js"></script>
 	<script type="text/javascript" src="js/modernizer.js"></script>
 	<script type="text/javascript" src="js/fullscreen.js"></script>
 	<script type="text/javascript" src="js/resize.js"></script>
-	<script type="text/javascript" src="js/detector.js"></script>
-	<script type="text/javascript" src="js/deviceControls.js"></script>
+	<script type="text/javascript" src="js/asciiEffects.js"></script>
+	<script type="text/javascript" src="js/projector.js"></script>
+	<script type="text/javascript" src="js/canvasRenderer.js"></script>
 	<script type="text/javascript" src="js/portfolio.js"></script>
 </body>
 

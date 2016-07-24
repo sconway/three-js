@@ -561,5 +561,3 @@ THREE.Projector = function() {
 	}
 
 };
-
-Search
