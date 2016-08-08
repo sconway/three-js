@@ -212,6 +212,8 @@ canvas,
 }
 
 
+// ========================= MODIFIERS =========================
+
 .absolute-center {
   position: absolute;
   top: 50%;
@@ -226,6 +228,18 @@ canvas,
     @include transition(opacity 500ms ease);
     opacity: 0;
   }
+}
+
+
+
+
+.changing-text {
+  color: #d2ef69;
+  font-size: 12px;
+  position: absolute;
+  left: 50px;
+  top: 50px;
+  z-index: 1;
 }
 
 
@@ -286,6 +300,39 @@ canvas,
   z-index: 1;
   @include transform( translate(20%, -50%) rotate(-90deg) );
 }
+
+
+// The project name appears behind the main shape
+// and displays the current project.
+.cur-project {
+  background: transparent;
+  color: #fff;
+  font-size: 148px;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+}
+
+
+// one of many icons that orbit around the 
+// main shape in the scene.
+.icon {
+  // height: auto;
+  // width: 200px;
+}
+
+// .skill-1 {
+//   color: #fff;
+//   font-size: 36px;
+//   padding-right: 50px;
+// }
+
+
+// .skill-2 {
+//   color: #fff;
+//   font-size: 36px;
+//   padding-left: 50px;
+// }
 
 
 // The project teaser is the description

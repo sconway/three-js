@@ -453,6 +453,14 @@ canvas,
     transition: opacity 500ms ease;
     opacity: 0; }
 
+.changing-text {
+  color: #d2ef69;
+  font-size: 12px;
+  position: absolute;
+  left: 50px;
+  top: 50px;
+  z-index: 1; }
+
 .back-btn {
   background-color: #35FDFF;
   color: #fff;
@@ -518,6 +526,14 @@ canvas,
   -ms-transform: translate(20%, -50%) rotate(-90deg);
   -o-transform: translate(20%, -50%) rotate(-90deg);
   transform: translate(20%, -50%) rotate(-90deg); }
+
+.cur-project {
+  background: transparent;
+  color: #fff;
+  font-size: 148px;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center; }
 
 .project-teaser {
   color: #fff;
