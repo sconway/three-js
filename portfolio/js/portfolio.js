@@ -262,9 +262,8 @@ function init() {
 	addIcons();
 	createText();
 
-	// setInterval( function() {
-		animateName( );
-	// }, 2000 );
+	animateName();
+	animateNameColor();
  
 	controls  = new THREE.OrbitControls( shapeGroup, renderer.domElement );
 
@@ -272,15 +271,8 @@ function init() {
 
 	// When there's a click, zoom to the project that's hovered on
 	$(".canvas").click( function( event ) { 
-		// if ( !isMobile() ) {
-			zoomToProject();
-		// } 
+		zoomToProject();
 	});
-
-	// $(".js-project-details").click( function( event ) { 
-	// 	event.stopPropagation();
-	// 	zoomToProject(); 
-	// });
 
 	// Click handlers for the back and scroll buttons inside the project view.
 	$(".js-back-to-project").click(function() { backToProjectView(); });
@@ -296,7 +288,7 @@ function init() {
  */
 function renderScene() {
 	renderer = new THREE.WebGLRenderer({alpha : true});
-	renderer.setClearColor( 0x0e0e15, 1 );
+	renderer.setClearColor( 0x1a1a1b, 1 );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
@@ -335,7 +327,7 @@ function addMainShape() {
 
 	var material     = new THREE.MeshPhongMaterial({
 							color: 0x000000,
-							opacity: 0.5,
+							opacity: 1,
 							specular: 0xe7e7e7,
 							shininess: 50,
 							transparent: true
@@ -720,6 +712,18 @@ function animateName() {
 }
 
 
+function animateNameColor () {
+	var text = document.getElementById( 'changingText' );
+
+	sweep(text, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
+	  callback: animateNameColor,
+	  direction: 1,
+	  duration: 10000,
+	  space: 'HUSL'
+	});
+}
+
+
 /**
  * Creates the 3-D container for the project description
  *
@@ -824,12 +828,12 @@ function backToProjectView() {
 function circleCamera() {
 	// no need to move the camera if we are on a mobile device
 	// if ( !isMobile() ) {
-	theta += 0.2;
-	iconGroup.rotation.x = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	iconGroup.rotation.y = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	iconGroup.rotation.z = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	camera.lookAt( scene.position );
-	camera.updateMatrixWorld();
+	// theta += 0.2;
+	// iconGroup.rotation.x = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
+	// iconGroup.rotation.y = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
+	// iconGroup.rotation.z = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
+	// camera.lookAt( scene.position );
+	// camera.updateMatrixWorld();
 	// }
 	
 	// var numChildren = icons.length;
@@ -842,6 +846,44 @@ function circleCamera() {
 	// 	// camera.lookAt( scene.position );
 	// 	camera.updateMatrixWorld();
 	// }
+	var t = clock.getElapsedTime();
+
+	i1.position.x = Math.sin(t) * -600;
+	i1.position.y = Math.sin(t) * 600;
+	i1.position.z = Math.cos(t) * 600;
+
+	// orbit from top right to bottom left
+	i2.position.x = Math.cos(t) * 600;
+	i2.position.y = Math.sin(t) * -600;
+	i2.position.z = Math.cos(t) * -600;
+
+	// orbit from top right to bottom left
+	i3.position.x = Math.sin(t) * 600;
+	i3.position.y = Math.cos(t) * -600;
+	i3.position.z = Math.sin(t) * 600;
+
+	// orbit from top right to bottom left
+	i4.position.x = Math.cos(t) * 600;
+	i4.position.y = Math.sin(t) * -600;
+	i4.position.z = Math.sin(t) * -600;
+
+	// orbit from top right to bottom left
+	i5.position.x = Math.cos(t) * 600;
+	i5.position.y = Math.cos(t) * 600;
+	i5.position.z = Math.sin(t) * -600;
+
+	// orbit from top right to bottom left
+	i6.position.x = Math.sin(t) * 600;
+	i6.position.y = Math.sin(t) * -600;
+	i6.position.z = Math.cos(t) * 600;
+
+	// Offset from our timer so the electrons don't smash into each other.
+	// var tOffset = 1.5 + clock.getElapsedTime();
+
+	// // orbit from the bottom to the top
+	// i3.position.x = Math.sin(tOffset) * 500;
+	// i3.position.y = Math.sin(tOffset) * 500;
+	// i3.position.z = Math.cos(tOffset) * 500;
 }
 
 
@@ -993,25 +1035,16 @@ function spheresToRandom(duration) {
 			    .onComplete( function() {
 			    	// called once when the tween completes
 			    	if ( isTweening ) {
-			    		isTweening = false;
+			    		// mainMesh.material.opacity = 1;
+			    		isTweening  = false;
+		    			rotateScene = true;
 			    		shrinkSphere();
-
-				    	// $("#teaser").removeClass("active");
-
-			    		// Wave effect on mobile devices and a 
-			    		// random motion effect on larger screens.
-			    		// if ( isMobile() ) {
-			    		// 	waveSpheres();
-			    		// } else {
-			    			rotateScene = true;
-			    		// }
 			    	}
 			    	
 			    })
 			    .start();
 		}
 	}
-		
 }
 
 
@@ -1299,6 +1332,8 @@ function onIntersection( intersects ) {
 		if ( intersectMutex ) {
 			intersectMutex = false;
 			rotateScene = false;
+			// set the main mesh's opacity to transparent so we can see the orbs
+			// mainMesh.material.opacity = 0.5;
 			showText( intersects[0] );
 			expandSphere( curSphere );
 			spheresToCurrent( curSphere, 1250 );

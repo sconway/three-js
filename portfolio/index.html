@@ -53,99 +53,6 @@
 
 <body id="body">
 
-	<script id="fragmentShader4" type="x-shader/x-fragment">
-
-		uniform float time;
-		uniform vec2 resolution;
-
-		varying vec2 vUv;
-
-		void main( void ) {
-
-			vec2 position = -1.0 + 2.0 * vUv;
-
-			float red = abs( sin( position.x * position.y + time / 5.0 ) );
-			float green = abs( sin( position.x * position.y + time / 4.0 ) );
-			float blue = abs( sin( position.x * position.y + time / 3.0 ) );
-			gl_FragColor = vec4( red, green, blue, 1.0 );
-
-		}
-
-	</script>
-
-	<script id="vertexShader4" type="x-shader/x-vertex">
-
-		varying vec2 vUv;
-
-		void main()
-		{
-			vUv = uv;
-			vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-			gl_Position = projectionMatrix * mvPosition;
-		}
-
-	</script>
-
-
-	<script id="vertexShader" type="x-shader/x-vertex">
-		varying vec2 vUv;
-		void main() {
-		  vUv = uv;
-		  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-		}
-   </script>
-  
-  <script id="fragmentShader" type="x-shader/x-fragment">
-	// Author @patriciogv - 2015
-	// http://patriciogonzalezvivo.com
-	// https://www.shadertoy.com/view/MlfXzN
-	// Modified by 2Pha
-
-	uniform vec3 colour;
-	uniform float rows;
-	uniform float glow;
-	uniform float glowRadius;
-	uniform float charDetail;
-	uniform float speed;
-	uniform float iGlobalTime;
-	varying vec2 vUv;
-
-	float random(in float x){
-	    return fract(sin(x)*43758.5453);
-	}
-
-	float random(in vec2 st){
-	    return fract(sin(dot(st.xy ,vec2(12.9898,78.233))) * 43758.5453);
-	}
-
-	float randomChar(in vec2 outer,in vec2 inner){
-	    float grid = charDetail;
-	    vec2 margin = vec2(.2,.05);
-	    float seed = 23.;
-	    vec2 borders = step(margin,inner)*step(margin,1.-inner);
-	    return step(.5,random(outer*seed+floor(inner*grid))) * borders.x * borders.y;
-	}
-
-	vec3 matrix(in vec2 st){
-	    vec2 ipos = floor(st*rows)+vec2(1.,0.);
-
-	    ipos += vec2(.0,floor(iGlobalTime*speed*random(ipos.x)));
-
-	    vec2 fpos = fract(st*rows);
-	    vec2 center = (.5-fpos);
-
-	    float pct = random(ipos);
-	    float glowamount = (glowRadius-dot(center,center)*3.)*glow;
-
-	    return vec3(randomChar(ipos,fpos) * pct * glowamount) * colour;
-	}
-
-	void main() {
-	    gl_FragColor = vec4(matrix(vUv),1.0);
-	}
-  </script>
-
-
 	<!-- LOADER -->
 	<section id="loader" class="loader">
 		<div class="clock">
@@ -158,32 +65,7 @@
 
 	<!-- MAIN CANVAS -->
 	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
-<!-- 		<video id="Enernoc" preload="auto" style="display:none">
-			<source src="images/enernoc.mp4" >
-		</video>
-		<video id="Wolf Greenfield" preload="auto" style="display:none">
-			<source src="images/wolf-greenfield.mp4" >
-		</video>
-		<video id="Copyright Clearance" preload="auto" style="display:none">
-			<source src="images/copyright.mp4" >
-		</video>
-		<video id="Standish Mellon" preload="auto" style="display:none">
-			<source src="images/standish.mp4" >
-		</video>
-		<video id="Zildjian Cymbals" preload="auto" style="display:none">
-			<source src="images/zildjian.mp4" >
-		</video>
-		<video id="Father Peyton" preload="auto" style="display:none">
-			<source src="images/father-peyton.mp4" >
-		</video>
-		<video id="Wentworth" preload="auto" style="display:none">
-			<source src="images/wentworth.mp4" >
-		</video>
-		<video id="IHA Today" preload="auto" style="display:none">
-			<source src="images/father-peyton.mp4" >
-		</video> -->
-
-		<aside class="changing-text">
+		<aside class="changing-text" id="changingText">
 			<div id="firstName" class="first-name">sc-ot--t-</div>
 			<div id="lastName" class="last-name">conw--ay</div>
 		</aside>
@@ -554,6 +436,7 @@
 	<script type="text/javascript" src="js/modernizer.js"></script>
 	<script type="text/javascript" src="js/cssRenderer.js"></script>
 	<script type="text/javascript" src="js/fullscreen.js"></script>
+	<script src="//cdn.jsdelivr.net/sweep/latest/mainfile"></script>
 	<script type="text/javascript" src="js/jquery.shuffleLetters.js"></script>
 	<script type="text/javascript" src="js/resize.js"></script>
 	<script type="text/javascript" src="js/projector.js"></script>
