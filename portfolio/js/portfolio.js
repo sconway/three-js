@@ -2,7 +2,8 @@
 
 var container, 
 	controls,
-	camera, 
+	camera,
+	icon1 = 1, 
 	scene, 
 	raycaster, 
 	renderer,
@@ -13,6 +14,7 @@ var container,
 	textMesh,
 	cssRenderer,
 	mainMesh,
+	sprite1, sprite2, sprite3, sprite4, sprite5,
 	carousel, spacesphere, 
 	video, videoImage, videoImageContext, videoTexture,
 	intersectMutex = true,
@@ -22,7 +24,8 @@ var container,
 	clickedOnce = false,
 	mouseDown = false,
 	rotateSphere = false,
-	rotateScene = false, 
+	rotateScene = false,
+	iconLoaded = false, 
 	scaleToX = window.innerWidth/50,
 	scaleToY = window.innerHeight/50,
 	scaleDown = false,
@@ -40,7 +43,6 @@ var container,
 	minFace = 50,
 	maxFace = 90,
 	numShapes = 10,
-	keyboard = new THREEx.KeyboardState(),
 	mouse = new THREE.Vector2(), 
 	curMouse = new THREE.Vector2(),
 	shapeGroup = new THREE.Object3D(), 
@@ -255,7 +257,7 @@ function init() {
 
 	renderScene();
 	fadeLoader();
-	addLight();
+	// addLight();
 	initCarousel();
 	addMainShape();
 	addShapes();
@@ -327,7 +329,7 @@ function addMainShape() {
 
 	var material     = new THREE.MeshPhongMaterial({
 							color: 0x000000,
-							opacity: 1,
+							opacity: 0.5,
 							specular: 0xe7e7e7,
 							shininess: 50,
 							transparent: true
@@ -409,14 +411,10 @@ function addShapes() {
 								material
 							);
 
-
-
 				gradient.name = names[i];
-		 		// group.name = "project_group";
 				objects.push( gradient );
 				shapeGroup.add( gradient );
 
-				// scene.add( group );
 			}
 
 
@@ -437,68 +435,46 @@ function addShapes() {
  */
 function addIcons() {
 
-	var icon1 = document.createElement( 'img' );
-	icon1.src = 'images/assets/icon1.png';
-	icon1.className = 'icon';
+	//DRINK
+	var texture1 = new THREE.TextureLoader().load('images/assets/icon1.png');
+	// CODE
+	var texture2 = new THREE.TextureLoader().load('images/assets/icon2.png');
+	// MAGNET
+	var texture3 = new THREE.TextureLoader().load('images/assets/icon3.png');
+	// WEIGHT
+	var texture4 = new THREE.TextureLoader().load('images/assets/icon4.png');
+	// MONEY
+	var texture5 = new THREE.TextureLoader().load('images/assets/icon5.png');
 
-	// code icon
-	var icon2 = document.createElement( 'img' );
-	icon2.src = 'images/assets/icon2.png';
-	icon2.className = 'icon';
+	var material1 = new THREE.SpriteMaterial( { map: texture1 } );
+	var material2 = new THREE.SpriteMaterial( { map: texture2 } );
+	var material3 = new THREE.SpriteMaterial( { map: texture3 } );
+	var material4 = new THREE.SpriteMaterial( { map: texture4 } );
+	var material5 = new THREE.SpriteMaterial( { map: texture5 } );
 
-	// magnet icon
-	var icon3 = document.createElement( 'img' );
-	icon3.src = 'images/assets/icon3.png';
-	icon3.className = 'icon';
+	sprite1 = new THREE.Sprite( material1 );
+	sprite2 = new THREE.Sprite( material2 );
+	sprite3 = new THREE.Sprite( material3 );
+	sprite4 = new THREE.Sprite( material4 );
+	sprite5 = new THREE.Sprite( material5 );
+	
+	sprite1.position.set( -500, 100, 500 );
+	sprite2.position.set( 400, 0, 1000 );
+	sprite3.position.set( -600, 100, 1000 );
+	sprite4.position.set( -1200, 0, 200 );
+	sprite5.position.set( 1000, 100, -100 );
+	
+	sprite1.scale.set( 100, 100, 100 );
+	sprite2.scale.set( 100, 100, 100 );
+	sprite3.scale.set( 100, 100, 100 );
+	sprite4.scale.set( 100, 100, 100 );
+	sprite5.scale.set( 100, 100, 100 );
 
-	// weight icon
-	var icon4 = document.createElement( 'img' );
-	icon4.src = 'images/assets/icon4.png';
-	icon4.className = 'icon';
-
-	// drink icon
-	var icon5 = document.createElement( 'img' );
-	icon5.src = 'images/assets/icon5.png';
-	icon5.className = 'icon';
-
-
-	var icon6 = document.createElement( 'img' );
-	icon6.src = 'images/assets/icon6.png';
-	icon6.className = 'icon';
-
-
-	i1 = new THREE.CSS3DObject( icon1 );
-	i1.position.set( -600, 100, 1000 );
-
-	i2 = new THREE.CSS3DObject( icon2 );
-	i2.position.set( 400, 0, 1000 );
-
-	i3 = new THREE.CSS3DObject( icon3 );
-	i3.position.set( -500, 100, 500 );
-
-	i4 = new THREE.CSS3DObject( icon4 );
-	i4.position.set( -1200, 0, 200 );
-
-	i5 = new THREE.CSS3DObject( icon1 );
-	i5.position.set( -300, -100, 800 );
-
-	i6 = new THREE.CSS3DObject( icon6 );
-	i6.position.set( 1000, 100, -100 );
-
-
-	icons.push( i1 );
-	icons.push( i2 );
-	icons.push( i3 );
-	icons.push( i4 );
-	icons.push( i5 );
-	icons.push( i6 );
-
-	iconGroup.add( i1 );
-	iconGroup.add( i2 );
-	iconGroup.add( i3 );
-	iconGroup.add( i4 );
-	iconGroup.add( i5 );
-	iconGroup.add( i6 );
+	iconGroup.add( sprite1 );
+	iconGroup.add( sprite2 );
+	iconGroup.add( sprite3 );
+	iconGroup.add( sprite4 );
+	iconGroup.add( sprite5 );
 
 	scene.add( iconGroup );
 
@@ -826,64 +802,34 @@ function backToProjectView() {
  * the project names to be viewing the camera.
  */
 function circleCamera() {
-	// no need to move the camera if we are on a mobile device
-	// if ( !isMobile() ) {
-	// theta += 0.2;
-	// iconGroup.rotation.x = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	// iconGroup.rotation.y = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	// iconGroup.rotation.z = 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	// camera.lookAt( scene.position );
-	// camera.updateMatrixWorld();
-	// }
-	
-	// var numChildren = icons.length;
 
-	// for ( var i = 0; i < numChildren; i++ ) {
-	// 	// iconGroup.children[ i ].lookAt( camera.position );
-	// 	icons[ i ].position.x += 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	// 	icons[ i ].position.y += 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	// 	icons[ i ].position.z += 0.35 * Math.sin( THREE.Math.degToRad( theta ) );
-	// 	// camera.lookAt( scene.position );
-	// 	camera.updateMatrixWorld();
-	// }
-	var t = clock.getElapsedTime();
+	// var t = clock.getElapsedTime();
+	var t = theta;
 
-	i1.position.x = Math.sin(t) * -600;
-	i1.position.y = Math.sin(t) * 600;
-	i1.position.z = Math.cos(t) * 600;
+	// // orbit from top right to bottom left
+	sprite1.position.x = Math.cos( t ) * 300;
+	sprite1.position.y = Math.sin( t ) * -600;
+	sprite1.position.z = Math.cos( t ) * -600;
 
-	// orbit from top right to bottom left
-	i2.position.x = Math.cos(t) * 600;
-	i2.position.y = Math.sin(t) * -600;
-	i2.position.z = Math.cos(t) * -600;
+	// // orbit from top left to bottom right
+	sprite2.position.x = Math.sin( 1.3 * t ) * -300;
+	sprite2.position.y = Math.cos( 1.3 * t ) * -600;
+	sprite2.position.z = Math.sin( 1.3 * t ) * -600;
 
-	// orbit from top right to bottom left
-	i3.position.x = Math.sin(t) * 600;
-	i3.position.y = Math.cos(t) * -600;
-	i3.position.z = Math.sin(t) * 600;
+	sprite3.position.x = Math.cos( 1.5 + ( 1.3 * t ) ) * 700;
+	sprite3.position.y = Math.cos( 1.5 + ( 1.3 * t ) ) * 300;
+	sprite3.position.z = Math.sin( 1.5 + ( 1.3 * t ) ) * 800;
 
-	// orbit from top right to bottom left
-	i4.position.x = Math.cos(t) * 600;
-	i4.position.y = Math.sin(t) * -600;
-	i4.position.z = Math.sin(t) * -600;
+	sprite4.position.x = Math.cos( 1.3 * t ) * 700;
+	sprite4.position.y = Math.cos( 1.3 * t ) * -300;
+	sprite4.position.z = Math.sin( 1.3 * t ) * 800;
 
-	// orbit from top right to bottom left
-	i5.position.x = Math.cos(t) * 600;
-	i5.position.y = Math.cos(t) * 600;
-	i5.position.z = Math.sin(t) * -600;
+	sprite5.position.x = Math.cos( 1.4 * t ) * -800;
+	sprite5.position.y = Math.cos( 1.4 * t );
+	sprite5.position.z = Math.sin( 1.4 * t ) * 700;
 
-	// orbit from top right to bottom left
-	i6.position.x = Math.sin(t) * 600;
-	i6.position.y = Math.sin(t) * -600;
-	i6.position.z = Math.cos(t) * 600;
+	theta += 0.02;
 
-	// Offset from our timer so the electrons don't smash into each other.
-	// var tOffset = 1.5 + clock.getElapsedTime();
-
-	// // orbit from the bottom to the top
-	// i3.position.x = Math.sin(tOffset) * 500;
-	// i3.position.y = Math.sin(tOffset) * 500;
-	// i3.position.z = Math.cos(tOffset) * 500;
 }
 
 
@@ -1332,6 +1278,7 @@ function onIntersection( intersects ) {
 		if ( intersectMutex ) {
 			intersectMutex = false;
 			rotateScene = false;
+			stopCamera = true;
 			// set the main mesh's opacity to transparent so we can see the orbs
 			// mainMesh.material.opacity = 0.5;
 			showText( intersects[0] );
@@ -1407,6 +1354,7 @@ function onNoIntersections(intersects) {
 			hideText()
 			// if ( video ) video.pause();
 			rotateSphere = false;
+			stopCamera = false;
 			unIntersectMutex = false;
 		}
 	} 
