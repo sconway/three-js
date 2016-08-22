@@ -1,8 +1,70 @@
 // ================================= PROJECT DETAILS ================================
+// Button that appears when the project details
+// are showing. Takes user back to main display.
+.back-btn {
+  background-color: #35FDFF;
+  color: #fff;
+  font-size: 16px;
+  height: 50px;
+  width: 50px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  &:hover {
+    cursor: pointer;
+  }
+  span {
+    background: #092D2D;
+    height: 1px;
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    @include transform-origin( center );
+    @include transform( translate(-50%, -50%) rotate(45deg) );
+    &:nth-child(2) {
+      @include transform( translate(-50%, -50%) rotate(-45deg) );      
+    }
+  }
+}
+
+
+.prev-btn,
+.next-btn {
+  color: #fff;
+  font-size: 12px; 
+  letter-spacing: 3px;
+  position: absolute;
+  top: 40%;
+  text-transform: uppercase;
+  z-index: 1;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+
+// previous button that appears in the
+// header of the project details.
+.prev-btn {
+  @include transform( translate(-35%, -50%) rotate(-90deg) );
+}
+
+
+// previous button that appears in the
+// header of the project details.
+.next-btn {
+  right: 0;
+  @include transform( translate(20%, -50%) rotate(-90deg) );
+}
+
+
 // Container for the image and associated
 // code/text in the project details section.
 .detail--row {
-  padding: 30px;
+  padding: 50px 30px;
   margin: 0 auto;
   max-width: $max-width;
   &.description {
@@ -50,7 +112,8 @@
   max-width: none;
   padding: 0;
   position: relative;
-  height: 80vh;
+  height: 100vh;
+  // height: 80vh;
   width: 100%;
   &::before {
     background: rgba(51, 51, 51, 0.5);
@@ -81,7 +144,7 @@
   @media (min-width: 1024px) {
     @include flexbox();
     @include align-items( center );
-    @include justify-content(center);
+    // @include justify-content(center);
   }
 }
 
@@ -95,12 +158,58 @@
   }
   .code-snippit {
     @media (min-width: 1024px) {
-      left: -30px;
+      // left: -30px;
     }
   }
   .image-snippit {
     @media (min-width: 1024px) {
-      left: 30px;
+      // left: 30px;
+    }
+  }
+}
+
+
+// text describing the various image/code
+// pairs throughout the details section.
+.code-sample--details {
+  padding: 40px;
+  @media (min-width: 1024px) {
+    @include flex( 1 );
+  }
+}
+
+
+// Container for the sample of code and the
+// image corresponding to it. The code sample
+// is revealed upon hovering.
+.code-sample--wrapper {
+  overflow: hidden;
+  position: relative;
+  @include transition( all 1s ease );
+  @media (min-width: 1024px) {
+    @include flex( 1 );
+  }
+  &:hover {
+    .code-snippit {
+      opacity: 1;
+    }
+    .image-snippit {
+      opacity: 0;
+    }
+  }
+  &.flex-15 {
+    @media (min-width: 1024px) {
+      @include flex( 1.5 );
+    }
+  }
+  &.flex-2 {
+    @media (min-width: 1024px) {
+      @include flex( 2 );
+    }
+  }
+  &.flex-3 {
+    @media (min-width: 1024px) {
+      @include flex( 3 );
     }
   }
 }
@@ -109,11 +218,12 @@
 // sample of code that appears next to the
 // corresponding image that it produces.
 .code-snippit {
-  z-index: 1;
+  @include transition( all 500ms ease );  
   @media (min-width: 1024px) {
-    max-width: 400px;
-    position: relative;
-    left: 30px;
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
   }
 }
 
@@ -121,10 +231,9 @@
 // Image that shows what the code next to
 // it produces.
 .image-snippit {
+  @include transition( all 500ms ease );
   @media (min-width: 1024px) {
-    left: -30px;
-    position: relative;
-    max-width: 650px;
+    opacity: 1;
   }
 }
 

@@ -23,7 +23,6 @@ var container,
 	moveCamera = false,
 	clickedOnce = false,
 	mouseDown = false,
-	rotateSphere = false,
 	rotateScene = false,
 	iconLoaded = false, 
 	scaleToX = window.innerWidth/50,
@@ -32,6 +31,7 @@ var container,
 	spheresMoving = false,
 	rotateCamera = false,
 	zoomOut = false,
+	noRender = false,
 	stopCamera = false,
 	projectInView = false,
 	radius = window.innerWidth/3, 
@@ -49,10 +49,10 @@ var container,
 	iconGroup  = new THREE.Object3D(), 
 	INTERSECTED,
 	aspect = window.innerWidth / window.innerHeight,
-	images = [ "copyright.png", "father-peyton.png", 
+	images = [ "bbk.png", "father-peyton.png", 
 			   "iha-today.png", "standish-home.png", "wolf-greenfield.png",
 			   "zildjian.png", "enernoc.png" ],
-	names  = [ "Wentworth", "Copyright Clearance", "Father Peyton",
+	names  = [ "Wentworth", "BB&K", "Father Peyton",
 			   "IHA Today", "Standish Mellon", "Wolf Greenfield", 
 			   "Zildjian Cymbals", "Enernoc" ],
 	loaders = [],
@@ -215,6 +215,38 @@ function handleSectionScroll( scrollPoint, duration ) {
 
 
 /**
+ * Function that handles a hover on one of the project images. When the image
+ * is hovered on, the code image behind it is shown. The container for these
+ * images is adjusted to be the height of whichever image is larger.
+ */
+function adjustRowHeight() {
+
+	var ogHeight;
+
+	$(".image-snippit").each( function() {
+		$(this).parent().height( $(this).height() );
+	});
+
+	$(".code-sample--wrapper").hover( function() {
+
+		var imgHeight  = $(this).find( ".img-snippit" ).height(),
+			codeHeight = $(this).find( ".code-snippit" ).height(),
+			maxHeight  = Math.max( imgHeight, codeHeight );
+
+		ogHeight = $(this).height();
+
+		$(this).height( maxHeight ).addClass( "active" );
+
+	}, function() {
+
+		$(this).height( ogHeight ).removeClass( "active" );
+
+	});
+
+}
+
+
+/**
  * Helper function that will only be fired once. Thanks to David Walsh for
  * the code. 
  *
@@ -264,6 +296,7 @@ function init() {
 	addIcons();
 	createText();
 
+	adjustRowHeight();
 	animateName();
 	animateNameColor();
  
@@ -576,24 +609,10 @@ function createText() {
  	var project = document.createElement( 'div' );
 	project.className = 'cur-project';
 
-	var skill1 = document.createElement( 'span' );
-	skill1.className = 'skill-1';
-
-	var skill2 = document.createElement( 'span' );
-	skill2.className = 'skill-2';
-
 	projectName = new THREE.CSS3DObject( project );
 	projectName.position.set( 0, 500, -100 );
   
-	projectSkill1 = new THREE.CSS3DObject( skill1 );
-	projectSkill1.position.set( 0, 600, -100 );
-  
-	projectSkill2 = new THREE.CSS3DObject( skill2 );
-	projectSkill2.position.set( 0, 600, -100 );
-  
 	scene.add( projectName );
-	scene.add( projectSkill1 );
-	scene.add( projectSkill2 );
 
 }
 
@@ -615,6 +634,7 @@ function showText( intersect ) {
 		skill1 = intersect.object.skill1;
 
 	projectName.element.innerHTML = pName;
+
 }
 
 
@@ -623,67 +643,17 @@ function showText( intersect ) {
  * random instances of letters with random instances of dashes.
  */
 function animateName() {
-	// var name = document.getElementById( id ).innerHTML,
-	// 	ogName = name,
-	// 	iterations = 0,
-	// 	nameLength = name.length;
 
-	var iterations = 0;
+	$("#firstName").shuffleLetters({
+		"step": rando( 1, 10 ),
+		"fps": rando( 5, 15 )
+	});
 
-	// Every interval, swap two random characters in the supplied element
-	// setInterval( function() {
-		// name = document.getElementById( id ).innerHTML;
-
-		// var random1 = rando( 0, nameLength - 1 ),
-		//     random2 = rando( 0, nameLength - 1 ),
-		//     random3 = rando( 0, nameLength - 1 ),
-		//     letter1 = name[ random1 ],
-		//     letter2 = name[ random2 ];
-
-		// // if one character is a dash and the other is a letter, swap them
-		// // if ( (letter1 === "-" && letter2 !== "-") ||
-		// // 	 (letter2 === "-" && letter1 !== "-") ) {
-
-			
-
-		// if( iterations % 4 === 0 ) {
-
-		// 	document.getElementById( id ).innerHTML = ogName;
-
-		// } else {
-		// 	name = name.substring( 0, random1 ) + letter2 + name.substring( random1 + 1, nameLength  );
-		// 	name = name.substring( 0, random2 ) + letter1 + name.substring( random2 + 1, nameLength  );
-		// 	name = name.substring( 0, random3 ) + '-' + name.substring( random3 + 1, nameLength  );
-	 
-		// 	document.getElementById( id ).innerHTML = name;
-		// }
-
-
-
-	// $("#firstName").shuffleLetters({
-	// 	"text": $("#firstName").html()
-	// });
-
-	// $("#lastName").shuffleLetters({
-	// 	"text": $("#lastName").html()
-	// });
-
-		// if ( iterations % 2 === 0 ) {
-		// } else {
-		// }
-		$("#firstName").shuffleLetters({
-			"step": rando( 1, 10 ),
-			"fps": rando( 5, 15 )
-		});
-
-		$("#lastName").shuffleLetters({
-			"step": rando( 1, 10 ),
-			"fps": rando( 5, 15 ),
-			"callback": animateName
-		});
-
-		// iterations++;
-	// }, 1000 );
+	$("#lastName").shuffleLetters({
+		"step": rando( 1, 10 ),
+		"fps": rando( 5, 15 ),
+		"callback": animateName
+	});
 
 }
 
@@ -774,7 +744,6 @@ function zoomToProject() {
 		selectedProject    = curSphere;
 		lastCameraPosition = camera.clone().position;
 		projectInView      = true;
-		rotateSphere       = false;
 		$("#teaser").removeClass("active");
 
 		zoomToSelection( selectedProject.position );
@@ -1185,10 +1154,7 @@ function zoomToSelection(target) {
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
-	    	// When we're done zooming in, stop the current video and sphere
-	    	// rotateion, and display the current project.
-	    	// document.getElementById(curSphere.name).pause();
-	    	rotateSphere = false;
+	    	noRender = true;
 			$(".project-intro, .canvas").addClass("active");
 	    })
 	    .start();
@@ -1209,6 +1175,9 @@ function zoomCameraOut() {
 			z: lastCameraPosition.z
 		}, 3000)
 		.easing( TWEEN.Easing.Linear.None )
+		.onStart( function() {
+			noRender = false;
+		})
 	    .onUpdate( function() {
 	    	camera.lookAt( scene.position );
 	    	renderer.render( scene, camera );
@@ -1351,9 +1320,8 @@ function onNoIntersections(intersects) {
 		if ( unIntersectMutex ) {
 			spheresToRandom(1250);
 			shrinkSphere();
-			hideText()
-			// if ( video ) video.pause();
-			rotateSphere = false;
+			hideText();
+
 			stopCamera = false;
 			unIntersectMutex = false;
 		}
@@ -1370,7 +1338,11 @@ function animate() {
 	runtime.updateShaders( clock.getElapsedTime() );
 	TWEEN.update();
 	// updateControls();
-	render();
+
+	// no need to render if there is a project in view
+	if ( !noRender ) {
+		render();
+	}
 }
 
 
@@ -1388,10 +1360,6 @@ function render() {
 
 	if ( rotateCamera ) {
 	    // spinCamera();
-	}
-
-	if ( rotateSphere ) {
-		// spinSphere();
 	}
 
 	// updates the sample video 

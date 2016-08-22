@@ -14,7 +14,7 @@ body {
 }
 
 .loader {
-  background-color: #0e0e15;
+  background-color: #1a1a1b;
   opacity: 1;
   position: fixed;
   left: 0;
@@ -62,98 +62,37 @@ body {
 }
 
 
-$clock_background: #d8d9d8;
-$clock_border_size: 6px;
-$clock_border_color: #686868;
-
-@mixin circle($size) {
-  width: $size;
-  height: $size;
-  border-radius: 100%;  
-}
-
-@mixin centered {
+// the loading animation
+.atom {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
+  top: 50%;
+  left: 50%;
+  width: 20%;
+  height: 300px;
+  @include transform( translate(-50%, -50%) );
+  path {
+    stroke: #fff;
+    stroke-dasharray: 2380;
+    // stroke-dashoffset: 2380;
+    @include animation( draw 3s 1 linear );
+
+  }
+  &.active {
+    stroke-dashoffset: 2380;
+  }
 }
 
-@include keyframes(spin) {
+
+@include keyframes( draw ) {
   0% {
-    @include transform(rotate(0deg));
+    stroke-dashoffset: 2380;
   }
 
   100% {
-    @include transform(rotate(359deg));
+    stroke-dashoffset: 1000;
   }
 }
 
-.clock {
-  background: $clock_background;
-  position: relative;
-  box-sizing: border-box;
-  border: $clock_border_size solid $clock_border_color;
-  @include circle(80px);
-  @include centered;
-}
-
-.clock_hand {
-  $hand_base_width: 10px;
-  
-  background: $clock_border_color;
-  @include circle($hand_base_width);
-  @include centered;
-  @include transform(rotate(0deg));
-  @include animation(spin 1.5s infinite linear);
-  
-  &:before {
-    $hand_width: $hand_base_width / 2;
-    $hand_length: 32px;
-    
-    content: '.';
-    font-size: 1px;
-    z-index: 1;
-    border-left: $hand_width solid transparent;
-    border-right: $hand_width solid transparent;
-    border-bottom: $hand_length solid $clock_border_color;
-    position: absolute;
-    left: 50%;
-    margin-left: -$hand_width;
-    bottom: $hand_base_width / 2;
-  }
-}
-
-.clock_knob {
-  $knob_width: $clock_border_size * 0.9;
-  $knob_height: $clock_border_size * 0.5;
-
-  background: $clock_border_color;
-  width: $knob_width;
-  height: $knob_height;
-  position: absolute;
-  top: -($clock_border_size + $knob_height);
-  left: 50%;
-  margin-left: -($knob_width / 2);
-  
-  &:before {
-    $switch_width: $clock_border_size * 1.2;
-    $switch_height: $clock_border_size;
-
-    background: $clock_border_color;
-    content: '.';
-    font-size: 1px;
-    z-index: 1;
-    position: absolute;
-    width: $switch_width;
-    height: $clock_border_size;
-    top: -($knob_height + 2);
-    left: 50%;
-    margin-left: -($switch_width / 2);
-  }
-}
 // =========================== END LOADER ANIMATION =========================
 
 
@@ -212,8 +151,8 @@ canvas,
 }
 
 
-// ========================= MODIFIERS =========================
 
+// ========================= MODIFIERS =========================
 .absolute-center {
   position: absolute;
   top: 50%;
@@ -237,68 +176,9 @@ canvas,
   color: #d2ef69;
   font-size: 12px;
   position: absolute;
-  left: 50px;
-  top: 50px;
+  left: 30px;
+  top: 30px;
   z-index: 1;
-}
-
-
-.back-btn {
-  background-color: #35FDFF;
-  color: #fff;
-  font-size: 16px;
-  height: 50px;
-  width: 50px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  &:hover {
-    cursor: pointer;
-  }
-  span {
-    background: #092D2D;
-    height: 1px;
-    width: 50%;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    z-index: 1;
-    @include transform-origin( center );
-    @include transform( translate(-50%, -50%) rotate(45deg) );
-    &:nth-child(2) {
-      @include transform( translate(-50%, -50%) rotate(-45deg) );      
-    }
-  }
-}
-
-
-// previous button that appears in the
-// header of the project details.
-.prev-btn {
-  color: #fff;
-  font-size: 12px; 
-  letter-spacing: 3px;
-  position: absolute;
-  top: 40%;
-  text-transform: uppercase;
-  z-index: 1;
-  @include transform( translate(-35%, -50%) rotate(-90deg) );
-}
-
-
-// previous button that appears in the
-// header of the project details.
-.next-btn {
-  color: #fff;
-  font-size: 12px; 
-  letter-spacing: 3px;
-  position: absolute;
-  top: 40%;
-  right: 0;
-  text-transform: uppercase;
-  z-index: 1;
-  @include transform( translate(20%, -50%) rotate(-90deg) );
 }
 
 
@@ -312,27 +192,6 @@ canvas,
   line-height: 1;
   text-align: center;
 }
-
-
-// one of many icons that orbit around the 
-// main shape in the scene.
-.icon {
-  // height: auto;
-  // width: 200px;
-}
-
-// .skill-1 {
-//   color: #fff;
-//   font-size: 36px;
-//   padding-right: 50px;
-// }
-
-
-// .skill-2 {
-//   color: #fff;
-//   font-size: 36px;
-//   padding-left: 50px;
-// }
 
 
 // The project teaser is the description
@@ -418,9 +277,9 @@ canvas,
   background-image: url("../images/projects/wentworth/wentworth-home.png");
 }
 
-// .bg-copyright {
-//   background-image: url("../images/projects/copyright.png");
-// }
+.bg-bbk {
+  background-image: url("../images/projects/bbk/bbk-home.png");
+}
 
 .bg-enernoc {
   background-image: url("../images/projects/enernoc/enernoc-home.png");
@@ -435,9 +294,9 @@ canvas,
 //   background-image: url("../images/projects/iha-today.png");
 // }
 
-// .bg-standish {
-//   background-image: url("../images/projects/standish-home.png");
-// }
+.bg-standish {
+  background-image: url("../images/projects/standish/standish-home.png");
+}
 
 // .bg-wolf {
 //   background-image: url("../images/projects/wolf-greenfield.png");
