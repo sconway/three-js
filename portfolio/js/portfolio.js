@@ -304,9 +304,16 @@ function init() {
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
-	// When there's a click, zoom to the project that's hovered on
-	$(".canvas").click( function( event ) { 
-		zoomToProject();
+	// When there's a click, zoom to the project that's hovered on. On Mobile
+	// devices, just do what we do for a desktop hover event.
+	$(".canvas").on( 'mousedown', function( event ) {
+
+		if ( !isMobile() ) {
+			zoomToProject();
+		} else {
+			checkMobileIntersection( event );
+		}
+
 	});
 
 	// Click handlers for the back and scroll buttons inside the project view.
@@ -514,47 +521,6 @@ function addIcons() {
 }
 
 
-
-/**
- * Creates a THREE.js material with a video mapped to the surface.
- * The sphere name parameter is used to determine which video to apply.
- * The supplied sphere object 
- * 
- * @param      sphere     :     THREE.Mesh
- *
- */
-function addVideo(sphere) {
-	video = document.getElementById( sphere.name );
-	video.load(); // must call after setting/changing source
-	
-	videoImage = document.createElement( 'canvas' );
-	videoImage.width = 852;
-	videoImage.height = 478;
-
-	videoImageContext = videoImage.getContext( '2d' );
-	videoImageContext.fillStyle = '#FFFFFF';
-	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
-
-	videoTexture = new THREE.Texture( videoImage );
-	videoTexture.minFilter = THREE.LinearFilter;
-	videoTexture.magFilter = THREE.LinearFilter;
-
-	// Wait until the video is fully loaded before changing the material.
-	video.addEventListener('loadeddata', function(e) {
-	    mainMesh.material = new THREE.MeshBasicMaterial( { 
-							map: videoTexture, 
-							transparent: true,
-							opacity: 0.9,
-							overdraw: true, 
-							side:THREE.DoubleSide 
-						}  );
-
-	    video.play();
-	});
-
-}
-
-
 /**
  * This function is called after the page loads and adds the classes
  * that fade the loading animation out. 
@@ -564,7 +530,6 @@ function fadeLoader() {
 		loader = document.getElementById("loader"),
 		canvas = document.getElementById("container");
 
-	console.log("Fading loader out");
 	loader.className += " fade-out";
 	canvas.className += " fade-in";
 
@@ -587,16 +552,6 @@ function loadFont() {
 			createText();
 		} );
 }
-
-
-
-// function addImages() {
-// 	for (var i = 0; i < images.length; i++) {
-// 		var loader = new THREE.TextureLoader().load('images/projects/' + images[i]);
-// 	    loader.wrapS = loader.wrapT = THREE.RepeatWrapping;
-// 	    loaders.push(loader);
-// 	}
-// }
 
 
 /**
@@ -661,32 +616,13 @@ function animateName() {
 function animateNameColor () {
 	var text = document.getElementById( 'changingText' );
 
-	sweep(text, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
-	  callback: animateNameColor,
-	  direction: 1,
-	  duration: 10000,
-	  space: 'HUSL'
+	sweep( text, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
+		callback: animateNameColor,
+		direction: 1,
+		duration: 10000,
+		space: 'HUSL'
 	});
 }
-
-
-/**
- * Creates the 3-D container for the project description
- *
- * @param      pos     :     Vector3
- *
- */
-// function revealTeaser(x, y) {
-// 	if (INTERSECTED) {
-// 		console.log("revealing Teaser");
-// 		$("#teaser")
-// 			.css({
-// 				left: !isMobile() ? (x + "px") : "50%",
-// 				top:  !isMobile() ? (y + "px") : "50%"
-// 			})
-// 			.addClass("active");	
-// 	}
-// }
 
 
 function onDocumentMouseMove( event ) {
@@ -704,9 +640,10 @@ function onDocumentMouseMove( event ) {
  * them. A function to reset the scene is called if there are no objects
  * clicked on.
  */
-function showProject( event ) {
+function checkMobileIntersection( event ) {
 	event.preventDefault();
 
+	// convert client X,Y to the renderer X,Y
 	curMouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
 	curMouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 
@@ -717,13 +654,15 @@ function showProject( event ) {
 	// Make sure there are intersects.
 	if ( intersects.length > 0 ) {
 
-		if ( curSphere === intersects[0].object && clickedOnce ) {
+		// If one of the spheres is clicked for a second time, zoom to it.
+		if ( curSphere.parent === intersects[0].object.parent && clickedOnce ) {
 			clickedOnce = false;
 			zoomToProject();
 		} else {
 			clickedOnce = true;
-			onMobileIntersection(intersects);
+			onMobileIntersection( intersects );
 		}
+
 	} else {
 		clickedOnce = false;
 		onNoMobileIntersection();
@@ -842,7 +781,9 @@ function spheresToCurrent( current, duration ) {
 	// Tween all project spheres, starting at the second child, since the
 	// first child in the scene is the light.
 	for (var i = 0; i < numChildren; i++) {
+
 		if (current != objects[i] && !isTweening) {
+
 			new TWEEN.Tween(objects[i].position)
 				.to({
 					x: 0,
@@ -859,24 +800,25 @@ function spheresToCurrent( current, duration ) {
 			    	if ( !INTERSECTED ) {
 			    		TWEEN.removeAll();
 			    		isTweening = false;
-			    		spheresToRandom(1250);
-			    		shrinkSphere();
+			    		spheresToRandom( 1250 );
+			    		shrinkSphere( curSphere );
 			    		console.log("Project hovered off; Removing all tweens.");
 			    	}
-			    	renderer.render(scene, camera);
+			    	renderer.render( scene, camera );
 			    })
 			    .onComplete( function() {
 			    	// ensure this is only called once, right when the tween's done
 			    	if ( isTweening ) {
 			    		isTweening = false;
-				    	// console.log("Done tweening to hovered sphere index is: ", i);
-				    	// setTeaserContainer(current, curMouse.x, curMouse.y);
 			    	}
 			    	
 			    })
 			    .start();
+
 		}
+
 	}
+
 }
 
 
@@ -890,7 +832,6 @@ function spheresToRandom(duration) {
 	// first child in the scene is the light.
 	for ( var i = 0; i < numChildren; i++ ) {
 		var vector;
-
 
 		switch (i) {
 			case 0:
@@ -935,25 +876,17 @@ function spheresToRandom(duration) {
 				.easing( TWEEN.Easing.Elastic.InOut )
 				.onStart( function() {
 					isTweening = true;
-					// mainMesh.material = new THREE.MeshPhongMaterial({
-					// 	color: 0xffffff,
-					// 	transparent: true,
-					// 	specular: 0xe7e7e7,
-					// 	shininess: 50
-					// });
-
-					// $("#teaser").removeClass("active");
 				})
 			    .onUpdate( function() {
 			    	renderer.render(scene, camera);
 			    })
 			    .onComplete( function() {
+
 			    	// called once when the tween completes
 			    	if ( isTweening ) {
-			    		// mainMesh.material.opacity = 1;
 			    		isTweening  = false;
 		    			rotateScene = true;
-			    		shrinkSphere();
+			    		shrinkSphere( curSphere );
 			    	}
 			    	
 			    })
@@ -964,80 +897,6 @@ function spheresToRandom(duration) {
 
 
 /**
- * Moves all spheres on the scene to a random location.
- */
-// function spheresToRandom2(duration) {
-// 	var numChildren = objects.length;
-
-// 	// Tween all project spheres, starting at the second child, since the(i * 65 - (i * 4)) 
-// 	// first child in the scene is the light.
-// 	for ( var i = 0; i < numChildren; i++ ) {
-// 		var posX = !isMobile() ? (-600 + ((i+1) * 100)) * (i % 2 === 0 ? 1 : -1) : -100,
-// 			posY = !isMobile() ? ((i + 1) * 60 * (i % 2 === 0 ? 1 : -1)) : (-450 + ((i+1) * 100)),
-// 			posZ = !isMobile() ? (Math.random() * 700 - 300) : 300,
-// 			vector = new THREE.Vector3(posX, posY, posZ);
-
-// 		// Make sure we don't tween the current sphere and make sure that the
-// 		// spheres are not currently being tweened.
-// 		// if ( !isTweening && curSphere && objects[i].name !== "project_name" ) {
-
-// 			var tween = new TWEEN.Tween(objects[i].position)
-// 				.to({
-// 					x: posX,
-// 					y: posY,
-// 					z: posZ
-// 				}, duration)
-// 				.easing( TWEEN.Easing.Elastic.InOut )
-// 				.onStart( function() {
-// 					// isTweening = true;
-// 				})
-// 				.onUpdate( function() {
-// 			    	renderer.render(scene, camera);
-// 			    })
-// 				.start();
-
-// 			tween.chain(tween);
-// 	}
-// }
-
-
-// function waveSpheres() {
-// 	var numChildren = objects.length;
-
-// 	// Tween all project spheres
-// 	for ( var i = 0; i < numChildren; i++ ) {
-// 		var tweenTo = new TWEEN.Tween(objects[i].position)
-// 			.to({
-// 				z: 400
-// 			}, 2000)
-// 			.delay( (i*400) )
-// 			.easing( TWEEN.Easing.Quadratic.InOut )
-// 			.onStart( function() {})
-// 			.onUpdate( function() {
-// 		    	renderer.render(scene, camera);
-// 		    })
-// 		    .onComplete( function() {});
-
-// 		var tweenBack = new TWEEN.Tween(objects[i].position)
-// 			.to({
-// 				z: 300
-// 			}, 2000)
-// 			.delay(0)
-// 			.easing( TWEEN.Easing.Quadratic.InOut )
-// 			.onStart( function() {})
-// 			.onUpdate( function() {
-// 		    	renderer.render(scene, camera);
-// 		    })
-// 		    .onComplete( function() {});
-
-// 		tweenTo.chain(tweenBack);
-// 		tweenBack.chain(tweenTo);
-// 		tweenTo.start();
-// 	}
-// }
-
-
-/**
  * Scales the supplied object up by tweening the scale property.
  *
  * @param      object     :     THREE.Mesh
@@ -1045,7 +904,7 @@ function spheresToRandom(duration) {
  */
 function expandSphere( object ) {
 	var numChildren = scene.clone().children.length,
-		scaleSize   = 4,
+		scaleSize   = isMobile() ? 2 : 4,
 		sphere      = object.children[ 0 ];
 
 	new TWEEN.Tween( object.scale )
@@ -1053,17 +912,10 @@ function expandSphere( object ) {
 			x: scaleSize,
 			y: scaleSize,
 			z: scaleSize
-		}, 500)
+		}, 500 )
 		.easing( TWEEN.Easing.Circular.Out )
-	    .onStart( function() {
-	    	// addVideo( sphere );
-	    })
 	    .onUpdate( function() {
 	    	renderer.render(scene, camera);
-	    })
-	    .onComplete( function() {
-			// sphere.material = addVideo(sphere.name);
-    		rotateSphere = true;
 	    })
 	    .start();
 }
@@ -1071,17 +923,21 @@ function expandSphere( object ) {
 
 /**
  * Scales the supplied object down by tweening the scale property.
+ *
+ * @param      object     :     THREE.Mesh
+ *
  */
-function shrinkSphere() {
+function shrinkSphere( object ) {
 	var numChildren = objects.length;
 
-	for (var i = 0; i < numChildren; i++) {
-		new TWEEN.Tween(objects[i].scale)
+	if ( curSphere ) {
+
+		new TWEEN.Tween( object.scale )
 			.to({
 				x: 1,
 				y: 1,
 				z: 1
-			}, 500)
+			}, 500 )
 			.easing( TWEEN.Easing.Circular.Out )
 		    .onUpdate( function() {
 		    	renderer.render(scene, camera);
@@ -1089,35 +945,9 @@ function shrinkSphere() {
 		    .onComplete( function() {
 		    })
 		    .start();
+
 	}
-}
 
-
-/**
- * This function is called after a click on a mobile device. It moves
- * the clicked sphere up to the top and calls the other spheres to move
- * towards it. 
- *
- * @param      sphere     :     THREE.Object
- *
- */
-function moveSphereUp(sphere) {
-	new TWEEN.Tween(sphere.position)
-		.to({
-			x: 0,
-			y: 350,
-			z: 0
-		}, 500)
-		.easing( TWEEN.Easing.Circular.Out )
-		.onStart( function() {
-			spheresToCurrent( sphere, 1250 );
-		})
-	    .onUpdate( function() {
-	    	renderer.render(scene, camera);
-	    })
-	    .onComplete( function() {
-	    })
-	    .start();
 }
 
 
@@ -1129,23 +959,23 @@ function moveSphereUp(sphere) {
 function zoomToSelection(target) {
 	TWEEN.removeAll();
 
-	new TWEEN.Tween(camera.position)
+	new TWEEN.Tween( camera.position )
 		.to({
 			x: target.x,
 			y: target.y,
 			z: target.z
 		}, 3000)
 		.easing( TWEEN.Easing.Linear.None )
-		.onStart(function() {
+		.onStart( function() {
 			// As we zoom to the project, rotate the carousel so that
 			// selected project is the current one.
-			var index    = $.inArray(curSphere.name, names),
+			var index    = $.inArray( curSphere.name, names ),
 			    rotation = carousel.rotation % 360,
             	theta    = carousel.theta,
             	destRotation = -1 * index * theta;
 
             // raise the current project so nothing shows behind it.
-           	$($(".carousel-stop").get(index)).addClass("z1");
+           	$($(".carousel-stop").get(index)).addClass( "z1" );
 
 	        carousel.rotation = destRotation;
 	        carousel.transform();
@@ -1155,7 +985,7 @@ function zoomToSelection(target) {
 	    })
 	    .onComplete( function() {
 	    	noRender = true;
-			$(".project-intro, .canvas").addClass("active");
+			$(".project-intro, .canvas").addClass( "active" );
 	    })
 	    .start();
 }
@@ -1167,6 +997,7 @@ function zoomToSelection(target) {
  */
 function zoomCameraOut() {
 	TWEEN.removeAll();
+	hideText();
 
 	new TWEEN.Tween(camera.position)
 		.to({
@@ -1189,7 +1020,7 @@ function zoomCameraOut() {
 			intersectMutex   = true;
 			spinTheta        = 0.005;
 			TWEEN.removeAll();
-			shrinkSphere();
+			shrinkSphere( curSphere );
 			spheresToRandom( 1250  );
 	    })
 	    .start();
@@ -1228,40 +1059,50 @@ function removeObject( name ) {
  *
  */
 function onIntersection( intersects ) {
+
 	var numIntersects = intersects.length;
 
 	// only run this if the intersected 
  	if ( INTERSECTED != intersects[ 0 ].object && !isTweening && 
- 		 intersects[ 0 ].object.name != "project_name" &&
- 		 intersects[ 0 ].object.name != "space" &&
- 		 curMouse.x !== 0 && curMouse.y !== 0 ) {
+ 		curMouse.x !== 0 && curMouse.y !== 0 ) {
 
 		$("html").css( {cursor: 'pointer'} );
 		curSphere = INTERSECTED = intersects[ 0 ].object;
 
 		if ( !projectInView ) {
-			stopCamera = true;
+			stopCamera       = true;
 			unIntersectMutex = true;
 		}
 
 		if ( intersectMutex ) {
+
 			intersectMutex = false;
-			rotateScene = false;
-			stopCamera = true;
-			// set the main mesh's opacity to transparent so we can see the orbs
-			// mainMesh.material.opacity = 0.5;
+			rotateScene    = false;
+			stopCamera     = true;
+
 			showText( intersects[0] );
 			expandSphere( curSphere );
 			spheresToCurrent( curSphere, 1250 );
+
 		}
 	}
+
 }
 
 
+/**
+ * Called when there is a mobile intersection. Expands the clicked
+ * sphere and sets the necessary booleans.
+ */
+function onMobileIntersection( intersects ) {
 
-function onMobileIntersection(intersects) {
+	// If a different sphere has been clicked, shrink the old one.
+	if ( curSphere && curSphere !== intersects[ 0 ].object ) {
+		intersectMutex = true;
+		shrinkSphere( curSphere );
+	}
 
-    curSphere = INTERSECTED = intersects[0].object;
+    curSphere = INTERSECTED = intersects[ 0 ].object;
 
 	if ( !projectInView ) {
 		stopCamera = true;
@@ -1271,10 +1112,16 @@ function onMobileIntersection(intersects) {
 	// Only call this once, and if a click has been made.
 	// Prevents it from being called initially.
 	if ( intersectMutex ) {
-		TWEEN.removeAll();
+
+		if ( !isMobile() ) {
+			TWEEN.removeAll();
+		}
+
 		intersectMutex = false;
-		expandSphere(curSphere.parent);
-		moveSphereUp(curSphere.parent);
+		showText( intersects[0] );
+		expandSphere( curSphere );
+		spheresToCurrent( curSphere, 1250 );
+
 	}
 
 }
@@ -1286,17 +1133,15 @@ function onNoMobileIntersection() {
 	if ( !projectInView ){
 		stopCamera     = false;
 		intersectMutex = true;
+
 		// Only call this once, and if a click has been made.
 		// Prevents it from being called initially since there
 		// will be no intersections on load.
 		if ( unIntersectMutex ) {
-			console.log("no mobile intersection. Fired once");
-			// prevent extra tweens on objects
-			TWEEN.removeAll(); 
 			spheresToRandom( 1250 );
-			shrinkSphere();
-			if ( video ) video.pause();
-			rotateSphere = false;
+			shrinkSphere( curSphere );
+			hideText();
+
 			unIntersectMutex = false;
 		}
 	}
@@ -1315,21 +1160,25 @@ function onNoIntersections(intersects) {
 	
 	// Don't do anything if there's a project in view.
 	if ( !projectInView ){
+
 		stopCamera     = false;
 		intersectMutex = true;
+
 		if ( unIntersectMutex ) {
-			spheresToRandom(1250);
-			shrinkSphere();
+			spheresToRandom( 1250 );
+			shrinkSphere( curSphere );
 			hideText();
 
 			stopCamera = false;
 			unIntersectMutex = false;
 		}
+
 	} 
 
 	$("html").css({cursor: 'initial'});
 
 	INTERSECTED = null;
+
 }
 
 
@@ -1337,7 +1186,6 @@ function animate() {
 	requestAnimationFrame( animate );
 	runtime.updateShaders( clock.getElapsedTime() );
 	TWEEN.update();
-	// updateControls();
 
 	// no need to render if there is a project in view
 	if ( !noRender ) {
@@ -1358,20 +1206,6 @@ function render() {
 		circleCamera();
 	}
 
-	if ( rotateCamera ) {
-	    // spinCamera();
-	}
-
-	// updates the sample video 
-	if ( video ) {
-		if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
-			videoImageContext.drawImage( video, 0, 0 );
-			if ( videoTexture ) 
-				videoTexture.needsUpdate = true;
-		}
-	}
-
-
 	// find intersections
 	raycaster.setFromCamera( mouse, camera );
 
@@ -1380,11 +1214,7 @@ function render() {
 	// Check if the mouse pointer has intersected any of the objects
 	if ( !isMobile() ) {
 		if ( intersects.length > 0 ) {
-			if ( intersects[0].object.name === "space" ){
-				onNoIntersections();
-			} else {
-				onIntersection( intersects );
-			}
+			onIntersection( intersects );
 		} else {
 			onNoIntersections();
 		}
@@ -1395,6 +1225,7 @@ function render() {
 
 	renderer.render( scene, camera );
 	cssRenderer.render( scene, camera );
+
 }
 
 	
