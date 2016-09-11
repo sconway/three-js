@@ -274,6 +274,32 @@ var canOnlyFireOnce = once(function() {
 
 
 /**
+ * Converts an objects position in the scene to a 2D vector,
+ * relative to the device viewport.
+ */
+function toScreenPosition( obj ) {
+
+    var vector = new THREE.Vector3();
+
+    var widthHalf = 0.5*renderer.context.canvas.width;
+    var heightHalf = 0.5*renderer.context.canvas.height;
+
+    obj.updateMatrixWorld();
+    vector.setFromMatrixPosition(obj.matrixWorld);
+    vector.project(camera);
+
+    vector.x = ( vector.x * widthHalf ) + widthHalf;
+    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+    return { 
+        x: vector.x,
+        y: vector.y
+    };
+
+};
+
+
+/**
  * This function initializes most of the components of this page.
  * It sets up the camera, light, and objects. It also adds the
  * various handlers that are used for interaction.
@@ -398,10 +424,10 @@ function addShapes() {
 		'js/shader4.json',
 		'js/shader5.json',
 		'js/shader6.json',
-		'js/shader7.json'
+		'js/shader7.json',
 		], function( shaderData ) {
 
-		    var material, geo;
+		    var material, glowMaterial, geo, glowGeo;
 
 		    // Loop through all the items we will make shapes for, and assign
 		    // them a certain shader depending on their order.
@@ -409,8 +435,8 @@ function addShapes() {
 
 		    	switch (i) {
 					case 0:
-					    material = runtime.get( shaderData[0].name );
-					    geo = new THREE.SphereGeometry( 60, 64, 64 );
+					    material     = runtime.get( shaderData[0].name );
+					    geo     = new THREE.SphereGeometry( 60, 64, 64 );
 						break;
 					case 1:
 					    material = runtime.get( shaderData[1].name );
@@ -444,14 +470,10 @@ function addShapes() {
 						break;
 				}
 
-				var group    = new THREE.Object3D();
-
-		    	var gradient = new THREE.Mesh(
-								geo,
-								material
-							);
+		    	var gradient = new THREE.Mesh( geo, material );
 
 				gradient.name = names[i];
+
 				objects.push( gradient );
 				shapeGroup.add( gradient );
 
@@ -460,9 +482,9 @@ function addShapes() {
 
 			// since there won't be a current sphere on page load, set one initially,
 			// and then move the spheres into a random location in the 3D space.
-			curSphere = objects[rando(3,6)];
+			curSphere = objects[ rando(3,6) ];
 			// hideText();
-			spheresToRandom(1250);
+			spheresToRandom( 1250 );
 
 		});
 
@@ -492,11 +514,11 @@ function addIcons() {
 	var material4 = new THREE.SpriteMaterial( { map: texture4 } );
 	var material5 = new THREE.SpriteMaterial( { map: texture5 } );
 
-	sprite1 = new THREE.Sprite( material1 );
-	sprite2 = new THREE.Sprite( material2 );
-	sprite3 = new THREE.Sprite( material3 );
-	sprite4 = new THREE.Sprite( material4 );
-	sprite5 = new THREE.Sprite( material5 );
+	sprite1   = new THREE.Sprite( material1 );
+	sprite2   = new THREE.Sprite( material2 );
+	sprite3   = new THREE.Sprite( material3 );
+	sprite4   = new THREE.Sprite( material4 );
+	sprite5   = new THREE.Sprite( material5 );
 	
 	sprite1.position.set( -500, 100, 500 );
 	sprite2.position.set( 400, 0, 1000 );
@@ -515,6 +537,7 @@ function addIcons() {
 	iconGroup.add( sprite3 );
 	iconGroup.add( sprite4 );
 	iconGroup.add( sprite5 );
+
 
 	scene.add( iconGroup );
 
@@ -677,6 +700,7 @@ function checkMobileIntersection( event ) {
  * responsible for zooming the camera toward the selected object.
  */
 function zoomToProject() {
+
 	if (!projectInView && !isTweening && INTERSECTED) {
 		raycaster.setFromCamera( mouse, camera );
 
@@ -689,6 +713,7 @@ function zoomToProject() {
 
 		$(".project-preview").addClass("hidden");
 	}
+
 }
 
 
@@ -917,6 +942,14 @@ function expandSphere( object ) {
 	    .onUpdate( function() {
 	    	renderer.render(scene, camera);
 	    })
+	    .onComplete( function() {
+	    	// Get the 2D position of the sphere so we can place the add icon.
+	    	var pos = toScreenPosition( curSphere );
+
+	    	$("#addIcon")
+	    		.css( { left: pos.x + "px", top: pos.y + "px"})
+	    		.addClass( "visible" );
+	    })
 	    .start();
 }
 
@@ -938,6 +971,9 @@ function shrinkSphere( object ) {
 				y: 1,
 				z: 1
 			}, 500 )
+			.onStart( function() {
+				$("#addIcon").removeClass( "visible" );
+			})
 			.easing( TWEEN.Easing.Circular.Out )
 		    .onUpdate( function() {
 		    	renderer.render(scene, camera);
@@ -974,6 +1010,9 @@ function zoomToSelection(target) {
             	theta    = carousel.theta,
             	destRotation = -1 * index * theta;
 
+           	// get rid of the plus icon
+           	$("#addIcon").removeClass( "visible" );
+           	
             // raise the current project so nothing shows behind it.
            	$($(".carousel-stop").get(index)).addClass( "z1" );
 
