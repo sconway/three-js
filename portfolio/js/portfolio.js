@@ -306,7 +306,7 @@ function toScreenPosition( obj ) {
  */
 function init() {
 	container = document.getElementById("container");
-	camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
+	camera = new THREE.PerspectiveCamera( 45, aspect, 75, 10000 );
 	camera.position.set( 0, 0, cameraZ );
 	runtime.registerCamera( camera );
 
