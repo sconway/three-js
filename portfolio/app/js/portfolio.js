@@ -419,13 +419,13 @@ function addShapes() {
 	var numChildren = names.length;
 
 	runtime.load( [
-		'shader1.json',
-		'shader2.json',
-		'shader3.json',
-		'shader4.json',
-		'shader5.json',
-		'shader6.json',
-		'shader7.json',
+		'json/shader1.json',
+		'json/shader2.json',
+		'json/shader3.json',
+		'json/shader4.json',
+		'json/shader5.json',
+		'json/shader6.json',
+		'json/shader7.json',
 		], function( shaderData ) {
 
 		    var material, glowMaterial, geo, glowGeo;
