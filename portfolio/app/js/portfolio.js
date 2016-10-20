@@ -1,179 +1,49 @@
 // (function() {
 
-var container, 
-	controls,
-	camera,
-	icon1 = 1, 
-	scene, 
-	raycaster, 
-	renderer,
-	selectedProject,
-	lastCameraPosition,
-	curSphere,
-	font,
-	textMesh,
-	cssRenderer,
-	mainMesh,
-	sprite1, sprite2, sprite3, sprite4, sprite5,
-	carousel, spacesphere, 
-	video, videoImage, videoImageContext, videoTexture,
-	intersectMutex = true,
-	unIntersectMutex = true,
-	isTweening = false,
-	moveCamera = false,
-	clickedOnce = false,
-	mouseDown = false,
-	rotateScene = false,
-	iconLoaded = false, 
-	scaleToX = window.innerWidth/50,
-	scaleToY = window.innerHeight/50,
-	scaleDown = false,
-	spheresMoving = false,
-	rotateCamera = false,
-	zoomOut = false,
-	noRender = false,
-	stopCamera = false,
-	projectInView = false,
-	radius = window.innerWidth/3, 
-	theta = 0,
-	spinTheta = 0.005,
-	cameraZ = 2000,
-	cubeSize = 50,
-	scaleToZ = cameraZ/cubeSize,
-	minFace = 50,
-	maxFace = 90,
-	numShapes = 10,
-	mouse = new THREE.Vector2(), 
-	curMouse = new THREE.Vector2(),
+var container, controls, camera, scene, raycaster, renderer, curSphere, cssRenderer,
+	positions, mainMesh, pcBuffer, sprite1, sprite2, sprite3, sprite4, sprite5,
+	intersectMutex = true, unIntersectMutex = true, isTweening = false,
+	movePlane = false, projectClicked = false, clickedOnce = false,
+	stopCamera = false, projectInView = false, theta = 0, pointSize = 2,
+	spinTheta = 0.005, cameraZ = 2000, cubeSize = 50, numProjectPics = 8,
+	mouse      = new THREE.Vector2(), 
+	curMouse   = new THREE.Vector2(),
+	planeGroup = new THREE.Object3D(),
 	shapeGroup = new THREE.Object3D(), 
-	iconGroup  = new THREE.Object3D(), 
+	iconGroup  = new THREE.Object3D(),
+	clock      = new THREE.Clock(),
+	runtime    = new ShaderFrogRuntime(),
 	INTERSECTED,
 	aspect = window.innerWidth / window.innerHeight,
-	images = [ "bbk.png", "father-peyton.png", 
-			   "iha-today.png", "standish-home.png", "wolf-greenfield.png",
-			   "zildjian.png", "enernoc.png" ],
-	names  = [ "Wentworth", "BB&K", "Father Peyton",
-			   "IHA Today", "Standish Mellon", "Wolf Greenfield", 
-			   "Zildjian Cymbals", "Enernoc" ],
-	loaders = [],
-	icons = [],
-	objects = [];
-
-var uniforms;
-var clock = new THREE.Clock();
-var runtime = new ShaderFrogRuntime();
+	names  = [ "Wentworth", "BB&K", "Father Peyton", "ARC Advisory", "Standish Mellon", 
+			   "Wolf Greenfield", "Zildjian Cymbals", "Enernoc" ],
+	loaders = [], icons = [], planes = [], objects = [];
 
 
-/**
- * This function initializes the carousel that is used on the work section
- * of the portfolio. It handles setting up the various panels, moving them
- * into 3D space and keeping them evenly spaced out and rotated. 
- */
-var initCarousel = function() {
-    carousel   = new Carousel3D( document.getElementById('carousel') );
-
-    var panelCount = $("#carousel").children().length,
-        axisButton = document.getElementById('toggle-axis');
-
-    var transformProp = Modernizr.prefixed('transform');
-
-    // Represents our 3d carousel and associated properties
-    function Carousel3D ( el ) {
-        this.element = el;
-        this.rotation = 0;
-        this.panelCount = 0;
-        this.totalPanelCount = this.element.children.length;
-        this.theta = 0;
-        this.isHorizontal = false;
-    }
-
-    Carousel3D.prototype.modify = function() {
-        var panel, angle, i, spacing;
-
-        // Displays the carousel in a horizontal fasion if the screen
-        // width is smaller that the screen height. Vertical otherwise.
-        if (window.outerWidth > window.outerHeight) {
-            console.log("horizontal");
-            this.isHorizontal = true;
-            spacing = 0.75;
-        } else {
-            console.log("vertical");
-            this.isHorizontal = false;
-            spacing = 1.75;
-        }
-
-        this.panelSize = this.element[ this.isHorizontal ? 'offsetWidth' : 'offsetHeight' ];
-        this.rotateFn = this.isHorizontal ? 'rotateY' : 'rotateX';
-        this.theta = 360 / this.panelCount;
-
-        // do some trig to figure out how big the carousel is in 3D space
-        this.radius = Math.round( ( this.panelSize / spacing) / Math.tan( Math.PI / this.panelCount ) );
-
-        for ( i = 0; i < this.panelCount; i++ ) {
-            panel = this.element.children[i];
-            angle = this.theta * i;
-            // rotate panel, then push it out in 3D space
-            panel.style[ transformProp ] = this.rotateFn + '(' + angle + 'deg) translateZ(' + this.radius + 'px)';
-        }
-
-        // hide other panels
-        for (  ; i < this.totalPanelCount; i++ ) {
-            panel = this.element.children[i];
-            panel.style[ transformProp ] = 'none';
-        }
-
-        // adjust rotation so panels are always flat
-        this.rotation = Math.round( this.rotation / this.theta ) * this.theta;
-        this.transform();
-    };
-
-    // scales the carousel down, rotates it, then scales it back up
-    Carousel3D.prototype.transform = function() {
-        $(".carousel-wrapper").addClass("zoomed");
-        $(".fade-out").addClass("faded");
-
-        this.element.style[ transformProp ] = 'translateZ(-' +this.radius+ 'px) ' +
-                                               this.rotateFn + 
-                                               '(' +this.rotation+ 'deg)';
-
-        console.log("transform prop: ", this.element.style[ transformProp ]);
-
-        // After the carousel transforms, zoom it back in and scroll the other
-        // carousel stops up so they are at their top.
-        setTimeout(function () {
-            $(".carousel-wrapper").removeClass("zoomed");
-            $(".fade-out").removeClass("faded");
-            $(".carousel-stop .scroll-container").stop().animate({scrollTop: 0}, 250);
-        }, 1500);
-    };
-
-    // handle the clicks that will either cycle the carousel forwards or backwards
-    $(".cycle-carousel").click(function(event) {
-        var increment = parseInt( $(this).attr('data-increment'), 10 ),
-            parent    = $(this).closest(".carousel-stop"),
-        	nextStop  = parent.next(".carousel-stop"),
-        	prevStop  = parent.prev(".carousel-stop");
-
-        carousel.rotation += carousel.theta * increment * -1;
-        carousel.transform();
-		$(".carousel-stop").removeClass("z1");
-    });
-
-    // populate on startup
-    carousel.panelCount = parseInt( panelCount, 10 );
-    carousel.modify();
-
-    // $(window).resize(function() {
-    //     waitForFinalEvent(function() {
-    //         carousel.modify();
-    //     }, 200, "");
-    // });
-
-    // handleUI(carousel);
-};
-
-
-
+var PLANE_0_Z        = -1000,
+	PLANE_0_X        = -280,
+	PLANE_0_X_ORIGIN = -1000,
+	PLANE_1_Z        = -2100,
+	PLANE_1_X        = 420,
+	PLANE_1_X_ORIGIN = 1000,
+	PLANE_2_Z        = -4700,
+	PLANE_2_X        = -350,
+	PLANE_2_X_ORIGIN = -4000,
+	PLANE_3_Z        = -3700,
+	PLANE_3_X        = 280,
+	PLANE_3_X_ORIGIN = 4000,
+	PLANE_4_Z        = -6300,
+	PLANE_4_X        = -280,
+	PLANE_4_X_ORIGIN = -6000,
+	PLANE_5_Z        = -7600,
+	PLANE_5_X        = 420,
+	PLANE_5_X_ORIGIN = 6000,
+	PLANE_6_Z        = -10400,
+	PLANE_6_X        = -350,
+	PLANE_6_X_ORIGIN = -8000,
+	PLANE_7_Z        = -9000,
+	PLANE_7_X        = 280,
+	PLANE_7_X_ORIGIN = 8000;
 
 
 
@@ -211,38 +81,6 @@ function rando(min, max) {
  */
 function handleSectionScroll( scrollPoint, duration ) {
     $('html, body').stop().animate( {scrollTop: scrollPoint}, duration, "linear" );
-}
-
-
-/**
- * Function that handles a hover on one of the project images. When the image
- * is hovered on, the code image behind it is shown. The container for these
- * images is adjusted to be the height of whichever image is larger.
- */
-function adjustRowHeight() {
-
-	var ogHeight;
-
-	$(".image-snippit").each( function() {
-		$(this).parent().height( $(this).height() );
-	});
-
-	$(".code-sample--wrapper").hover( function() {
-
-		var imgHeight  = $(this).find( ".img-snippit" ).height(),
-			codeHeight = $(this).find( ".code-snippit" ).height(),
-			maxHeight  = Math.max( imgHeight, codeHeight );
-
-		ogHeight = $(this).height();
-
-		$(this).height( maxHeight ).addClass( "active" );
-
-	}, function() {
-
-		$(this).height( ogHeight ).removeClass( "active" );
-
-	});
-
 }
 
 
@@ -300,6 +138,50 @@ function toScreenPosition( obj ) {
 };
 
 
+/*
+ * Used to create the mappings of points that is used as the project plane.
+ */
+function generatePointCloudGeometry( color, width, length ){
+	var geometry = new THREE.BufferGeometry();
+	var numPoints = width*length;
+	positions = new Float32Array( numPoints*3 );
+	var colors = new Float32Array( numPoints*3 );
+	var k = 0;
+	for( var i = 0; i < width; i++ ) {
+		for( var j = 0; j < length; j++ ) {
+			var u = i / width;
+			var v = j / length;
+			var x = u - 0.5;
+			var y = ( Math.cos( u * Math.PI * 2 ) + Math.sin( v * Math.PI * 2 ) ) / 20;
+			var z = v - 0.5;
+			positions[ 3 * k ] = x;
+			positions[ 3 * k + 1 ] = y;
+			positions[ 3 * k + 2 ] = z;
+			var intensity = ( y + 0.1 ) * 5;
+			colors[ 3 * k ] = color.r * intensity;
+			colors[ 3 * k + 1 ] = color.g * intensity;
+			colors[ 3 * k + 2 ] = color.b * intensity;
+			k++;
+		}
+	}
+	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+	geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
+	geometry.computeBoundingBox();
+	return geometry;
+}
+
+
+/*
+ * Creates an instance of a point cloud.
+ */
+function generatePointcloud( color, width, length ) {
+	var geometry = generatePointCloudGeometry( color, width, length );
+	var material = new THREE.PointsMaterial( { size: pointSize, vertexColors: THREE.VertexColors } );
+	var pointcloud = new THREE.Points( geometry, material );
+	return pointcloud;
+}
+
+
 /**
  * This function initializes most of the components of this page.
  * It sets up the camera, light, and objects. It also adds the
@@ -307,7 +189,7 @@ function toScreenPosition( obj ) {
  */
 function init() {
 	container = document.getElementById("container");
-	camera = new THREE.PerspectiveCamera( 45, aspect, 75, 10000 );
+	camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
 	camera.position.set( 0, 0, cameraZ );
 	runtime.registerCamera( camera );
 
@@ -316,38 +198,52 @@ function init() {
 
 	renderScene();
 	fadeLoader();
-	// addLight();
-	initCarousel();
 	addMainShape();
 	addShapes();
+	addPlane();
+	addProjectDetailPlanes();
 	addIcons();
 	createText();
-
-	adjustRowHeight();
 	animateName();
 	animateNameColor();
+
  
-	controls  = new THREE.OrbitControls( shapeGroup, renderer.domElement );
+	controls  = new THREE.OrbitControls( camera, renderer.domElement );
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	window.addEventListener( 'resize', onWindowResize, false );
 
 	// When there's a click, zoom to the project that's hovered on. On Mobile
 	// devices, just do what we do for a desktop hover event.
 	$(".canvas").on( 'mousedown', function( event ) {
 
 		if ( !isMobile() ) {
-			zoomToProject();
+
+			// Make sure we are hovered on a project when a click is done,
+			// no project has been clicked, and a project is not currently in view.
+			if ( INTERSECTED && !projectInView && !projectClicked && !isTweening ) {
+				projectClicked = true;
+				$("#addIcon").removeClass( "visible" );
+				lastSphereToCurrent( INTERSECTED );
+			}
+
 		} else {
 			checkMobileIntersection( event );
 		}
 
 	});
 
-	// Click handlers for the back and scroll buttons inside the project view.
-	$(".js-back-to-project").click(function() { backToProjectView(); });
-	$(".js-scroll-down").click(function() { handleSectionScroll( window.innerHeight, 1000 ); });
+
+	$("#backBtn").click( function() {
+
+		// Return to the original view if we are still in the project view
+		// and not currently tweening any animations.
+		if ( projectClicked && !isTweening ) {
+			shrinkProjectPlanes();
+		}
+
+	});
 	
-	// var windowResize = new THREEx.WindowResize(renderer, camera);
 }
 
 
@@ -362,11 +258,25 @@ function renderScene() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
 	container.appendChild(renderer.domElement);
-	var windowResize = new THREEx.WindowResize(renderer, camera);
 
 	cssRenderer = new THREE.CSS3DRenderer();
 	cssRenderer.setSize(window.innerWidth, window.innerHeight);
 	container.appendChild(cssRenderer.domElement);
+}
+
+
+/**
+ * Called whenever the screen rezises, used to reset the renderer's
+ * size and the camera's views so objects change proportionally.
+ */
+function onWindowResize(){
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    cssRenderer.setSize(window.innerWidth, window.innerHeight);
+
 }
 
 
@@ -392,6 +302,9 @@ function addLight() {
 }
 
 
+/**
+ * Adds the main project sphere
+ */
 function addMainShape() {
 
 	var material     = new THREE.MeshPhongMaterial({
@@ -408,6 +321,174 @@ function addMainShape() {
 	shapeGroup.add( mainMesh );
 	scene.add( shapeGroup );
 
+}
+
+
+/**
+ * Adds the main project plane. Small at first, its scale will
+ * be tweened when the camera zooms into it.
+ */
+function addPlane() {
+
+	pcBuffer = generatePointcloud( new THREE.Color( 0,0,0 ), 100, 100 );
+
+	pcBuffer.position.set( 0, -20, 150 );
+	pcBuffer.rotation.set( 0, 0, 0 );
+
+	planeGroup.add( pcBuffer );
+	scene.add( planeGroup );
+
+}
+
+
+
+/**
+ * This function adds the planes that contain information about the
+ * current project. There are 
+ */
+function addProjectDetailPlanes() {
+	console.log("adding Project detial plane");
+
+	// For every project picture/description, we will need to create a CSS3DObject
+	// and add the corresponding image/text to it, before placing it in the scene.
+	for ( var i = 0; i < numProjectPics; i++ ) {
+
+		switch ( i ) {
+			case 0:
+				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+
+				var img = document.createElement( 'div' );
+				img.className = 'project-plane image';
+
+				var descriptionPlane = new THREE.CSS3DObject( img );
+				descriptionPlane.element.innerHTML = planeImg;
+			    
+				descriptionPlane.position.set( PLANE_0_X_ORIGIN, 0, PLANE_0_Z );
+				descriptionPlane.rotation.y = 0.15;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			case 1:
+				var planeText = "My Role for the Zildjian project involved developing and styling the entire front end for this full site re-design. This website was built in the Drupal Content Management System, which gave the user full control over every piece of content throughout the site. "
+
+				var text = document.createElement( 'div' );
+				text.className = 'project-plane text';
+
+				var descriptionPlane = new THREE.CSS3DObject( text );
+				descriptionPlane.element.innerHTML = planeText;
+			    
+				descriptionPlane.position.set( PLANE_1_X_ORIGIN, 0, PLANE_1_Z );
+				descriptionPlane.rotation.y = -0.2;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			case 2:
+				var planeText = "My Role for the Zildjian project involved developing and styling the entire front end for this full site re-design. This website was built in the Drupal Content Management System, which gave the user full control over every piece of content throughout the site. "
+
+				var text = document.createElement( 'div' );
+				text.className = 'project-plane text';
+
+				var descriptionPlane = new THREE.CSS3DObject( text );
+				descriptionPlane.element.innerHTML = planeText;
+			    
+				descriptionPlane.position.set( PLANE_2_X_ORIGIN, 0, PLANE_2_Z );
+				descriptionPlane.rotation.y = 0.2;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			case 3:
+				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+
+				var img = document.createElement( 'div' );
+				img.className = 'project-plane image';
+
+				var descriptionPlane = new THREE.CSS3DObject( img );
+				descriptionPlane.element.innerHTML = planeImg;
+			    
+				descriptionPlane.position.set( PLANE_3_X_ORIGIN, 0, PLANE_3_Z );
+				descriptionPlane.rotation.y = -0.15;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			case 4:
+				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+
+				var img = document.createElement( 'div' );
+				img.className = 'project-plane image';
+
+				var descriptionPlane = new THREE.CSS3DObject( img );
+				descriptionPlane.element.innerHTML = planeImg;
+			    
+				descriptionPlane.position.set( PLANE_4_X_ORIGIN, 0, PLANE_4_Z );
+				descriptionPlane.rotation.y = 0.15;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			case 5:
+				var planeText = "My Role for the Zildjian project involved developing and styling the entire front end for this full site re-design. This website was built in the Drupal Content Management System, which gave the user full control over every piece of content throughout the site. "
+
+				var text = document.createElement( 'div' );
+				text.className = 'project-plane text';
+
+				var descriptionPlane = new THREE.CSS3DObject( text );
+				descriptionPlane.element.innerHTML = planeText;
+			    
+				descriptionPlane.position.set( PLANE_5_X_ORIGIN, 0, PLANE_5_Z );
+				descriptionPlane.rotation.y = -0.2;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			case 6:
+				var planeText = "My Role for the Zildjian project involved developing and styling the entire front end for this full site re-design. This website was built in the Drupal Content Management System, which gave the user full control over every piece of content throughout the site. "
+
+				var text = document.createElement( 'div' );
+				text.className = 'project-plane text';
+
+				var descriptionPlane = new THREE.CSS3DObject( text );
+				descriptionPlane.element.innerHTML = planeText;
+			    
+				descriptionPlane.position.set( PLANE_6_X_ORIGIN, 0, PLANE_6_Z );
+				descriptionPlane.rotation.y = 0.2;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			case 7:
+				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+
+				var img = document.createElement( 'div' );
+				img.className = 'project-plane image';
+
+				var descriptionPlane = new THREE.CSS3DObject( img );
+				descriptionPlane.element.innerHTML = planeImg;
+			    
+				descriptionPlane.position.set( PLANE_7_X_ORIGIN, 0, PLANE_7_Z );
+				descriptionPlane.rotation.y = -0.15;
+
+				planeGroup.add( descriptionPlane );
+				planes.push( descriptionPlane );
+
+				break;
+			default:
+				break;
+		}
+
+	}
+
+	// scene.add( planeGroup );
 }
 
 
@@ -484,7 +565,6 @@ function addShapes() {
 			// since there won't be a current sphere on page load, set one initially,
 			// and then move the spheres into a random location in the 3D space.
 			curSphere = objects[ rando(3,6) ];
-			// hideText();
 			spheresToRandom( 1250 );
 
 		});
@@ -499,9 +579,9 @@ function addShapes() {
 function addIcons() {
 
 	//DRINK
-	var texture1 = new THREE.TextureLoader().load('images/assets/icon1.png');
+	var textTexture = new THREE.TextureLoader().load('images/assets/icon1.png');
 	// CODE
-	var texture2 = new THREE.TextureLoader().load('images/assets/icon2.png');
+	var imgTexture = new THREE.TextureLoader().load('images/assets/icon2.png');
 	// MAGNET
 	var texture3 = new THREE.TextureLoader().load('images/assets/icon3.png');
 	// WEIGHT
@@ -509,8 +589,8 @@ function addIcons() {
 	// MONEY
 	var texture5 = new THREE.TextureLoader().load('images/assets/icon5.png');
 
-	var material1 = new THREE.SpriteMaterial( { map: texture1 } );
-	var material2 = new THREE.SpriteMaterial( { map: texture2 } );
+	var material1 = new THREE.SpriteMaterial( { map: textTexture } );
+	var material2 = new THREE.SpriteMaterial( { map: imgTexture } );
 	var material3 = new THREE.SpriteMaterial( { map: texture3 } );
 	var material4 = new THREE.SpriteMaterial( { map: texture4 } );
 	var material5 = new THREE.SpriteMaterial( { map: texture5 } );
@@ -538,7 +618,6 @@ function addIcons() {
 	iconGroup.add( sprite3 );
 	iconGroup.add( sprite4 );
 	iconGroup.add( sprite5 );
-
 
 	scene.add( iconGroup );
 
@@ -570,7 +649,6 @@ function fadeLoader() {
 function loadFont() {
 	var loader = new THREE.FontLoader();
 		loader.load( 'js/helvetiker_regular.typeface.js', function ( response ) {
-			font = response;
 			addMainShape();
 			addShapes();
 			createText();
@@ -596,6 +674,9 @@ function createText() {
 }
 
 
+/**
+ * Removes the project name text that is above the main sphere.
+ */
 function hideText() {
 	projectName.element.innerHTML = null;
 }
@@ -623,22 +704,33 @@ function showText( intersect ) {
  */
 function animateName() {
 
-	$("#firstName").shuffleLetters({
-		"step": rando( 1, 10 ),
-		"fps": rando( 5, 15 )
-	});
+	function swapLetters() {
 
-	$("#lastName").shuffleLetters({
-		"step": rando( 1, 10 ),
-		"fps": rando( 5, 15 ),
-		"callback": animateName
-	});
+		$(".swap-letters").each( function() {
+			var nameLen    = $(this).children().length,
+				dashLen    = $(this).find( ".name-dash" ).length,
+				randomChar = $(this).children().eq( rando( 0, nameLen ) ),
+				randomDash = $(this).find( ".name-dash" ).eq( rando( 0, dashLen ) );
+
+			randomChar.before( randomDash );
+		});
+		
+	}
+	
+	var int = setInterval( swapLetters, 200 );
 
 }
 
 
-function animateNameColor () {
-	var text = document.getElementById( 'changingText' );
+/**
+ * Uses the sweep library to change the color of the name
+ * in the upper, right corner. Iterates through all HSL values.
+ */
+function animateNameColor() {
+
+	var text = document.getElementById( 'changingText' ),
+		back = document.getElementById( 'backBtn' );
+
 
 	sweep( text, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
 		callback: animateNameColor,
@@ -646,15 +738,149 @@ function animateNameColor () {
 		duration: 10000,
 		space: 'HUSL'
 	});
+
+	sweep( back, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
+		direction: 1,
+		duration: 10000,
+		space: 'HUSL'
+	});
+
 }
 
 
+/**
+ * Called whenever the mouse is moved. Updates the variables keeping track
+ * of the current mouse position. These variables are used to calculate
+ * intersections, when a THREE.js object is being hovered on.
+ *
+ * @param      event     :     JavaScript Event Object
+ *
+ */
 function onDocumentMouseMove( event ) {
 	event.preventDefault();
 	curMouse.x = event.clientX;
 	curMouse.y = event.clientY;
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+}
+
+
+/**
+ * Called whenever the mouse wheel is scrolled. Zooms the camera in or out
+ * within the bounds.
+ */
+function mousewheel( event ) {
+
+    // Don't zoom the camera back past its origin
+    if ( camera.position.z <= 400 ) {
+	    camera.position.z += event.wheelDeltaY * 0.05;
+
+	    // safety check in case we scroll the camera past the origin
+	    if ( camera.position.z > 400 ) {
+	    	camera.position.z = 400;
+	    }
+
+	    // loop through all of the planes and move them as the camera moves
+	    for ( var i = 0; i < planes.length; i++ ) {
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 0 ].position.z < PLANE_0_Z ) {
+		    	planes[ 0 ].position.z = PLANE_0_Z;
+		    }
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 1 ].position.z < PLANE_1_Z ) {
+		    	planes[ 1 ].position.z = PLANE_1_Z;
+		    }
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 2 ].position.z < PLANE_2_Z ) {
+		    	planes[ 2 ].position.z = PLANE_2_Z;
+		    }
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 3 ].position.z < PLANE_3_Z ) {
+		    	planes[ 3 ].position.z = PLANE_3_Z;
+		    }
+
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 4 ].position.z < PLANE_4_Z ) {
+		    	planes[ 4 ].position.z = PLANE_4_Z;
+		    }
+
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 5 ].position.z < PLANE_5_Z ) {
+		    	planes[ 5 ].position.z = PLANE_5_Z;
+		    }
+
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 6 ].position.z < PLANE_6_Z ) {
+		    	planes[ 6 ].position.z = PLANE_6_Z;
+		    }
+
+	    	 // safety check in case we scroll the plane past the origin
+		    if ( planes[ 7 ].position.z < PLANE_7_Z ) {
+		    	planes[ 7 ].position.z = PLANE_7_Z;
+		    }
+
+	    	if ( planes[ 0 ].position.z >= PLANE_0_Z ) {
+		    	planes[ 0 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 1 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 2 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 3 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 4 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 5 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 6 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 7 ].position.z -= event.wheelDeltaY * 0.4;
+	    	}
+
+	    }
+
+    }
+
+}
+
+
+/**
+ * As per the name, this function sets the project planes Z position
+ * back to the original value. This is needed in case the user clicks
+ * to go back after they have scrolled, and the planes have been moved.
+ */
+function resetProjectPlaneZPosition() {
+
+	for ( var i = 0; i < planes.length; i++ ) {
+
+		var newZ;
+
+		switch ( i ) {
+			case 0:
+				newZ = PLANE_0_Z;
+			 	break;
+			case 1:
+				newZ = PLANE_1_Z;
+			 	break;
+			case 2:
+				newZ = PLANE_2_Z;
+			 	break;
+			case 3:
+				newZ = PLANE_3_Z;
+			 	break;
+			case 4:
+				newZ = PLANE_4_Z;
+			 	break;
+			case 5:
+				newZ = PLANE_5_Z;
+			 	break;
+			case 6:
+				newZ = PLANE_6_Z;
+			 	break;
+			case 7:
+				newZ = PLANE_7_Z;
+			 	break;
+			default:
+				break;
+		}
+
+		planes[ i ].position.z = newZ;
+
+	}
+
 }
 
 
@@ -701,32 +927,48 @@ function checkMobileIntersection( event ) {
  * responsible for zooming the camera toward the selected object.
  */
 function zoomToProject() {
-
-	if (!projectInView && !isTweening && INTERSECTED) {
+	console.log("zoomToProject called");
+	// Only zoom to the project if there is not one in view
+	// and we are not currently tweening.
+	if ( !projectInView && !isTweening ) {
 		raycaster.setFromCamera( mouse, camera );
 
-		selectedProject    = curSphere;
-		lastCameraPosition = camera.clone().position;
 		projectInView      = true;
-		$("#teaser").removeClass("active");
 
-		zoomToSelection( selectedProject.position );
+		new TWEEN.Tween( camera.position )
+			.to({
+				x: 0,
+				y: 0,
+				z: 400
+			}, 3000)
+			.easing( TWEEN.Easing.Sinusoidal.Out )
+			.onStart( function() {
+				console.log("started zoomingd");
 
-		$(".project-preview").addClass("hidden");
+				isTweening = true;
+	           	// get rid of the plus icon
+	           	$("#addIcon").removeClass( "visible" );
+
+				expandPlane();
+	           	
+			})
+		    .onUpdate( function() {
+		    	console.log("zooming in");
+		    	renderer.render(scene, camera);
+		    })
+		    .onComplete( function() {
+
+		    	isTweening = false;
+		    	
+		    	// hide the icons while we are viewing the projects
+		    	iconGroup.scale.set( 0, 0, 0);
+
+		    	window.addEventListener( 'mousewheel', mousewheel, false );
+
+		    })
+		    .start();
 	}
 
-}
-
-
-/**
- * Brings the camera back to the main project view by removing the classes
- * that showed the project details and setting the necessary variables to 
- * zoom the camera to the original position.
- */
-function backToProjectView() {
-	$(".project-intro, .canvas").removeClass("active");
-	zoomCameraOut();
-	rotateCamera = false;
 }
 
 
@@ -767,29 +1009,40 @@ function circleCamera() {
 }
 
 
+
+
 /**
  * Iterate the rotation of the camera just a bit
  */
-function spinCamera() {
-	camera.rotation.x -= 0.001;
-    camera.rotation.y -= 0.001;
-}
-
-
-function spinScene() {
-	camera.rotation.x -= 0.003;
-    camera.rotation.y -= 0.003;
+function animatePlane() {
+    pcBuffer.rotation.y -= 0.0001;
 }
 
 
 /**
- * Iterate the rotation of the current sphere just a bit
+ * Move the last sphere to the center of the scene before zooming into it.
  */
-function spinSphere() {
-	if (curSphere) {
-		curSphere.parent.rotation.x -= spinTheta;
-	    curSphere.parent.rotation.y -= spinTheta;
-	}
+function lastSphereToCurrent( sphere ) {
+	console.log("lastSphereToCurrent called");
+	new TWEEN.Tween( curSphere.position )
+		.to({
+			x: 0,
+			y: 0,
+			z: 400
+		}, 1000 )
+		.easing( TWEEN.Easing.Elastic.InOut )
+		.onStart( function() {
+			isTweening = true;
+		})
+	    .onUpdate( function() {
+	    	renderer.render( scene, camera );
+	    })
+	    .onComplete( function() {
+	    	isTweening = false;
+
+	    	zoomToProject();
+	    })
+	    .start();
 }
 
 
@@ -801,7 +1054,7 @@ function spinSphere() {
  *
  */
 function spheresToCurrent( current, duration ) {
-
+	console.log("spheresToCurrent called");
 	var numChildren = objects.length;
 
 	// Tween all project spheres, starting at the second child, since the
@@ -814,7 +1067,7 @@ function spheresToCurrent( current, duration ) {
 				.to({
 					x: 0,
 					y: 0,
-					z: 0
+					z: 400
 				}, duration )
 				.easing( TWEEN.Easing.Elastic.InOut )
 				.onStart( function() {
@@ -825,6 +1078,7 @@ function spheresToCurrent( current, duration ) {
 			    	// if the project is hovered off while the other spheres are 
 			    	// moving towards it, reset all tweens and sphere positions.
 			    	if ( !INTERSECTED ) {
+			    		console.log("removing all tweens");
 			    		TWEEN.removeAll();
 			    		isTweening = false;
 			    		spheresToRandom( 1250 );
@@ -855,6 +1109,7 @@ function spheresToCurrent( current, duration ) {
  * Moves all spheres on the scene to a random location.
  */
 function spheresToRandom(duration) {
+	console.log("spheresToRandom called");
 	var numChildren = objects.length;
 
 	// Tween all project spheres, starting at the second child, since the
@@ -914,12 +1169,12 @@ function spheresToRandom(duration) {
 			    	// called once when the tween completes
 			    	if ( isTweening ) {
 			    		isTweening  = false;
-		    			rotateScene = true;
 			    		shrinkSphere( curSphere );
 			    	}
 			    	
 			    })
 			    .start();
+
 		}
 	}
 }
@@ -932,6 +1187,7 @@ function spheresToRandom(duration) {
  *
  */
 function expandSphere( object ) {
+	console.log("expandSphere called");
 	var numChildren = scene.clone().children.length,
 		scaleSize   = isMobile() ? 2 : 4,
 		sphere      = object.children[ 0 ];
@@ -950,12 +1206,123 @@ function expandSphere( object ) {
 	    	// Get the 2D position of the sphere so we can place the add icon.
 	    	var pos = toScreenPosition( curSphere );
 
-	    	console.log(pos);
 	    	$("#addIcon")
 	    		.css( { left: pos.x + "px", top: pos.y + "px"})
 	    		.addClass( "visible" );
 	    })
 	    .start();
+}
+
+
+/**
+ * Used to enlarge the main project plane that is in the center of the
+ * scene. Called after the project is zoomed to.
+ */
+function expandPlane() {
+	console.log("expandPlane called");
+	new TWEEN.Tween( pcBuffer.scale )
+		.to({
+			x: 1000,
+			y: 200,
+			z: 1000
+		}, 4000 )
+		.easing( TWEEN.Easing.Sinusoidal.In )
+		.onStart( function() {
+			isTweening = true;
+		})
+	    .onUpdate( function() {
+	    	renderer.render(scene, camera);
+	    })
+	    .onComplete( function() {
+	    	movePlane = true;
+	    	isTweening = false;
+
+			animateProjectPlanes();
+
+	    	// show the back button to bring the user to the main view
+	    	$("#backBtn").addClass( "visible" );
+	    })
+	    .start();
+}
+
+
+/**
+ * This function gets called once a project has been zoomed in on,
+ * and reveals the planes containing the images of the current project.
+ */
+function animateProjectPlanes() {
+	console.log("animateProjectPlanes called");
+
+	for ( var i = 0; i < planes.length; i++ ) {
+
+		var newX;
+
+		switch ( i ) {
+			case 0:
+				newX = PLANE_0_X;
+			 	break;
+			case 1:
+				newX = PLANE_1_X;
+			 	break;
+			case 2:
+				newX = PLANE_2_X;
+			 	break;
+			case 3:
+				newX = PLANE_3_X;
+			 	break;
+			case 4:
+				newX = PLANE_4_X;
+			 	break;
+			case 5:
+				newX = PLANE_5_X;
+			 	break;
+			case 6:
+				newX = PLANE_6_X;
+			 	break;
+			case 7:
+				newX = PLANE_7_X;
+			 	break;
+			default:
+				break;
+		}
+
+		fadePanelAfterDelay( i );
+
+		new TWEEN.Tween( planes[ i ].position )
+		    .delay( i * 100 )
+			.to({
+				x: newX
+			}, 1000 )
+			.easing( TWEEN.Easing.Sinusoidal.In )
+		    .onUpdate( function() {
+		    	renderer.render(scene, camera);
+		    })
+		    .start();
+
+	}
+	
+}
+
+
+/**
+ * Used to create distinct timeouts since this will often be called inside
+ * of a loop and we need to change the scope.
+ *
+ * @param     i      :     Integer
+ *
+ */
+function fadePanelAfterDelay( i ) {
+
+	// Timeouts used to add the visible class to the project panels
+	setTimeout( function() {
+		planes[ i ].element.className += " visible";
+
+		// Show the controls once we show the last panel.
+		if ( i === planes.length - 1 ) {
+			$(".project-control").addClass( "visible" );
+		} 
+	}, i*150);
+
 }
 
 
@@ -966,7 +1333,9 @@ function expandSphere( object ) {
  *
  */
 function shrinkSphere( object ) {
-	var numChildren = objects.length;
+	console.log("shrinkSphere called");
+
+	$("#addIcon").removeClass( "visible" );
 
 	if ( curSphere ) {
 
@@ -976,14 +1345,9 @@ function shrinkSphere( object ) {
 				y: 1,
 				z: 1
 			}, 500 )
-			.onStart( function() {
-				$("#addIcon").removeClass( "visible" );
-			})
 			.easing( TWEEN.Easing.Circular.Out )
 		    .onUpdate( function() {
 		    	renderer.render(scene, camera);
-		    })
-		    .onComplete( function() {
 		    })
 		    .start();
 
@@ -993,45 +1357,99 @@ function shrinkSphere( object ) {
 
 
 /**
- * Tweens the camera from its current zoomed-out position, to the position
- * to the position of the selected object. This essentially puts the camera
- * inside the select project sphere.
+ * Called when the back button is clicked, this function shrinks the project
+ * plane back to its original scale.
  */
-function zoomToSelection(target) {
-	TWEEN.removeAll();
-
-	new TWEEN.Tween( camera.position )
+function shrinkPlane() {
+	console.log("shrinkPlane called");
+	new TWEEN.Tween( pcBuffer.scale )
 		.to({
-			x: target.x,
-			y: target.y,
-			z: target.z
-		}, 3000)
-		.easing( TWEEN.Easing.Linear.None )
+			x: 1,
+			y: 1,
+			z: 1
+		}, 3000 )
+		.easing( TWEEN.Easing.Sinusoidal.Out )
 		.onStart( function() {
-			// As we zoom to the project, rotate the carousel so that
-			// selected project is the current one.
-			var index    = $.inArray( curSphere.name, names ),
-			    rotation = carousel.rotation % 360,
-            	theta    = carousel.theta,
-            	destRotation = -1 * index * theta;
 
-           	// get rid of the plus icon
-           	$("#addIcon").removeClass( "visible" );
-           	
-            // raise the current project so nothing shows behind it.
-           	$($(".carousel-stop").get(index)).addClass( "z1" );
+			$(".project-control").removeClass( "visible" );
 
-	        carousel.rotation = destRotation;
-	        carousel.transform();
+			setTimeout( function() {
+				zoomCameraOut();
+			}, 2000 );
+
 		})
 	    .onUpdate( function() {
 	    	renderer.render(scene, camera);
 	    })
-	    .onComplete( function() {
-	    	noRender = true;
-			$(".project-intro, .canvas").addClass( "active" );
-	    })
 	    .start();
+}
+
+
+/**
+ * Called when the back button is clicked, this function shrinks the project
+ * detail planes/panels back to their original scale.
+ */
+function shrinkProjectPlanes() {
+	console.log("shrinkProjectPlanes called");
+	var mutex = true,
+		newX;
+
+	// Loop through the project planes, starting with the last one, and
+	// tween their x values back to the original position.
+	for ( var i = planes.length - 1; i >= 0; i--) {
+
+		switch ( i ) {
+			case 0:
+				newX = PLANE_0_X_ORIGIN;
+			 	break;
+			case 1:
+				newX = PLANE_1_X_ORIGIN;
+			 	break;
+			case 2:
+				newX = PLANE_2_X_ORIGIN;
+			 	break;
+			case 3:
+				newX = PLANE_3_X_ORIGIN;
+			 	break;
+			case 4:
+				newX = PLANE_4_X_ORIGIN;
+			 	break;
+			case 5:
+				newX = PLANE_5_X_ORIGIN;
+			 	break;
+			case 6:
+				newX = PLANE_6_X_ORIGIN;
+			 	break;
+			case 7:
+				newX = PLANE_7_X_ORIGIN;
+			 	break;
+			default:
+				break;
+		}
+
+		new TWEEN.Tween( planes[ i ].position )
+			// .delay( 250 * i )
+			.to({
+				x: newX
+			}, 1000 )
+			.onStart( function() {
+
+				// make sure this is only called once
+				if ( mutex ) {
+					mutex = false;
+					$(".project-plane").removeClass( "visible" );
+					shrinkPlane();
+				}
+
+			})
+			.easing( TWEEN.Easing.Sinusoidal.In )
+		    .onUpdate( function() {
+		    	renderer.render(scene, camera);
+		    })
+		    .start();
+
+	}
+	
 }
 
 
@@ -1040,30 +1458,38 @@ function zoomToSelection(target) {
  * stored camera position.
  */
 function zoomCameraOut() {
-	TWEEN.removeAll();
+	console.log("zoomCameraOut");
+
 	hideText();
 
 	new TWEEN.Tween(camera.position)
 		.to({
-			x: lastCameraPosition.x,
-			y: lastCameraPosition.y,
-			z: lastCameraPosition.z
+			x: 0,
+			y: 0,
+			z: cameraZ
 		}, 3000)
 		.easing( TWEEN.Easing.Linear.None )
 		.onStart( function() {
-			noRender = false;
+			movePlane = false;
+
+			// bring the icons back
+			iconGroup.scale.set( 1, 1, 1 );
 		})
 	    .onUpdate( function() {
 	    	camera.lookAt( scene.position );
 	    	renderer.render( scene, camera );
 	    })
 	    .onComplete( function() {
-	    	selectedProject  = null;
+	    	// clean up tweens just in case
+	    	TWEEN.removeAll();
+
 			projectInView    = false;
+			projectClicked   = false;
 			stopCamera       = false;
 			intersectMutex   = true;
 			spinTheta        = 0.005;
-			TWEEN.removeAll();
+
+			resetProjectPlaneZPosition();
 			shrinkSphere( curSphere );
 			spheresToRandom( 1250  );
 	    })
@@ -1118,10 +1544,9 @@ function onIntersection( intersects ) {
 			unIntersectMutex = true;
 		}
 
-		if ( intersectMutex ) {
+		if ( intersectMutex && !projectInView ) {
 
 			intersectMutex = false;
-			rotateScene    = false;
 			stopCamera     = true;
 
 			showText( intersects[0] );
@@ -1139,7 +1564,7 @@ function onIntersection( intersects ) {
  * sphere and sets the necessary booleans.
  */
 function onMobileIntersection( intersects ) {
-
+	console.log("onMobileIntersection called");
 	// If a different sphere has been clicked, shrink the old one.
 	if ( curSphere && curSphere !== intersects[ 0 ].object ) {
 		intersectMutex = true;
@@ -1200,7 +1625,7 @@ function onNoMobileIntersection() {
  * It removes any project text and sets the variables to size the
  * orbs back to their original size.
  */
-function onNoIntersections(intersects) {
+function onNoIntersections( intersects ) {
 	
 	// Don't do anything if there's a project in view.
 	if ( !projectInView ){
@@ -1208,7 +1633,9 @@ function onNoIntersections(intersects) {
 		stopCamera     = false;
 		intersectMutex = true;
 
-		if ( unIntersectMutex ) {
+		// only execute this once, if a project is not clicked
+		if ( unIntersectMutex && !projectClicked ) {
+			console.log("No Intersections");
 			spheresToRandom( 1250 );
 			shrinkSphere( curSphere );
 			hideText();
@@ -1231,10 +1658,7 @@ function animate() {
 	runtime.updateShaders( clock.getElapsedTime() );
 	TWEEN.update();
 
-	// no need to render if there is a project in view
-	if ( !noRender ) {
-		render();
-	}
+	render();
 }
 
 
@@ -1248,6 +1672,10 @@ function render() {
 	// in view or one being hovered on.
 	if ( !projectInView && !stopCamera ) {
 		circleCamera();
+	}
+
+	if ( movePlane ) {
+		animatePlane();
 	}
 
 	// find intersections

@@ -2,7 +2,6 @@
 @import "vars";
 @import "_flexbox";
 @import "carousel";
-@import "project-details";
 
 
 html,
@@ -15,7 +14,7 @@ body {
 
 .loader {
   background-color: #1a1a1b;
-  opacity: 1;
+  opacity: 1; 
   position: fixed;
   left: 0;
   top: 0;
@@ -296,7 +295,93 @@ canvas,
 }
 
 
-// ================================= PROJECT IMAGES ================================
+// The button that appears when the project details
+// are in view, and takes the user back to the main view.
+.back-btn {
+  border: none;
+  color: #fff;
+  display: block;
+  opacity: 0;
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  text-overflow: clip;
+  text-align: center;
+  text-transform: uppercase;
+  z-index: 1;
+  transition: opacity 500ms ease;
+  &.visible {
+    opacity: 1;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+
+.prev-btn,
+.next-btn {
+  color: #fff;
+  font-size: 16px;
+  opacity: 0;
+  position: absolute;
+  top: 40%;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transform: translateY( -50% );
+  width: 10px;
+  word-wrap: break-word;
+  z-index: 1;
+  transition: opacity 500ms ease;
+  &.visible {
+    opacity: 1;
+  }
+}
+
+
+.prev-btn {
+  left: 20px;
+}
+
+
+.next-btn {
+  right: 20px;
+}
+
+
+
+.name-dash {
+  padding: 0 2px 0 0;
+}
+
+
+
+
+// ============================== PROJECT IMAGES =============================
+// project planes are the panels with either
+// an image or description corresponding to 
+// the current site. They appear when the camera
+// is zoomed into the project view.
+.project-plane {
+  max-width: 600px;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  &.text {
+    color: #fff;
+    font-size: 24px;
+    letter-spacing: 1px;
+    line-height: 1.6;
+  }
+  &.visible {
+    opacity: 1;
+  }
+}
+
+
+
+
+// =============================== PROJECT IMAGES =============================
 .bg-wentworth {
   background-image: url("../images/projects/wentworth/wentworth-home.png");
 }

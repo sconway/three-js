@@ -61,6 +61,9 @@
 				else if(/[A-Z]/.test(ch)){
 					types[i] = "upperLetter";
 				}
+				else if(ch == "back") {
+					types[i] = "back";
+				}
 				else {
 					types[i] = "symbol";
 				}
@@ -125,15 +128,15 @@
 		
 		if (type == "lowerLetter"){
 			// pool = "abcdefghijklmnopqrstuvwxyz0123456789";
-			pool = "-scott"
+			pool = "----";
 		}
-		else if (type == "upperLetter"){
-			// pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-			pool = "-SCOTT"
-		}
+		// else if (type == "upperLetter"){
+		// 	// pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		// 	pool = "->BACK--->->";
+		// }
 		else if (type == "symbol"){
 			// pool = ",.?/\\(^)![]{}*&^%$#'\"";
-			pool = "-"
+			pool = "-";
 		}
 		
 		var arr = pool.split('');

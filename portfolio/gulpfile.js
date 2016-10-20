@@ -12,7 +12,7 @@ var gulp        = require('gulp'),
 
 // Task to compile our SCSS file into CSS
 gulp.task('sass', function() {
-  return gulp.src('app/scss/projects.scss') // Gets all files ending with .scss in app/scss and children dirs
+  return gulp.src('app/sass/projects.scss') // Gets all files ending with .scss in app/scss and children dirs
     .pipe(sass())
     .pipe(gulp.dest('app/css'))
     .pipe(browserSync.reload({
@@ -34,7 +34,7 @@ gulp.task('browserSync', function() {
 // Watches all changes to the scss file or any javascript files,
 // and calls the sass task and the browser reload if there are any.
 gulp.task('watch', ['browserSync', 'sass'], function (){
-  gulp.watch('app/scss/projects.scss', ['sass']); 
+  gulp.watch('app/sass/projects.scss', ['sass']); 
   // Reloads the browser whenever HTML or JS files change
   gulp.watch('app/*.html', browserSync.reload); 
   gulp.watch('app/js/**/*.js', browserSync.reload); 

@@ -13,38 +13,38 @@
 
   <script type="text/javascript">
 
-  	var loaded = false,
-	    timedOut = false;
+ //  	var loaded = false,
+	//     timedOut = false;
 
-    // checks if the page has loaded (minimum amout of time the animation runs)
-	setTimeout(checkLoader, 3000);
+ //    // checks if the page has loaded (minimum amout of time the animation runs)
+	// setTimeout(checkLoader, 3000);
 
 	window.addEventListener('load', function () {
-	  var atom = document.getElementById("atom");
+	//   var atom = document.getElementById("atom");
 
-	  loaded = true;
-	  // atom.className += " active";
+	//   loaded = true;
+	//   // atom.className += " active";
 
-	  // only fade the loader out if the load time has 
-	  // taken longer than the pre-defined delay.
-	  if (timedOut)
-	    fadeLoaderOut();
-
+	//   // only fade the loader out if the load time has 
+	//   // taken longer than the pre-defined delay.
+	//   if (timedOut)
+	//     fadeLoaderOut();
+		init();
+		animate();
 	}, false);
 
-	function checkLoader() {
-	  timedOut = true;
+	// function checkLoader() {
+	//   timedOut = true;
 
-	  // only fade out the loader after the pre defined delay
-	  // if the page had loaded before the delay. 
-	  if (loaded)
-	    fadeLoaderOut();
-	}
+	//   // only fade out the loader after the pre defined delay
+	//   // if the page had loaded before the delay. 
+	//   if (loaded)
+	//     fadeLoaderOut();
+	// }
 
-	function fadeLoaderOut() {
-	  init();
-	  animate();
-	}
+	// function fadeLoaderOut() {
+	//   
+	// }
 
   </script>		
 </head>
@@ -86,21 +86,48 @@
 	</section>
 	<!-- END LOADER -->
 
+	
 
 	<!-- MAIN CANVAS -->
 	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
 		<aside class="changing-text" id="changingText">
-			<div id="firstName" class="first-name">sc-ot--t-</div>
-			<div id="lastName" class="last-name">conw--ay</div>
+			<div id="firstName" class="first-name swap-letters">
+				<span>s</span>
+				<span>c</span>
+				<span>o</span>
+				<span class="name-dash">-</span>
+				<span>t</span>
+				<span class="name-dash">-</span>
+				<span class="name-dash">-</span>
+				<span>t</span>
+				<span class="name-dash">-</span>
+			</div>
+			<div id="lastName" class="last-name swap-letters">
+		        <span>c</span>
+		        <span>o</span>
+		        <span>n</span>
+		        <span>w</span>
+		        <span class="name-dash">-</span>
+		        <span class="name-dash">-</span>
+		        <span>a</span>
+		        <span>y</span>
+	        </div>
 		</aside>
 
-		<aside id="teaser" class="project-teaser">
-			<h2 id="teaserName" class="project-teaser--name">project title</h2>
-			<p id="teaserDescription" class="project-teaser--description">Lorem ipsum dolor sit amet, pri assentior temporibus liberavisse in, ad nec mazim euripidis definitionem. Omnes repudiandae neglegentur et qui, augue primis epicurei ea mei. Cu has persecuti incorrupte, cum augue partiendo ocurreret id, te sit nibh causae imperdiet. Epicurei eleifend platonem no vix.
-			Illud homero duo ei. Accusam mentitum noluisse ne mel. Mandamus definiebas efficiantur at has, ea duo omnis latine. Graecis nominati vix cu. Nam no alterum antiopam.</p>
-			<span class="js-back-to-project project-teaser--back">Back</span>
-			<span class="js-project-details project-teaser--more">Details</span>
-		</aside>
+		<!-- BACK BUTTON -->
+		<a id="backBtn" class="back-btn swap-letters project-control">
+	      <span>B</span>
+	      <span class="name-dash">-</span>
+	      <span>a</span>
+	      <span>c</span>
+	      <span class="name-dash">-</span>
+	      <span>k</span>
+	    </a>
+
+	    <!-- PREVIOUS/NEXT BUTTONS -->
+	    <a class="prev-btn project-control" href="#">Prev</a>
+	    <a class="next-btn project-control" href="#">Next</a>
+
 	</div>
 	<!-- END MAIN CANVAS -->
 
@@ -586,7 +613,6 @@
 	<script type="text/javascript" src="js/modernizer.js"></script>
 	<script type="text/javascript" src="js/cssRenderer.js"></script>
 	<script type="text/javascript" src="js/sweep.js"></script>
-	<script type="text/javascript" src="js/jquery.shuffleLetters.js"></script>
 	<script type="text/javascript" src="js/resize.js"></script>
 	<script type="text/javascript" src="js/portfolio.js"></script>
 	<!-- endbuild -->
