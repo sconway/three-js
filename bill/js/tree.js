@@ -1,5 +1,5 @@
 // standard global variables
-var container, v, floor, scene, camera, renderer, controls, stats,
+var container, v, floor, scene, camera, renderer, controls = [], stats, tube,
     keyboard = new THREEx.KeyboardState(),
     clock = new THREE.Clock(),
     runtime = new ShaderFrogRuntime(),
@@ -73,7 +73,7 @@ function init() {
     container = document.getElementById( 'container' );
     container.appendChild( renderer.domElement );
 
-    controls = new THREE.OrbitControls( camera, renderer.domElement );
+    controls.push( new THREE.TrackballControls( camera ) );
 
     // LIGHT
     addLight();
@@ -115,11 +115,12 @@ function addTube( material ) {
         false  //closed
     );
 
-
-
     var tube = new THREE.Mesh( geometry, material );
 
+    controls.push( new THREE.DeviceOrientationControls( tube ) );
+
     scene.add( tube );
+
 
 }
 
@@ -139,12 +140,16 @@ function loadShader() {
 function animate() {
     requestAnimationFrame( animate );
     render();       
-    update();
+    updateControls();
 }
 
 
-function update(){
-    controls.update();
+function updateControls() {
+    var numControls = controls.length;
+
+    for ( var i = 0; i < numControls; i++ ) {
+        controls[ i ].update();
+    }
 }
 
 
