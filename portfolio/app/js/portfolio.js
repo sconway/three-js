@@ -1,10 +1,12 @@
 // (function() {
 
 var container, controls, camera, scene, raycaster, renderer, curSphere, cssRenderer,
-	positions, mainMesh, pcBuffer, sprite1, sprite2, sprite3, sprite4, sprite5,
-	intersectMutex = true, unIntersectMutex = true, isTweening = false,
-	movePlane = false, projectClicked = false, clickedOnce = false,
-	stopCamera = false, projectInView = false, theta = 0, pointSize = 2,
+	positions, mainMesh, sprite1, sprite2, sprite3, sprite4, sprite5, linePlane,
+	projectImage1, projectImage2, projectImage3, projectImage4,
+	projectText1, projectText2, projectText3, projectText4, json,
+	intersectMutex = true,  unIntersectMutex = true,  isTweening  = false,
+	movePlane      = false, projectClicked   = false, clickedOnce = false,
+	stopCamera     = false, projectInView    = false, theta = 0, json,
 	spinTheta = 0.005, cameraZ = 2000, cubeSize = 50, numProjectPics = 8,
 	mouse      = new THREE.Vector2(), 
 	curMouse   = new THREE.Vector2(),
@@ -46,6 +48,20 @@ var PLANE_0_Z        = -1000,
 	PLANE_7_X_ORIGIN = 8000;
 
 
+uniforms = {
+	amplitude: { value: 5.0 },
+	opacity:   { value: 0.3 },
+	color:     { value: new THREE.Color( 0xff0000 ) }
+};
+
+var shaderMaterial = new THREE.ShaderMaterial( {
+	uniforms:       uniforms,
+	vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+	fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+	blending:       THREE.AdditiveBlending,
+	depthTest:      false,
+	transparent:    true
+});
 
 // ========================================================================
 
@@ -138,50 +154,6 @@ function toScreenPosition( obj ) {
 };
 
 
-/*
- * Used to create the mappings of points that is used as the project plane.
- */
-function generatePointCloudGeometry( color, width, length ){
-	var geometry = new THREE.BufferGeometry();
-	var numPoints = width*length;
-	positions = new Float32Array( numPoints*3 );
-	var colors = new Float32Array( numPoints*3 );
-	var k = 0;
-	for( var i = 0; i < width; i++ ) {
-		for( var j = 0; j < length; j++ ) {
-			var u = i / width;
-			var v = j / length;
-			var x = u - 0.5;
-			var y = ( Math.cos( u * Math.PI * 2 ) + Math.sin( v * Math.PI * 2 ) ) / 20;
-			var z = v - 0.5;
-			positions[ 3 * k ] = x;
-			positions[ 3 * k + 1 ] = y;
-			positions[ 3 * k + 2 ] = z;
-			var intensity = ( y + 0.1 ) * 5;
-			colors[ 3 * k ] = color.r * intensity;
-			colors[ 3 * k + 1 ] = color.g * intensity;
-			colors[ 3 * k + 2 ] = color.b * intensity;
-			k++;
-		}
-	}
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
-	geometry.computeBoundingBox();
-	return geometry;
-}
-
-
-/*
- * Creates an instance of a point cloud.
- */
-function generatePointcloud( color, width, length ) {
-	var geometry = generatePointCloudGeometry( color, width, length );
-	var material = new THREE.PointsMaterial( { size: pointSize, vertexColors: THREE.VertexColors } );
-	var pointcloud = new THREE.Points( geometry, material );
-	return pointcloud;
-}
-
-
 /**
  * This function initializes most of the components of this page.
  * It sets up the camera, light, and objects. It also adds the
@@ -201,7 +173,7 @@ function init() {
 	addMainShape();
 	addShapes();
 	addPlane();
-	addProjectDetailPlanes();
+	parseProjectDetails();
 	addIcons();
 	createText();
 	animateName();
@@ -224,7 +196,9 @@ function init() {
 			if ( INTERSECTED && !projectInView && !projectClicked && !isTweening ) {
 				projectClicked = true;
 				$("#addIcon").removeClass( "visible" );
+				populateProjectDetails( INTERSECTED.name );
 				lastSphereToCurrent( INTERSECTED );
+				console.log("intersected: ", INTERSECTED.name);
 			}
 
 		} else {
@@ -281,6 +255,26 @@ function onWindowResize(){
 
 
 /**
+ * This function is responsible for parsing the project details
+ * JSON object and supplying the method to add the detail planes
+ * with the information it needs.
+ */
+function parseProjectDetails() {
+
+	var jqxhr = $.getJSON( "json/projects.json", function( data ) {
+		json = data;
+	    addProjectDetailPlanes();
+	})
+	.fail(function() {
+		console.log( "error getting json " );
+	});
+
+
+
+}
+
+
+/**
  * Adds lighting to the scene. Stays in a fixed position.
  */
 function addLight() {
@@ -330,12 +324,36 @@ function addMainShape() {
  */
 function addPlane() {
 
-	pcBuffer = generatePointcloud( new THREE.Color( 0,0,0 ), 100, 100 );
+	var plane = new THREE.PlaneGeometry( 100, 100, 200, 200 );
 
-	pcBuffer.position.set( 0, -20, 150 );
-	pcBuffer.rotation.set( 0, 0, 0 );
+	plane.center();
 
-	planeGroup.add( pcBuffer );
+	var vertices = plane.vertices;
+	var buffergeometry = new THREE.BufferGeometry();
+
+	var position = new THREE.Float32Attribute( vertices.length * 3, 3 ).copyVector3sArray( vertices );
+	buffergeometry.addAttribute( 'position', position )
+
+	var displacement = new THREE.Float32Attribute( vertices.length * 3, 3 );
+	buffergeometry.addAttribute( 'displacement', displacement );
+
+	var customColor = new THREE.Float32Attribute( vertices.length * 3, 3 );
+	buffergeometry.addAttribute( 'customColor', customColor );
+
+	var color = new THREE.Color( 0xffffff );
+
+	for( var i = 0, l = customColor.count; i < l; i ++ ) {
+		color.setHSL( i / l, 0.5, 0.5 );
+		color.toArray( customColor.array, i * customColor.itemSize );
+	}
+
+	linePlane = new THREE.Line( buffergeometry, shaderMaterial );
+	linePlane.rotation.set( ( (Math.PI / 2 )  - 0.1 ), 0, 0 );
+	linePlane.position.set( 0, -60, 150 );
+	linePlane.scale.set( 0.001, 0.001, 0.001 );
+
+	// add the plane to our group( also includes the project planes )
+	planeGroup.add( linePlane );
 	scene.add( planeGroup );
 
 }
@@ -345,8 +363,9 @@ function addPlane() {
 /**
  * This function adds the planes that contain information about the
  * current project. There are 
+ *
  */
-function addProjectDetailPlanes() {
+function addProjectDetailPlanes( ) {
 	console.log("adding Project detial plane");
 
 	// For every project picture/description, we will need to create a CSS3DObject
@@ -356,18 +375,19 @@ function addProjectDetailPlanes() {
 		switch ( i ) {
 			case 0:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image';
 
-				var descriptionPlane = new THREE.CSS3DObject( img );
-				descriptionPlane.element.innerHTML = planeImg;
+				projectImage1 = new THREE.CSS3DObject( img );
+				projectImage1.element.innerHTML = planeImg;
 			    
-				descriptionPlane.position.set( PLANE_0_X_ORIGIN, 0, PLANE_0_Z );
-				descriptionPlane.rotation.y = 0.15;
+				projectImage1.position.set( PLANE_0_X_ORIGIN, 0, PLANE_0_Z );
+				projectImage1.rotation.y = 0.15;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectImage1 );
+				planes.push( projectImage1 );
 
 				break;
 			case 1:
@@ -376,14 +396,14 @@ function addProjectDetailPlanes() {
 				var text = document.createElement( 'div' );
 				text.className = 'project-plane text';
 
-				var descriptionPlane = new THREE.CSS3DObject( text );
-				descriptionPlane.element.innerHTML = planeText;
+				projectText1 = new THREE.CSS3DObject( text );
+				projectText1.element.innerHTML = planeText;
 			    
-				descriptionPlane.position.set( PLANE_1_X_ORIGIN, 0, PLANE_1_Z );
-				descriptionPlane.rotation.y = -0.2;
+				projectText1.position.set( PLANE_1_X_ORIGIN, 0, PLANE_1_Z );
+				projectText1.rotation.y = -0.2;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectText1 );
+				planes.push( projectText1 );
 
 				break;
 			case 2:
@@ -392,46 +412,48 @@ function addProjectDetailPlanes() {
 				var text = document.createElement( 'div' );
 				text.className = 'project-plane text';
 
-				var descriptionPlane = new THREE.CSS3DObject( text );
-				descriptionPlane.element.innerHTML = planeText;
+				projectText2 = new THREE.CSS3DObject( text );
+				projectText2.element.innerHTML = planeText;
 			    
-				descriptionPlane.position.set( PLANE_2_X_ORIGIN, 0, PLANE_2_Z );
-				descriptionPlane.rotation.y = 0.2;
+				projectText2.position.set( PLANE_2_X_ORIGIN, 0, PLANE_2_Z );
+				projectText2.rotation.y = 0.2;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectText2 );
+				planes.push( projectText2 );
 
 				break;
 			case 3:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image';
 
-				var descriptionPlane = new THREE.CSS3DObject( img );
-				descriptionPlane.element.innerHTML = planeImg;
+				projectImage2 = new THREE.CSS3DObject( img );
+				projectImage2.element.innerHTML = planeImg;
 			    
-				descriptionPlane.position.set( PLANE_3_X_ORIGIN, 0, PLANE_3_Z );
-				descriptionPlane.rotation.y = -0.15;
+				projectImage2.position.set( PLANE_3_X_ORIGIN, 0, PLANE_3_Z );
+				projectImage2.rotation.y = -0.15;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectImage2 );
+				planes.push( projectImage2 );
 
 				break;
 			case 4:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image';
 
-				var descriptionPlane = new THREE.CSS3DObject( img );
-				descriptionPlane.element.innerHTML = planeImg;
+				projectImage3 = new THREE.CSS3DObject( img );
+				projectImage3.element.innerHTML = planeImg;
 			    
-				descriptionPlane.position.set( PLANE_4_X_ORIGIN, 0, PLANE_4_Z );
-				descriptionPlane.rotation.y = 0.15;
+				projectImage3.position.set( PLANE_4_X_ORIGIN, 0, PLANE_4_Z );
+				projectImage3.rotation.y = 0.15;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectImage3 );
+				planes.push( projectImage3 );
 
 				break;
 			case 5:
@@ -440,14 +462,14 @@ function addProjectDetailPlanes() {
 				var text = document.createElement( 'div' );
 				text.className = 'project-plane text';
 
-				var descriptionPlane = new THREE.CSS3DObject( text );
-				descriptionPlane.element.innerHTML = planeText;
+				projectText3 = new THREE.CSS3DObject( text );
+				projectText3.element.innerHTML = planeText;
 			    
-				descriptionPlane.position.set( PLANE_5_X_ORIGIN, 0, PLANE_5_Z );
-				descriptionPlane.rotation.y = -0.2;
+				projectText3.position.set( PLANE_5_X_ORIGIN, 0, PLANE_5_Z );
+				projectText3.rotation.y = -0.2;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectText3 );
+				planes.push( projectText3 );
 
 				break;
 			case 6:
@@ -456,30 +478,31 @@ function addProjectDetailPlanes() {
 				var text = document.createElement( 'div' );
 				text.className = 'project-plane text';
 
-				var descriptionPlane = new THREE.CSS3DObject( text );
-				descriptionPlane.element.innerHTML = planeText;
+				projectText4 = new THREE.CSS3DObject( text );
+				projectText4.element.innerHTML = planeText;
 			    
-				descriptionPlane.position.set( PLANE_6_X_ORIGIN, 0, PLANE_6_Z );
-				descriptionPlane.rotation.y = 0.2;
+				projectText4.position.set( PLANE_6_X_ORIGIN, 0, PLANE_6_Z );
+				projectText4.rotation.y = 0.2;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectText4 );
+				planes.push( projectText4 );
 
 				break;
 			case 7:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
+				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image';
 
-				var descriptionPlane = new THREE.CSS3DObject( img );
-				descriptionPlane.element.innerHTML = planeImg;
+				projectImage4 = new THREE.CSS3DObject( img );
+				projectImage4.element.innerHTML = planeImg;
 			    
-				descriptionPlane.position.set( PLANE_7_X_ORIGIN, 0, PLANE_7_Z );
-				descriptionPlane.rotation.y = -0.15;
+				projectImage4.position.set( PLANE_7_X_ORIGIN, 0, PLANE_7_Z );
+				projectImage4.rotation.y = -0.15;
 
-				planeGroup.add( descriptionPlane );
-				planes.push( descriptionPlane );
+				planeGroup.add( projectImage4 );
+				planes.push( projectImage4 );
 
 				break;
 			default:
@@ -489,6 +512,31 @@ function addProjectDetailPlanes() {
 	}
 
 	// scene.add( planeGroup );
+}
+
+
+/**
+ * This function is called before the project details for a current project
+ * are shown. It is responsible for populating the project planes with the
+ * text and the images for the current project.
+ *
+ * @param     project     :     String
+ *
+ */
+function populateProjectDetails( project ) {
+
+	var currentProject = json[ project ];
+
+	projectImage1.element.innerHTML = '<img src=' + currentProject.img1 + ' />';
+	projectImage2.element.innerHTML = '<img src=' + currentProject.img2 + ' />';;
+	projectImage3.element.innerHTML = '<img src=' + currentProject.img3 + ' />';;
+	projectImage4.element.innerHTML = '<img src=' + currentProject.img4 + ' />';;
+
+	projectText1.element.innerHTML = currentProject.text1;
+	projectText2.element.innerHTML = currentProject.text2;
+	projectText3.element.innerHTML = currentProject.text3;
+	projectText4.element.innerHTML = currentProject.text4;
+
 }
 
 
@@ -569,7 +617,6 @@ function addShapes() {
 
 		});
 
-	
 }
 
 
@@ -735,13 +782,13 @@ function animateNameColor() {
 	sweep( text, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
 		callback: animateNameColor,
 		direction: 1,
-		duration: 10000,
+		duration: 20000,
 		space: 'HUSL'
 	});
 
 	sweep( back, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
 		direction: 1,
-		duration: 10000,
+		duration: 20000,
 		space: 'HUSL'
 	});
 
@@ -949,7 +996,9 @@ function zoomToProject() {
 	           	// get rid of the plus icon
 	           	$("#addIcon").removeClass( "visible" );
 
-				expandPlane();
+	           	setTimeout( function() {
+					expandPlane();
+	           	}, 2000 );
 	           	
 			})
 		    .onUpdate( function() {
@@ -1015,7 +1064,7 @@ function circleCamera() {
  * Iterate the rotation of the camera just a bit
  */
 function animatePlane() {
-    pcBuffer.rotation.y -= 0.0001;
+    linePlane.rotation.y -= 0.0001;
 }
 
 
@@ -1220,11 +1269,11 @@ function expandSphere( object ) {
  */
 function expandPlane() {
 	console.log("expandPlane called");
-	new TWEEN.Tween( pcBuffer.scale )
+	new TWEEN.Tween( linePlane.scale )
 		.to({
-			x: 1000,
-			y: 200,
-			z: 1000
+			x: 20,
+			y: 20,
+			z: 20
 		}, 4000 )
 		.easing( TWEEN.Easing.Sinusoidal.In )
 		.onStart( function() {
@@ -1362,11 +1411,11 @@ function shrinkSphere( object ) {
  */
 function shrinkPlane() {
 	console.log("shrinkPlane called");
-	new TWEEN.Tween( pcBuffer.scale )
+	new TWEEN.Tween( linePlane.scale )
 		.to({
-			x: 1,
-			y: 1,
-			z: 1
+			x: 0.001,
+			y: 0.001,
+			z: 0.001
 		}, 3000 )
 		.easing( TWEEN.Easing.Sinusoidal.Out )
 		.onStart( function() {
@@ -1653,6 +1702,33 @@ function onNoIntersections( intersects ) {
 }
 
 
+/**
+ * Loops through all of the vertices making up the plane,
+ * and moves them around slightly to animate the lines. 
+ * Also updates the color values of each vertex to get a
+ * cool color animation.
+ */
+function animateLinePlane() {
+	var time = Date.now() * 0.001;
+	// linePlane.rotation.y = 0.25 * time;
+
+	uniforms.amplitude.value = Math.sin( 0.5 * time ) / 2;
+	console.log(Math.sin( 0.5 * time ));
+	uniforms.color.value.offsetHSL( 0.0005, 0, 0 );
+
+	var attributes = linePlane.geometry.attributes;
+	var array = attributes.displacement.array;
+
+	for ( var i = 0, l = array.length; i < l; i += 3 ) {
+		array[ i     ] += 0.05 * ( 0.5 - Math.random() );
+		array[ i + 1 ] += 0.05 * ( 0.5 - Math.random() );
+		array[ i + 2 ] += 0.05 * ( 0.5 - Math.random() );
+	}
+
+	attributes.displacement.needsUpdate = true;
+}
+
+
 function animate() {
 	requestAnimationFrame( animate );
 	runtime.updateShaders( clock.getElapsedTime() );
@@ -1675,7 +1751,7 @@ function render() {
 	}
 
 	if ( movePlane ) {
-		animatePlane();
+		animateLinePlane();
 	}
 
 	// find intersections

@@ -367,7 +367,8 @@ canvas,
     color: #fff;
     font-size: 24px;
     letter-spacing: 1px;
-    line-height: 1.6; }
+    line-height: 1.6;
+    text-shadow: -2px 2px 4px #969696; }
   .project-plane.visible {
     opacity: 1; }
 

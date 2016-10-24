@@ -54,7 +54,7 @@ gulp.task('useref', function(){
 
 gulp.task('json', function(){
   return gulp.src('app/json/*.json')
-    .pipe(gulp.dest('dist'))
+    .pipe(gulp.dest('dist/json'))
 });
 
 

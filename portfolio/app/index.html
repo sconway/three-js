@@ -51,26 +51,27 @@
 
 <body id="body">
 
-	<!-- ---------------- Custom Shader Code ------------------------ -->
-	<script id="vertexShader" type="x-shader/x-vertex">
-	varying vec3 vNormal;
-	void main() 
-	{
-	    vNormal = normalize( normalMatrix * normal );
-	    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-	}
+	<script type="x-shader/x-vertex" id="vertexshader">
+		uniform float amplitude;
+		attribute vec3 displacement;
+		attribute vec3 customColor;
+		varying vec3 vColor;
+		void main() {
+			vec3 newPosition = position + amplitude * displacement;
+			vColor = customColor;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+		}
 	</script>
 
-	<!-- fragment shader a.k.a. pixel shader -->
-	<script id="fragmentShader" type="x-shader/x-vertex"> 
-	varying vec3 vNormal;
-	void main() 
-	{
-		float intensity = pow( 0.7 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 4.0 ); 
-	    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
-	}
+	<script type="x-shader/x-fragment" id="fragmentshader">
+		uniform vec3 color;
+		uniform float opacity;
+		varying vec3 vColor;
+		void main() {
+			gl_FragColor = vec4( vColor * color, opacity );
+		}
 	</script>
-	<!-- ----------------------------------------------------------- -->
+
 
 
 	<!-- ADD ICON -->

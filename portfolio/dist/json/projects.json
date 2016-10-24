@@ -1,0 +1,90 @@
+{
+    "Wentworth": {
+        "title": "Wentworth",
+        "img1": "images/projects/wentworth/wentworth-home.png",
+        "img2": "images/projects/wentworth/spotlight.png",
+        "img3": "images/projects/wentworth/voice.png",
+        "img4": "images/projects/wentworth/mobile-menu.png",
+        "text1": "The website re-design for Wentworth Institute of Technology consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    },
+    "BB&K": { 
+    	"title": "Best Best and Krieger",
+        "img1": "images/projects/bbk/bbk-home.png",
+        "img2": "images/projects/bbk/home-mobile.png",
+        "img3": "images/projects/bbk/info-squares.png",
+        "img4": "images/projects/bbk/vertical-slider.png",
+        "text1": "The website re-design for Best Best & Krieger consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    },
+    "Father Peyton": {
+    	"title": "HCFM - Father Peyton",
+        "img1": "images/projects/father-peyton/home.png",
+        "img2": "images/projects/father-peyton/page-header.png",
+        "img3": "images/projects/father-peyton/home2.jpg",
+        "img4": "images/projects/father-peyton/school-carousel.png",
+        "text1": "The website re-design for Father Peyton consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    },
+    "ARC Advisory": {
+    	"title": "ARC Advisory",
+        "img1": "images/projects/wentworth/wentworth-home.png",
+        "img2": "images/projects/wentworth/spotlight.png",
+        "img3": "images/projects/wentworth/voice.png",
+        "img4": "images/projects/wentworth/mobile-menu.png",
+        "text1": "The website re-design for ARC Advisory consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    },
+    "Standish Mellon": {
+    	"title": "Standish Mellon",
+        "img1": "images/projects/standish/standish-home.png",
+        "img2": "images/projects/standish/contact.png",
+        "img3": "images/projects/standish/insights.png",
+        "img4": "images/projects/standish/research.png",
+        "text1": "The website re-design for Standish Mellon consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    },
+    "Wolf Greenfield": {
+    	"title": "Wolf Greenfield",
+        "img1": "images/projects/wentworth/wentworth-home.png",
+        "img2": "images/projects/wentworth/spotlight.png",
+        "img3": "images/projects/wentworth/voice.png",
+        "img4": "images/projects/wentworth/mobile-menu.png",
+        "text1": "The website re-design for Wolf Greenfield zildjian/consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    },
+    "Zildjian Cymbals": {
+    	"title": "Zildjian Cymbals",
+        "img1": "images/projects/zildjian/home.jpg",
+        "img2": "images/projects/zildjian/zildjian-home.png",
+        "img3": "images/projects/zildjian/home-open.jpg",
+        "img4": "images/projects/zildjian/dealer.jpg",
+        "text1": "The website re-design for Zildjian Cymbals consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    },	
+    "Enernoc": {
+    	"title": "Enernoc",
+        "img1": "images/projects/enernoc/enernoc-home.png",
+        "img2": "images/projects/enernoc/mobile-search.jpg",
+        "img3": "images/projects/enernoc/resources.png",
+        "img4": "images/projects/enernoc/search-results.png",
+        "text1": "The website re-design for Enernoc consisted of a full site re-design, built in the Drupal content management system",
+        "text2": "Text space 2",
+        "text3": "Text space 3",
+        "text4": "Text space 4"
+    }
+}
