@@ -5,10 +5,12 @@
         "img2": "images/projects/wentworth/spotlight.png",
         "img3": "images/projects/wentworth/voice.png",
         "img4": "images/projects/wentworth/mobile-menu.png",
-        "text1": "The website re-design for Wentworth Institute of Technology consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text1": "Wentworth Institute of Technology is a leading technical University Located in Boston, Massachusetts. This project involved a full site re-design in the Drupal Content Management System.",
+        "text2": "My Role for this project involved theming the front-end of the website, creating page template files, and configuring various fields and blocks. ",
+        "text3": "One major challenge was incorporating the massive number of sections and pages into an intuitive and easy to use mobile menu. I decided to write this from scratch, using JavaScript, to create a slideout menu that dynamically updates the current section.",
+        "text4": "Due to the request for many custom components and behaviors, nearly every component of this website uses custom CSS and JavaScript. The result, in my opinion :), is a user friendly experience that reflects the engineering mindset of the university.",
+        "previous": "Enernoc",
+        "next": "BB&K"
     },
     "BB&K": { 
     	"title": "Best Best and Krieger",
@@ -16,10 +18,12 @@
         "img2": "images/projects/bbk/home-mobile.png",
         "img3": "images/projects/bbk/info-squares.png",
         "img4": "images/projects/bbk/vertical-slider.png",
-        "text1": "The website re-design for Best Best & Krieger consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text1": "Best Best and Krieger is a full-service law firm with nearly 200 attorneys in nine offices across California and in Washington, D.C. This project was a full site re-design and content change, implemented in the Kentico Content Management System.",
+        "text2": "The workflow for this project involved myself creating front-end templates for a back-end developer to implement on the .NET platform.",
+        "text3": "While developing, I tried to enforce DRY(don't repeat yourself) and BEM(Block, Element, Modifier) principles as much as possible. This resulted in a very modular set of components that were able to be reused on various pages, and for various layouts.",
+        "text4": "The front-end of this site is built on top of the Foundation 6 framework grid system, while the components make heavy use of the latest CSS3 properties. Flexbox is used for nearly every component to give the page a responsive and flexible look/feel.", 
+        "previous": "Enernoc",
+        "next": "Father Peyton"
     },
     "Father Peyton": {
     	"title": "HCFM - Father Peyton",
@@ -27,10 +31,12 @@
         "img2": "images/projects/father-peyton/page-header.png",
         "img3": "images/projects/father-peyton/home2.jpg",
         "img4": "images/projects/father-peyton/school-carousel.png",
-        "text1": "The website re-design for Father Peyton consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text1": "Holy Cross Family Ministries is a Christian organization who commissioned a website for Father Patrick Peyton after he was nominated for sainthood. This small, story based website was built in the Drupal 7 Content Management System.",
+        "text2": "The purpose of this site was to outline the life of the 'Rosary Priest', Patrick Peyton. To accomplish this, the pages were integrated as various 'chapters' of his life, detailing the highlights of his work throughout his life.",
+        "text3": "My role for this project involved implementing designs as Drupal components, and theming the various blocks and views to match the vision for the site. There is a strong use of hover effects and interactive components to engage the user and imerse them in the life of Patrick Peyton.",
+        "text4": "This site uses JavaScript and CSS thoughout to create components like the interactive timeline and carousels. I made an effort to emphasize the site's imagry, making use of space and padding on the various text/images to give the page a nice flow.",
+        "previous": "BB&K",
+        "next": "ARC Advisory"
     },
     "ARC Advisory": {
     	"title": "ARC Advisory",
@@ -38,10 +44,12 @@
         "img2": "images/projects/wentworth/spotlight.png",
         "img3": "images/projects/wentworth/voice.png",
         "img4": "images/projects/wentworth/mobile-menu.png",
-        "text1": "The website re-design for ARC Advisory consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text1": "ARC Avisory Group is the leading technology research and advisory firm for Industry and infrastructure. Their web project consisted of a full site re-design, implemented in the Drupal 8 Content Management System.",
+        "text2": "My role for this site involved building and styling front-end templates for the various pages and components used throughout the site. This was the first Drupal 8 site that I worked on, which led to some interesting challenges while developing.",
+        "text3": "Due to the workflow of Drupal 8, much of the front-end work involved creating templates using the TWIG templating engine. This allowed for custom markup control for all pages and components, which helped minimize the extra markup commonly found in Drupal.",
+        "text4": "For the layout of this site, I used the Foundation 6 Drupal Module, while using the latest Gulp task manager to keep all of the site's assets linked up. I also used this project as an opportunity to implement a CSS postprocessor to help keep the code clean and simple.",
+        "previous": "Father Peyton",
+        "next": "Standish Mellon"
     },
     "Standish Mellon": {
     	"title": "Standish Mellon",
@@ -49,10 +57,12 @@
         "img2": "images/projects/standish/contact.png",
         "img3": "images/projects/standish/insights.png",
         "img4": "images/projects/standish/research.png",
-        "text1": "The website re-design for Standish Mellon consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text1": "Standish Mellon is a fixed income investment boutique of BNY Mellon Investment Management. For this project, Standish's website was re-designed and developed for the Kentico Content Management System, while their content was overhauled to fit a more modern strategy.",
+        "text2": "I used the Foundation 5 framework for this project, and translated about 15 to 20 designs into interactive front-end templates for integration with Kentico. Overall, the process was very smooth, thanks to the simplicity of the site and the well thought out structure.",
+        "text3": "The designs for this project were fairly standard, which allowed for some fun and interesting front-end effects. While developing, I made a consious attempt to implement things like search and validation in a unique, yet still user friendly, manner.",
+        "text4": "This site was the first large project that I had a chance to use the BEM methodology for CSS development. The result was the cleanest and smallest code base that I had ever written for a site of this size. ",
+        "previous": "ARC Advisory",
+        "next": "Wolf Greenfield"
     },
     "Wolf Greenfield": {
     	"title": "Wolf Greenfield",
@@ -63,7 +73,9 @@
         "text1": "The website re-design for Wolf Greenfield zildjian/consisted of a full site re-design, built in the Drupal content management system",
         "text2": "Text space 2",
         "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text4": "Text space 4",
+        "previous": "Standish Mellon",
+        "next": "Zildjian Cymbals"
     },
     "Zildjian Cymbals": {
     	"title": "Zildjian Cymbals",
@@ -71,10 +83,12 @@
         "img2": "images/projects/zildjian/zildjian-home.png",
         "img3": "images/projects/zildjian/home-open.jpg",
         "img4": "images/projects/zildjian/dealer.jpg",
-        "text1": "The website re-design for Zildjian Cymbals consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text1": "Zildjian is an award winning cymbal maker, used by nearly every major drummer/musician, and their company dates back to the early 17th century. This project was a full site and content re-design for the Drupal 7 Content Management system, with an integrated store and checkout feature.",
+        "text2": "From the start, the main focus of this project was to create a stunning visual experience for musicians and potential customers looking to buy Zildjian products. It was a pleasure to bring the designs for this site to life, and an enormous amount of attention was put into creating a beautiful site with strong UX.",
+        "text3": "In order to fully implement the desired animations and interactivity, I made heavy use of JavaScript and the latest CSS3 techniques. This resulted in a lot of front-end code but the end product was well worth the effort, and it can be felt on nearly every page of the site.",
+        "text4": "Overall, this was probably the most enjoyable project that I've worked on. It pushed my limits as a developer, and taught me a great deal in the process. This site wound up winning the MITX Award for 'Best Website Re-Design', and brought in a lot of new traffic for Zildjian.",
+        "previous": "Wolf Greenfield",
+        "next": "Enernoc"
     },	
     "Enernoc": {
     	"title": "Enernoc",
@@ -82,9 +96,11 @@
         "img2": "images/projects/enernoc/mobile-search.jpg",
         "img3": "images/projects/enernoc/resources.png",
         "img4": "images/projects/enernoc/search-results.png",
-        "text1": "The website re-design for Enernoc consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4"
+        "text1": "Enernoc is a leading provider of energy intelligence software and services for commercial, institutional, and industrial customers, as well as electric power grid operators and utilities. Ths project was a website re-design and implementation for the Drupal Content Management System.",
+        "text2": "My role for this project involved theming the front-end of the website, and configuring some items on the back-end. I also participated in most of the client interaction, as a project manager was absent for the majority of this project.",
+        "text3": "One challenge of this project was the numerous design changes that the project went through. Despite the extra code, the end result was a nice combination of new and old ideas that made for a very pleasant look and feel.",
+        "text4": "This site involved a lot of custom configuration, which led to some intersting technical solutions. Many content areas were equipped with options to add a number of classes to control layout, alignment, color, etc.",
+        "previous": "Zildjian Cymbals",
+        "next": "Wentworth"
     }
 }

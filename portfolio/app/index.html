@@ -6,45 +6,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-
   <!--build:css css/styles.min.css-->
   <link href="css/projects.css" media="all" rel="stylesheet" type="text/css">
   <!-- endbuild -->
 
   <script type="text/javascript">
 
- //  	var loaded = false,
-	//     timedOut = false;
+  	var loaded = false,
+	    timedOut = false;
 
- //    // checks if the page has loaded (minimum amout of time the animation runs)
-	// setTimeout(checkLoader, 3000);
+    // checks if the page has loaded (minimum amout of time the animation runs)
+	setTimeout(checkLoader, 3000);
 
 	window.addEventListener('load', function () {
-	//   var atom = document.getElementById("atom");
+	  var atom = document.getElementById("atom");
 
-	//   loaded = true;
-	//   // atom.className += " active";
+	  loaded = true;
+	  atom.className += " active";
 
-	//   // only fade the loader out if the load time has 
-	//   // taken longer than the pre-defined delay.
-	//   if (timedOut)
-	//     fadeLoaderOut();
-		init();
-		animate();
+	  // only fade the loader out if the load time has 
+	  // taken longer than the pre-defined delay.
+	  if (timedOut)
+	    fadeLoaderOut();
+		
 	}, false);
 
-	// function checkLoader() {
-	//   timedOut = true;
+	function checkLoader() {
+	  timedOut = true;
 
-	//   // only fade out the loader after the pre defined delay
-	//   // if the page had loaded before the delay. 
-	//   if (loaded)
-	//     fadeLoaderOut();
-	// }
+	  // only fade out the loader after the pre defined delay
+	  // if the page had loaded before the delay. 
+	  if (loaded)
+	    fadeLoaderOut();
+	}
 
-	// function fadeLoaderOut() {
-	//   
-	// }
+	function fadeLoaderOut() {
+	  init();
+	  animate();
+	}
 
   </script>		
 </head>
@@ -71,6 +70,29 @@
 			gl_FragColor = vec4( vColor * color, opacity );
 		}
 	</script>
+
+
+
+	<!-- ---------------- Custom Shader Code ------------------------ -->
+	<script id="vertexShaderGlow" type="x-shader/x-vertex">
+	varying vec3 vNormal;
+	void main() 
+	{
+	    vNormal = normalize( normalMatrix * normal );
+	    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+	}
+	</script>
+
+	<!-- fragment shader a.k.a. pixel shader -->
+	<script id="fragmentShaderGlow" type="x-shader/x-vertex"> 
+	varying vec3 vNormal;
+	void main() 
+	{
+		float intensity = pow( 0.05 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 4.0 ); 
+	    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+	}
+	</script>
+	<!-- ----------------------------------------------------------- -->
 
 
 
@@ -125,484 +147,15 @@
 	      <span>k</span>
 	    </a>
 
+	    <!-- PROJECT NAME -->
+	    <h2 id="projectName" class="project-name"></h2>
+
 	    <!-- PREVIOUS/NEXT BUTTONS -->
-	    <a class="prev-btn project-control" href="#">Prev</a>
-	    <a class="next-btn project-control" href="#">Next</a>
+	    <a class="prev-btn prev-next project-control" href="#">Prev</a>
+	    <a class="next-btn prev-next project-control" href="#">Next</a>
 
 	</div>
 	<!-- END MAIN CANVAS -->
-
-
-	<!-- PROJECT DETAILS -->
-	<section class="project-intro">
-		<div class="js-back-to-project back-btn fade-out" >
-			<span></span>
-			<span></span>
-		</div>
-
-		<aside class="prev-btn cycle-carousel fade-out" data-increment="-1">Previous Project</aside>
-		<aside class="next-btn cycle-carousel fade-out" data-increment="1">Next Project</aside>
-
-		<main class="carousel-wrapper">
-			<div id="carousel" class="carousel">
-
-        <!-- WENTWORTH -->
-			  <main id="wentworth" class="project-details carousel-stop">
-			    <div class="scroll-container">
-
-            <section class="detail--row img__full bg-wentworth">
-              <aside class="detail--intro">
-                <h1>Wentworth</h1>
-                <p>My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and linking the data to the project view.</p>
-              </aside>      
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/wentworth/home-tabs-code.png">
-                <img class="image-snippit" src="images/projects/wentworth/home-tabs.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper">
-                <img class="code-snippit" src="images/projects/wentworth/mobile-menu-code.png">
-                <img class="image-snippit" src="images/projects/wentworth/mobile-menu.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/wentworth/spotlight-code.png">
-                <img class="image-snippit" src="images/projects/wentworth/spotlight.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper flex-3">
-                  <img class="code-snippit" src="images/projects/wentworth/voice-code.png">
-                  <img class="image-snippit" src="images/projects/wentworth/voice.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-						
-						<nav class="project-nav">
-							<ul>
-								<li class="project-nav--control cycle-carousel prev bg-enernoc" data-increment="-1">
-									<p class="control--btn">Prev Project</p>
-									<p id="prevProjectName" class="project-name">Enernoc</p>
-								</li>
-								<li class="project-nav--control cycle-carousel next bg-bbk" data-increment="1">
-									<p class="control--btn">Next Project</p>
-									<p id="nextProjectName" class="project-name">BB&amp;K</p>
-								</li>
-							</ul>
-						</nav>
-
-					</div>
-			  </main>
-
-
-        <!-- BBK -->
-			  <main id="bbk" class="project-details carousel-stop">
-			    <div class="scroll-container">
-						
-            <section class="detail--row img__full bg-bbk">
-              <aside class="detail--intro">
-                <h1>Best Best &amp; Krieger</h1>
-                <p>My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and linking the data to the project view.</p>
-              </aside>      
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/bbk/info-squares-code.png">
-                <img class="image-snippit" src="images/projects/bbk/info-squares.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/bbk/home-code.png">
-                <img class="image-snippit" src="images/projects/bbk/home.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex">
-                <img class="code-snippit" src="images/projects/bbk/home-mobile-code.png">
-                <img class="image-snippit" src="images/projects/bbk/home-mobile.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper flex-3">
-                  <img class="code-snippit" src="images/projects/bbk/vertical-slider-code.png">
-                  <img class="image-snippit" src="images/projects/bbk/vertical-slider.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-						
-						<nav class="project-nav">
-							<ul>
-								<li class="project-nav--control cycle-carousel prev bg-wentworth" data-increment="-1">
-									<p class="control--btn">Prev Project</p>
-									<p id="prevProjectName" class="project-name">Wentworth</p>
-								</li>
-								<li class="project-nav--control cycle-carousel next bg-father-peyton" data-increment="1">
-									<p class="control--btn">Next Project</p>
-									<p id="nextProjectName" class="project-name">Father Peyton</p>
-								</li>
-							</ul>
-						</nav>
-					</div>
-			  </main>
-
-
-        <!-- FATHER PEYTON -->
-			  <main id="fatherPeyton" class="project-details carousel-stop">
-			    <div class="scroll-container">
-						
-            <section class="detail--row img__full bg-father-peyton">
-              <aside class="detail--intro">
-                <h1>Father Peyton</h1>
-                <p>My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and linking the data to the project view.</p>
-              </aside>      
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-15">
-                <img class="code-snippit" src="images/projects/father-peyton/home2-code.png">
-                <img class="image-snippit" src="images/projects/father-peyton/home2.jpg">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/father-peyton/school-carousel-code.png">
-                <img class="image-snippit" src="images/projects/father-peyton/school-carousel.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/father-peyton/page-header-code.png">
-                <img class="image-snippit" src="images/projects/father-peyton/page-header.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-						
-						<nav class="project-nav">
-							<ul>
-								<li class="project-nav--control cycle-carousel prev bg-bbk" data-increment="-1">
-									<p class="control--btn">Prev Project</p>
-									<p id="prevProjectName" class="project-name">BB&amp;K</p>
-								</li>
-								<li class="project-nav--control cycle-carousel next bg-iha" data-increment="1">
-									<p class="control--btn">Next Project</p>
-									<p id="nextProjectName" class="project-name">IHA Today</p>
-								</li>
-							</ul>
-						</nav>
-					</div>
-			  </main>
-
-
-        <!-- IHA -->
-        <main id="iha" class="project-details carousel-stop">
-          <div class="scroll-container">
-						<section class="detail--row img__full bg-iha"></section>
-
-						<section class="detail--row code-sample">
-						 	<img class="code-snippit" src="http://placehold.it/375x225">
-						 	<img class="image-snippit" src="http://placehold.it/640x420">
-						</section>
-
-						<section class="detail--row description">
-						 	<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included creating all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-						</section>
-
-						<section class="detail--row code-sample code-sample__alt">
-						 	<img class="code-snippit" src="http://placehold.it/375x225">
-						 	<img class="image-snippit" src="http://placehold.it/640x420">
-						</section>
-						
-						<nav class="project-nav">
-							<ul>
-								<li class="project-nav--control cycle-carousel prev bg-father-peyton" data-increment="-1">
-									<p class="control--btn">Prev Project</p>
-									<p id="prevProjectName" class="project-name">Father Peyton</p>
-								</li>
-								<li class="project-nav--control cycle-carousel next bg-standish" data-increment="1">
-									<p class="control--btn">Next Project</p>
-									<p id="nextProjectName" class="project-name">Standish Mellon</p>
-								</li>
-							</ul>
-						</nav>
-					</div>
-			  </main>
-
-
-        <!-- STANDISH -->
-        <main id="standish" class="project-details carousel-stop">
-          <div class="scroll-container">
-
-						<section class="detail--row img__full bg-standish">
-              <aside class="detail--intro">
-                <h1>Standish Mellon</h1>
-                <p>My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and linking the data to the project view.</p>
-              </aside>      
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/standish/contact-code.png">
-                <img class="image-snippit" src="images/projects/standish/contact.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/standish/insights-code.png">
-                <img class="image-snippit" src="images/projects/standish/insights.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/standish/research-code.png">
-                <img class="image-snippit" src="images/projects/standish/research.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper flex-3">
-                  <img class="code-snippit" src="images/projects/bbk/vertical-slider-code.png">
-                  <img class="image-snippit" src="images/projects/bbk/vertical-slider.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-						
-						<nav class="project-nav">
-							<ul>
-								<li class="project-nav--control cycle-carousel prev bg-iha" data-increment="-1">
-									<p class="control--btn">Prev Project</p>
-									<p id="prevProjectName" class="project-name">IHA Today</p>
-								</li>
-								<li class="project-nav--control cycle-carousel next bg-wolf" data-increment="1">
-									<p class="control--btn">Next Project</p>
-									<p id="nextProjectName" class="project-name">Wolf Greenfield</p>
-								</li>
-							</ul>
-						</nav>
-
-					</div>
-			  </main>
-
-        <main id="wolf" class="project-details carousel-stop">
-          <div class="scroll-container">
-						<section class="detail--row img__full bg-wolf"></section>
-
-						<section class="detail--row code-sample">
-						 	<img class="code-snippit" src="http://placehold.it/375x225">
-						 	<img class="image-snippit" src="http://placehold.it/640x420">
-						</section>
-
-						<section class="detail--row description">
-						 	<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included creating all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-						</section>
-
-						<section class="detail--row code-sample code-sample__alt">
-						 	<img class="code-snippit" src="http://placehold.it/375x225">
-						 	<img class="image-snippit" src="http://placehold.it/640x420">
-						</section>
-						
-						<nav class="project-nav">
-							<ul>
-								<li class="project-nav--control cycle-carousel prev bg-standish" data-increment="-1">
-									<p class="control--btn">Prev Project</p>
-									<p id="prevProjectName" class="project-name">Standish Mellon</p>
-								</li>
-								<li class="project-nav--control cycle-carousel next bg-zildjian" data-increment="1">
-									<p class="control--btn">Next Project</p>
-									<p id="nextProjectName" class="project-name">Zildjian Cymbals</p>
-								</li>
-							</ul>
-						</nav>
-					</div>
-			  </main>
-
-        <main id="zildjian" class="project-details carousel-stop">
-          <div class="scroll-container">
-
-				    <section class="detail--row img__full bg-zildjian">
-              <aside class="detail--intro">
-                <h1>Zildjian Cymbals</h1>
-                <p>My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and linking the data to the project view.</p>
-              </aside>      
-            </section>
-
-    				<section class="detail--row code-sample">
-    					<aside class="code-sample--wrapper">
-    						<img class="code-snippit" src="images/projects/zildjian/dealer-code.png">
-    					 	<img class="image-snippit" src="images/projects/zildjian/dealer.jpg">
-    					</aside>
-    				 	<aside class="code-sample--details">
-    				 		<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-    				 	</aside>
-    				</section>
-
-    				<section class="detail--row code-sample code-sample__alt">
-    					<aside class="code-sample--wrapper flex-2">
-    					 	<img class="code-snippit" src="images/projects/zildjian/home-open-code.png">
-    					 	<img class="image-snippit" src="images/projects/zildjian/home-open.jpg">
-    					</aside>
-    					<aside class="code-sample--details">
-    				 		<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-    				 	</aside>
-    				</section>
-
-	          <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper flex-3">
-                <img class="code-snippit" src="images/projects/zildjian/zildjian-home-code.png">
-                <img class="image-snippit" src="images/projects/zildjian/zildjian-home.png">
-	            </aside>
-  		        <aside class="code-sample--details">
-    				 		<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-  				 	  </aside>
-	          </section>
-
-	          <section class="detail--row code-sample code-sample__alt">
-            	<aside class="code-sample--wrapper">
-	                <img class="code-snippit" src="images/projects/zildjian/home-mobile-code.png">
-	                <img class="image-snippit" src="images/projects/zildjian/home-mobile.jpg">
-	            </aside>
-		          <aside class="code-sample--details">
-    				 		<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-    				 	</aside>
-	          </section>
-						
-    				<nav class="project-nav">
-    					<ul>
-    						<li class="project-nav--control cycle-carousel prev bg-wolf" data-increment="-1">
-    							<p class="control--btn">Prev Project</p>
-    							<p id="prevProjectName" class="project-name">Wolf Greenfield</p>
-    						</li>
-    						<li class="project-nav--control cycle-carousel next bg-enernoc" data-increment="1">
-    							<p class="control--btn">Next Project</p>
-    							<p id="nextProjectName" class="project-name">Enernoc</p>
-    						</li>
-    					</ul>
-    				</nav>
-    			</div>
-  	    </main>
-
-
-        <!-- ENERNOC -->
-        <main id="enernoc" class="project-details carousel-stop">
-          <div class="scroll-container">
-
-            <section class="detail--row img__full bg-enernoc">
-              <aside class="detail--intro">
-                <h1>Enernoc</h1>
-                <p>My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and linking the data to the project view.</p>
-              </aside>
-            </section>
-
-  					<section class="detail--row code-sample">
-  						<aside class="code-sample--wrapper flex-2">
-  						 	<img class="code-snippit" src="images/projects/enernoc/resources-code.png">
-  						 	<img class="image-snippit" src="images/projects/enernoc/resources.png">
-  						</aside>
-  						<aside class="code-sample--details">
-  					 		<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-  					 	</aside>
-  					</section>
-
-            <section class="detail--row code-sample code-sample__alt">
-              <aside class="code-sample--wrapper flex-2">
-                <img class="code-snippit" src="images/projects/enernoc/search-results-code.png">
-                <img class="image-snippit" src="images/projects/enernoc/search-results.png">
-              </aside>
-              <aside class="code-sample--details">
-                <p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-              </aside>
-            </section>
-
-		        <section class="detail--row code-sample">
-              <aside class="code-sample--wrapper">
-	              <img class="code-snippit" src="images/projects/enernoc/mobile-search-code.png">
-	              <img class="image-snippit" src="images/projects/enernoc/mobile-search.jpg">
-	            </aside>
-			        <aside class="code-sample--details">
-  					 		<p class="text">My role for This Project involved implementing static design files as a front end theme in the Drupal content management system. This included building all visual aspects of the site that the user interacts with, the animation and transition effects, and implementation into Drupal.</p>
-  					 	</aside>
-		        </section>
-
-						
-  					<nav class="project-nav">
-  						<ul>
-  							<li class="project-nav--control cycle-carousel prev bg-zildjian" data-increment="-1">
-  								<p class="control--btn">Prev Project</p>
-  								<p id="prevProjectName" class="project-name">Zildjian</p>
-  							</li>
-  							<li class="project-nav--control cycle-carousel next bg-wentworth" data-increment="1">
-  								<p class="control--btn">Next Project</p>
-  								<p id="nextProjectName" class="project-name">Wentworth</p>
-  							</li>
-  						</ul>
-  					</nav>
-
-  				</div>
-  			</main>
-   
-	    </div>
-		</main>
-    <!-- END carousel wrapper -->
-
-	</section>
-	<!-- END PROJECT DETAILS -->
 
 
 	<!--build:js js/main.min.js -->

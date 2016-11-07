@@ -2,10 +2,10 @@
 
 var container, controls, camera, scene, raycaster, renderer, curSphere, cssRenderer,
 	positions, mainMesh, sprite1, sprite2, sprite3, sprite4, sprite5, linePlane,
-	projectImage1, projectImage2, projectImage3, projectImage4,
-	projectText1, projectText2, projectText3, projectText4, json,
+	curProject, projectImage1, projectImage2, projectImage3, projectImage4,
+	projectText1, projectText2, projectText3, projectText4, json, glowMesh,
 	intersectMutex = true,  unIntersectMutex = true,  isTweening  = false,
-	movePlane      = false, projectClicked   = false, clickedOnce = false,
+	movePlane      = false, projectClicked   = false, projectClickedAfterTween = false, clickedOnce = false,
 	stopCamera     = false, projectInView    = false, theta = 0, json,
 	spinTheta = 0.005, cameraZ = 2000, cubeSize = 50, numProjectPics = 8,
 	mouse      = new THREE.Vector2(), 
@@ -22,30 +22,31 @@ var container, controls, camera, scene, raycaster, renderer, curSphere, cssRende
 	loaders = [], icons = [], planes = [], objects = [];
 
 
-var PLANE_0_Z        = -1000,
-	PLANE_0_X        = -280,
-	PLANE_0_X_ORIGIN = -1000,
-	PLANE_1_Z        = -2100,
-	PLANE_1_X        = 420,
-	PLANE_1_X_ORIGIN = 1000,
-	PLANE_2_Z        = -4700,
-	PLANE_2_X        = -350,
-	PLANE_2_X_ORIGIN = -4000,
-	PLANE_3_Z        = -3700,
-	PLANE_3_X        = 280,
-	PLANE_3_X_ORIGIN = 4000,
-	PLANE_4_Z        = -6300,
-	PLANE_4_X        = -280,
-	PLANE_4_X_ORIGIN = -6000,
-	PLANE_5_Z        = -7600,
-	PLANE_5_X        = 420,
-	PLANE_5_X_ORIGIN = 6000,
-	PLANE_6_Z        = -10400,
-	PLANE_6_X        = -350,
-	PLANE_6_X_ORIGIN = -8000,
-	PLANE_7_Z        = -9000,
-	PLANE_7_X        = 280,
-	PLANE_7_X_ORIGIN = 8000;
+var PLANE_0_Z         = -1000,
+	PLANE_0_X         = -280,
+	PLANE_0_X_ORIGIN  = -1000,
+	PLANE_1_Z         = -2100,
+	PLANE_1_X         = 620,
+	PLANE_1_X_ORIGIN  = 1000,
+	PLANE_2_Z         = -4700,
+	PLANE_2_X         = -550,
+	PLANE_2_X_ORIGIN  = -4000,
+	PLANE_3_Z         = -3700,
+	PLANE_3_X         = 280,
+	PLANE_3_X_ORIGIN  = 4000,
+	PLANE_4_Z         = -6300,
+	PLANE_4_X         = -280,
+	PLANE_4_X_ORIGIN  = -6000,
+	PLANE_5_Z         = -7600,
+	PLANE_5_X         = 620,
+	PLANE_5_X_ORIGIN  = 6000,
+	PLANE_6_Z         = -10400,
+	PLANE_6_X         = -350,
+	PLANE_6_X_ORIGIN  = -8000,
+	PLANE_7_Z         = -9000,
+	PLANE_7_X         = 280,
+	PLANE_7_X_ORIGIN  = 8000,
+	PLANE_Z_THRESHOLD = -1200;
 
 
 uniforms = {
@@ -62,8 +63,6 @@ var shaderMaterial = new THREE.ShaderMaterial( {
 	depthTest:      false,
 	transparent:    true
 });
-
-// ========================================================================
 
                                  
 /**
@@ -160,17 +159,19 @@ function toScreenPosition( obj ) {
  * various handlers that are used for interaction.
  */
 function init() {
-	container = document.getElementById("container");
-	camera = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
-	camera.position.set( 0, 0, cameraZ );
-	runtime.registerCamera( camera );
 
+	container = document.getElementById("container");
+	camera    = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
 	scene     = new THREE.Scene();
 	raycaster = new THREE.Raycaster();
+
+	camera.position.set( 0, 0, cameraZ );
+	runtime.registerCamera( camera );
 
 	renderScene();
 	fadeLoader();
 	addMainShape();
+	addLight();
 	addShapes();
 	addPlane();
 	parseProjectDetails();
@@ -178,12 +179,17 @@ function init() {
 	createText();
 	animateName();
 	animateNameColor();
-
+	handleProjectClicks();
  
 	controls  = new THREE.OrbitControls( camera, renderer.domElement );
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	window.addEventListener( 'resize', onWindowResize, false );
+
+}
+
+
+function handleProjectClicks() {
 
 	// When there's a click, zoom to the project that's hovered on. On Mobile
 	// devices, just do what we do for a desktop hover event.
@@ -191,18 +197,39 @@ function init() {
 
 		if ( !isMobile() ) {
 
+			// Set the project clicked variable here in case the user clicks a
+			// project while the spheres are moving to the middle. 
+			if ( INTERSECTED && !projectInView ) {
+				projectClicked = true;
+			}
+
 			// Make sure we are hovered on a project when a click is done,
 			// no project has been clicked, and a project is not currently in view.
-			if ( INTERSECTED && !projectInView && !projectClicked && !isTweening ) {
-				projectClicked = true;
+			if ( INTERSECTED && !projectInView && !projectClickedAfterTween && !isTweening ) {
+				projectClickedAfterTween = true;
+				currentProject = INTERSECTED.name;
+
 				$("#addIcon").removeClass( "visible" );
-				populateProjectDetails( INTERSECTED.name );
+				populateProjectDetails( currentProject );
 				lastSphereToCurrent( INTERSECTED );
-				console.log("intersected: ", INTERSECTED.name);
 			}
 
 		} else {
 			checkMobileIntersection( event );
+		}
+
+	});
+
+
+	$(".prev-next").click( function() {
+
+		if ( $(this).hasClass("prev-btn") ) {
+			currentProject = json[ currentProject ].previous;
+			animateProjectPlanesBack( currentProject );
+		} else {
+			currentProject = json[ currentProject ].next;
+			// populateProjectDetails( currentProject );
+			animateProjectPlanesBack( currentProject );
 		}
 
 	});
@@ -213,11 +240,11 @@ function init() {
 		// Return to the original view if we are still in the project view
 		// and not currently tweening any animations.
 		if ( projectClicked && !isTweening ) {
-			shrinkProjectPlanes();
+			animateProjectPlanesBack();
 		}
 
 	});
-	
+
 }
 
 
@@ -227,7 +254,7 @@ function init() {
  */
 function renderScene() {
 	renderer = new THREE.WebGLRenderer({ alpha : true, antialias: true });
-	renderer.setClearColor( 0x1a1a1b, 1 );
+	renderer.setClearColor( 0x1a1a1b, 0 );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.sortObjects = false;
@@ -269,8 +296,6 @@ function parseProjectDetails() {
 		console.log( "error getting json " );
 	});
 
-
-
 }
 
 
@@ -278,21 +303,11 @@ function parseProjectDetails() {
  * Adds lighting to the scene. Stays in a fixed position.
  */
 function addLight() {
-	// var group  = new THREE.Object3D();
-	// ambLight = new THREE.AmbientLight( 0x222222 );
 
-	// light = new THREE.HemisphereLight( 0x666666 , 0x000000 );
-	// light.position.set( 1, 1, 1 ).normalize();
-
-	spotLight = new THREE.PointLight(0xffffff, 10);
-	spotLight.position.set( 200, 500, 200 ).normalize();
-
-
-	// scene.add( ambLight );
-	// scene.add( light );
+	var spotLight = new THREE.SpotLight( 0x999999, 0.25 );
+	spotLight.position.set( 500, 500, 1000 );
 	scene.add( spotLight );
-	// scene.add( lightHelper );
-	// scene.add( new THREE.PointLightHelper( spotLight, 1 ) );
+
 }
 
 
@@ -301,19 +316,32 @@ function addLight() {
  */
 function addMainShape() {
 
-	var material     = new THREE.MeshPhongMaterial({
-							color: 0x000000,
-							opacity: 0.5,
-							specular: 0xe7e7e7,
-							shininess: 50,
-							transparent: true
-						}),
+	var material     = new THREE.MeshLambertMaterial({
+			color: 0xffffff,
+			// emissive: 0xffff00
+		}),
 		geometry     = new THREE.SphereGeometry( 400, 64, 64 );
 
 	mainMesh = new THREE.Mesh( geometry, material );
 
 	shapeGroup.add( mainMesh );
 	scene.add( shapeGroup );
+
+	// Glow Material
+	var customMaterial = new THREE.ShaderMaterial({
+		    uniforms: {  },
+			vertexShader:   document.getElementById( 'vertexShaderGlow'   ).textContent,
+			fragmentShader: document.getElementById( 'fragmentShaderGlow' ).textContent,
+			side: THREE.BackSide,
+			blending: THREE.AdditiveBlending,
+			transparent: true
+		}),
+		ballGeometry = new THREE.SphereGeometry( 400, 64, 64 );
+
+	glowMesh = new THREE.Mesh( ballGeometry, customMaterial );
+
+	glowMesh.scale.set( 2.0, 2.0, 2.0 );
+	scene.add( glowMesh );
 
 }
 
@@ -324,7 +352,7 @@ function addMainShape() {
  */
 function addPlane() {
 
-	var plane = new THREE.PlaneGeometry( 100, 100, 200, 200 );
+	var plane = new THREE.PlaneGeometry( 50, 50, 100, 100 );
 
 	plane.center();
 
@@ -816,7 +844,7 @@ function onDocumentMouseMove( event ) {
  * Called whenever the mouse wheel is scrolled. Zooms the camera in or out
  * within the bounds.
  */
-function mousewheel( event ) {
+function mouseWheel( event ) {
 
     // Don't zoom the camera back past its origin
     if ( camera.position.z <= 400 ) {
@@ -866,6 +894,7 @@ function mousewheel( event ) {
 		    	planes[ 7 ].position.z = PLANE_7_Z;
 		    }
 
+		    // Moves all planes forward as the user scrolls.
 	    	if ( planes[ 0 ].position.z >= PLANE_0_Z ) {
 		    	planes[ 0 ].position.z -= event.wheelDeltaY * 0.4;
 		    	planes[ 1 ].position.z -= event.wheelDeltaY * 0.4;
@@ -875,6 +904,14 @@ function mousewheel( event ) {
 		    	planes[ 5 ].position.z -= event.wheelDeltaY * 0.4;
 		    	planes[ 6 ].position.z -= event.wheelDeltaY * 0.4;
 		    	planes[ 7 ].position.z -= event.wheelDeltaY * 0.4;
+	    	}
+
+	    	// Checks if the position of each plane is within the 'viewing threshold'.
+	    	// This is used to fully show only the planes that are close to the viewport.
+	    	if ( planes[ i ].position.z > PLANE_Z_THRESHOLD ) {
+	    		planes[ i ].element.classList.add( "shown" );
+	    	} else {
+	    		planes[ i ].element.classList.remove( "shown" );
 	    	}
 
 	    }
@@ -990,11 +1027,12 @@ function zoomToProject() {
 			}, 3000)
 			.easing( TWEEN.Easing.Sinusoidal.Out )
 			.onStart( function() {
-				console.log("started zoomingd");
 
 				isTweening = true;
+
 	           	// get rid of the plus icon
 	           	$("#addIcon").removeClass( "visible" );
+	           	fadeSphere( true );
 
 	           	setTimeout( function() {
 					expandPlane();
@@ -1002,7 +1040,6 @@ function zoomToProject() {
 	           	
 			})
 		    .onUpdate( function() {
-		    	console.log("zooming in");
 		    	renderer.render(scene, camera);
 		    })
 		    .onComplete( function() {
@@ -1012,7 +1049,11 @@ function zoomToProject() {
 		    	// hide the icons while we are viewing the projects
 		    	iconGroup.scale.set( 0, 0, 0);
 
-		    	window.addEventListener( 'mousewheel', mousewheel, false );
+		    	window.addEventListener( 
+					'mousewheel', 
+					mouseWheel, 
+					Modernizr.passiveeventlisteners ? {passive: true} : false 
+				);
 
 		    })
 		    .start();
@@ -1055,16 +1096,6 @@ function circleCamera() {
 
 	theta += 0.02;
 
-}
-
-
-
-
-/**
- * Iterate the rotation of the camera just a bit
- */
-function animatePlane() {
-    linePlane.rotation.y -= 0.0001;
 }
 
 
@@ -1127,7 +1158,7 @@ function spheresToCurrent( current, duration ) {
 			    	// if the project is hovered off while the other spheres are 
 			    	// moving towards it, reset all tweens and sphere positions.
 			    	if ( !INTERSECTED ) {
-			    		console.log("removing all tweens");
+			    		console.log("removing all tweens 3");
 			    		TWEEN.removeAll();
 			    		isTweening = false;
 			    		spheresToRandom( 1250 );
@@ -1138,7 +1169,17 @@ function spheresToCurrent( current, duration ) {
 
 			    })
 			    .onComplete( function() {
-			    	
+
+			    	// If a project was clicked while the spheres were animating,
+			    	// zoom to the project after the animation is done.
+			    	if ( projectClicked ) {
+			    		currentProject = INTERSECTED.name;
+
+						$("#addIcon").removeClass( "visible" );
+						populateProjectDetails( currentProject );
+						lastSphereToCurrent( INTERSECTED );
+			    	}
+
 			    	// ensure this is only called once, right when the tween's done
 			    	if ( isTweening ) {
 			    		isTweening = false;
@@ -1157,7 +1198,7 @@ function spheresToCurrent( current, duration ) {
 /**
  * Moves all spheres on the scene to a random location.
  */
-function spheresToRandom(duration) {
+function spheresToRandom( duration ) {
 	console.log("spheresToRandom called");
 	var numChildren = objects.length;
 
@@ -1237,9 +1278,7 @@ function spheresToRandom(duration) {
  */
 function expandSphere( object ) {
 	console.log("expandSphere called");
-	var numChildren = scene.clone().children.length,
-		scaleSize   = isMobile() ? 2 : 4,
-		sphere      = object.children[ 0 ];
+	var scaleSize   = 2;
 
 	new TWEEN.Tween( object.scale )
 		.to({
@@ -1271,25 +1310,33 @@ function expandPlane() {
 	console.log("expandPlane called");
 	new TWEEN.Tween( linePlane.scale )
 		.to({
-			x: 20,
-			y: 20,
+			x: 40,
+			y: 30,
 			z: 20
-		}, 4000 )
+		}, 3000 )
 		.easing( TWEEN.Easing.Sinusoidal.In )
 		.onStart( function() {
 			isTweening = true;
+
+			setTimeout( function() {
+				movePlane = true;
+			}, 2000 );
 		})
 	    .onUpdate( function() {
 	    	renderer.render(scene, camera);
 	    })
 	    .onComplete( function() {
-	    	movePlane = true;
 	    	isTweening = false;
 
 			animateProjectPlanes();
 
 	    	// show the back button to bring the user to the main view
 	    	$("#backBtn").addClass( "visible" );
+
+	    	// Show the current project name
+	    	$("#projectName")
+	    		.addClass( "visible" )
+	    		.html( currentProject );
 	    })
 	    .start();
 }
@@ -1368,9 +1415,35 @@ function fadePanelAfterDelay( i ) {
 
 		// Show the controls once we show the last panel.
 		if ( i === planes.length - 1 ) {
-			$(".project-control").addClass( "visible" );
+			$(".project-control, #projectName").addClass( "visible" );
 		} 
 	}, i*150);
+
+}
+
+
+/**
+ * Used to fade the glowing sphere in and out before and after a 
+ * project is zoomed to/from.
+ *
+ * @param    zoomIn    :    boolean
+ *
+ */
+function fadeSphere( zoomIn ) {
+
+	var scale = ( zoomIn ? 0.01 : 2.0 );
+
+	new TWEEN.Tween( glowMesh.scale )
+			.to({
+				x: scale,
+				y: scale,
+				z: scale
+			}, 1000 )
+			.easing( TWEEN.Easing.Linear.None )
+		    .onUpdate( function() {
+		    	renderer.render(scene, camera);
+		    })
+		    .start();
 
 }
 
@@ -1437,10 +1510,14 @@ function shrinkPlane() {
 /**
  * Called when the back button is clicked, this function shrinks the project
  * detail planes/panels back to their original scale.
+ *
+ * @param     current     :      string
+ *
  */
-function shrinkProjectPlanes() {
-	console.log("shrinkProjectPlanes called");
-	var mutex = true,
+function animateProjectPlanesBack( current ) {
+	console.log("animateProjectPlanesBack called");
+	var mutex1 = true,
+		mutex2 = true,
 		newX;
 
 	// Loop through the project planes, starting with the last one, and
@@ -1484,16 +1561,34 @@ function shrinkProjectPlanes() {
 			.onStart( function() {
 
 				// make sure this is only called once
-				if ( mutex ) {
-					mutex = false;
-					$(".project-plane").removeClass( "visible" );
-					shrinkPlane();
+				if ( mutex1 ) {
+					mutex1 = false;
+					$(".project-plane, #projectName").removeClass( "visible" );
+
+					// If there is a project, it means that we will animate the
+					// slides out, switch projects, then bring them back. If not,
+					// we bring the camera back to the main view.
+					if ( !current ) {
+						shrinkPlane();
+					} 
+
 				}
 
 			})
 			.easing( TWEEN.Easing.Sinusoidal.In )
 		    .onUpdate( function() {
 		    	renderer.render(scene, camera);
+		    })
+		    .onComplete( function() {
+		    	
+		    	if ( mutex2 && current ) {
+		    		mutex2 = false;
+
+		    		$("#projectName").html( current );
+		    		populateProjectDetails( current );
+		    		animateProjectPlanes();
+		    	}
+
 		    })
 		    .start();
 
@@ -1530,17 +1625,20 @@ function zoomCameraOut() {
 	    })
 	    .onComplete( function() {
 	    	// clean up tweens just in case
+	    	console.log("removing all tweens1");
 	    	TWEEN.removeAll();
 
 			projectInView    = false;
 			projectClicked   = false;
+			projectClickedAfterTween   = false;
 			stopCamera       = false;
 			intersectMutex   = true;
 			spinTheta        = 0.005;
 
 			resetProjectPlaneZPosition();
 			shrinkSphere( curSphere );
-			spheresToRandom( 1250  );
+			spheresToRandom( 1250 );
+			fadeSphere( false ); // keep as last item
 	    })
 	    .start();
 }
@@ -1552,22 +1650,6 @@ function updateControls() {
 	for ( var i = 0; i < numControls; i++ ) {
 		controls[ i ].update();
 	}
-}
-
-
-/*
- * Removes the supplied object from the scene.
- *
- * @param    name    :    string
- *
- */
-function removeObject( name ) {
-	var selectedObject = scene.getObjectByName( name );
-
-    if (selectedObject) {
-		scene.remove( selectedObject );
-    	console.log("Just removed: ", selectedObject);
-    } 
 }
 
 
@@ -1623,7 +1705,7 @@ function onMobileIntersection( intersects ) {
     curSphere = INTERSECTED = intersects[ 0 ].object;
 
 	if ( !projectInView ) {
-		stopCamera = true;
+		stopCamera       = true;
 		unIntersectMutex = true;
 	}
 
@@ -1632,6 +1714,7 @@ function onMobileIntersection( intersects ) {
 	if ( intersectMutex ) {
 
 		if ( !isMobile() ) {
+			console.log("removing all tweens2");
 			TWEEN.removeAll();
 		}
 
@@ -1668,7 +1751,6 @@ function onNoMobileIntersection() {
 }
 
 
-
 /*
  * This function handles a hover off of a given project object.
  * It removes any project text and sets the variables to size the
@@ -1683,7 +1765,7 @@ function onNoIntersections( intersects ) {
 		intersectMutex = true;
 
 		// only execute this once, if a project is not clicked
-		if ( unIntersectMutex && !projectClicked ) {
+		if ( unIntersectMutex && !projectClickedAfterTween ) {
 			console.log("No Intersections");
 			spheresToRandom( 1250 );
 			shrinkSphere( curSphere );
@@ -1713,22 +1795,25 @@ function animateLinePlane() {
 	// linePlane.rotation.y = 0.25 * time;
 
 	uniforms.amplitude.value = Math.sin( 0.5 * time ) / 2;
-	console.log(Math.sin( 0.5 * time ));
 	uniforms.color.value.offsetHSL( 0.0005, 0, 0 );
 
 	var attributes = linePlane.geometry.attributes;
 	var array = attributes.displacement.array;
 
 	for ( var i = 0, l = array.length; i < l; i += 3 ) {
-		array[ i     ] += 0.05 * ( 0.5 - Math.random() );
-		array[ i + 1 ] += 0.05 * ( 0.5 - Math.random() );
-		array[ i + 2 ] += 0.05 * ( 0.5 - Math.random() );
+		array[ i     ] += 0.05 * ( 0.5 - Math.random() ) / 3;
+		array[ i + 1 ] += 0.05 * ( 0.5 - Math.random() ) / 3;
+		array[ i + 2 ] += 0.05 * ( 0.5 - Math.random() ) / 3;
 	}
 
 	attributes.displacement.needsUpdate = true;
 }
 
 
+/**
+ * Uses the requestAnimationFrame function to create a recursive loop
+ * that updates the necessary items and calls the render function.
+ */
 function animate() {
 	requestAnimationFrame( animate );
 	runtime.updateShaders( clock.getElapsedTime() );
@@ -1744,12 +1829,13 @@ function animate() {
  */
 function render() {
 
-	// iterate through the shader updates as long as there isn't a project
-	// in view or one being hovered on.
+	// only move the icons around if we aren't viewing a project
+	// or hovering on a project sphere.
 	if ( !projectInView && !stopCamera ) {
 		circleCamera();
 	}
 
+	// only animate the plane when we're viewing the project details.
 	if ( movePlane ) {
 		animateLinePlane();
 	}
