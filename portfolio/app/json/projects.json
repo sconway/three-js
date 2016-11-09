@@ -62,18 +62,18 @@
         "text3": "The designs for this project were fairly standard, which allowed for some fun and interesting front-end effects. While developing, I made a consious attempt to implement things like search and validation in a unique, yet still user friendly, manner.",
         "text4": "This site was the first large project that I had a chance to use the BEM methodology for CSS development. The result was the cleanest and smallest code base that I had ever written for a site of this size. ",
         "previous": "ARC Advisory",
-        "next": "Wolf Greenfield"
+        "next": "Qusai Akoud"
     },
-    "Wolf Greenfield": {
-    	"title": "Wolf Greenfield",
-        "img1": "images/projects/wentworth/wentworth-home.png",
-        "img2": "images/projects/wentworth/spotlight.png",
-        "img3": "images/projects/wentworth/voice.png",
-        "img4": "images/projects/wentworth/mobile-menu.png",
-        "text1": "The website re-design for Wolf Greenfield zildjian/consisted of a full site re-design, built in the Drupal content management system",
-        "text2": "Text space 2",
-        "text3": "Text space 3",
-        "text4": "Text space 4",
+    "Qusai Akoud": {
+    	"title": "Qusai Akoud",
+        "img1": "images/projects/qusai/home.png",
+        "img2": "images/projects/qusai/mobile-home.png",
+        "img3": "images/projects/qusai/work.png",
+        "img4": "images/projects/qusai/mobile-expanded.png",
+        "text1": "This site was build for my friend, Qusai to serve as his design portfolio. It was designed by him, and implemented by me as a static webpage. Due to the limited amout of content and the desire to keep the development process quick, we decided to implement this without a CMS.",
+        "text2": "The development process for this project was very smooth, and we were able to construct most of the site gathered around one screen. In fact, this was the first project that I've worked on where the entire design/development process was done in the browser.",
+        "text3": "This portfolio was built with an emphasis on the content, which mainly consists of images and small videos. The attention and focus placed on each featured project in this portfolio, helps to highlight the work that went into the project, and immerses the user in the specifics of each project. ",
+        "text4": "Because this site was built without a Content Management System, we had full control of the markup and were able to implement whatever we could come up with. This can be seen and felt all over the site, especially in behavior of the main project slider and the background image which was implemented with THREE.js",
         "previous": "Standish Mellon",
         "next": "Zildjian Cymbals"
     },
@@ -87,7 +87,7 @@
         "text2": "From the start, the main focus of this project was to create a stunning visual experience for musicians and potential customers looking to buy Zildjian products. It was a pleasure to bring the designs for this site to life, and an enormous amount of attention was put into creating a beautiful site with strong UX.",
         "text3": "In order to fully implement the desired animations and interactivity, I made heavy use of JavaScript and the latest CSS3 techniques. This resulted in a lot of front-end code but the end product was well worth the effort, and it can be felt on nearly every page of the site.",
         "text4": "Overall, this was probably the most enjoyable project that I've worked on. It pushed my limits as a developer, and taught me a great deal in the process. This site wound up winning the MITX Award for 'Best Website Re-Design', and brought in a lot of new traffic for Zildjian.",
-        "previous": "Wolf Greenfield",
+        "previous": "Qusai Akoud",
         "next": "Enernoc"
     },	
     "Enernoc": {

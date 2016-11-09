@@ -18,7 +18,7 @@ var container, controls, camera, scene, raycaster, renderer, curSphere, cssRende
 	INTERSECTED,
 	aspect = window.innerWidth / window.innerHeight,
 	names  = [ "Wentworth", "BB&K", "Father Peyton", "ARC Advisory", "Standish Mellon", 
-			   "Wolf Greenfield", "Zildjian Cymbals", "Enernoc" ],
+			   "Qusai Akoud", "Zildjian Cymbals", "Enernoc" ],
 	loaders = [], icons = [], planes = [], objects = [];
 
 
@@ -54,6 +54,7 @@ uniforms = {
 	opacity:   { value: 0.3 },
 	color:     { value: new THREE.Color( 0xff0000 ) }
 };
+
 
 var shaderMaterial = new THREE.ShaderMaterial( {
 	uniforms:       uniforms,
@@ -352,7 +353,7 @@ function addMainShape() {
  */
 function addPlane() {
 
-	var plane = new THREE.PlaneGeometry( 50, 50, 100, 100 );
+	var plane = new THREE.PlaneGeometry( 50, 50, 110, 110 );
 
 	plane.center();
 
@@ -406,7 +407,7 @@ function addProjectDetailPlanes( ) {
 				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
-				img.className = 'project-plane image';
+				img.className = 'project-plane image shown';
 
 				projectImage1 = new THREE.CSS3DObject( img );
 				projectImage1.element.innerHTML = planeImg;
@@ -555,7 +556,7 @@ function populateProjectDetails( project ) {
 
 	var currentProject = json[ project ];
 
-	projectImage1.element.innerHTML = '<img src=' + currentProject.img1 + ' />';
+	projectImage1.element.innerHTML = '<img class="shown" src=' + currentProject.img1 + ' />';
 	projectImage2.element.innerHTML = '<img src=' + currentProject.img2 + ' />';;
 	projectImage3.element.innerHTML = '<img src=' + currentProject.img3 + ' />';;
 	projectImage4.element.innerHTML = '<img src=' + currentProject.img4 + ' />';;
@@ -1628,12 +1629,12 @@ function zoomCameraOut() {
 	    	console.log("removing all tweens1");
 	    	TWEEN.removeAll();
 
-			projectInView    = false;
-			projectClicked   = false;
+			projectInView              = false;
+			projectClicked             = false;
 			projectClickedAfterTween   = false;
-			stopCamera       = false;
-			intersectMutex   = true;
-			spinTheta        = 0.005;
+			stopCamera                 = false;
+			intersectMutex             = true;
+			spinTheta                  = 0.005;
 
 			resetProjectPlaneZPosition();
 			shrinkSphere( curSphere );
@@ -1771,7 +1772,7 @@ function onNoIntersections( intersects ) {
 			shrinkSphere( curSphere );
 			hideText();
 
-			stopCamera = false;
+			stopCamera       = false;
 			unIntersectMutex = false;
 		}
 

@@ -1,6 +1,7 @@
 @import "mixins";
 @import "vars";
 @import "_flexbox";
+@import "_loader";
 @import "carousel";
 
 
@@ -12,22 +13,7 @@ body {
   width: 100%;
 }
 
-.loader {
-  background-color: #1a1a1b;
-  opacity: 1; 
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  text-align: center;
-  text-transform: uppercase;
-  z-index: 999;
-  @include transition( opacity 1s ease-in-out );
-  &.fade-out {
-    opacity: 0;
-  }
-}
+
 
 @mixin transform($transform) {
     -webkit-transform: $transform;
@@ -61,38 +47,8 @@ body {
 }
 
 
-// the loading animation
-.atom {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20%;
-  height: 300px;
-  @include transform( translate(-50%, -50%) );
-  path {
-    stroke: #fff;
-    stroke-dasharray: 2380;
-    // stroke-dashoffset: 2380;
-    @include animation( draw 3s 1 linear );
-
-  }
-  &.active {
-    stroke-dashoffset: 2380;
-  }
-}
 
 
-@include keyframes( draw ) {
-  0% {
-    stroke-dashoffset: 2380;
-  }
-
-  100% {
-    stroke-dashoffset: 1000;
-  }
-}
-
-// =========================== END LOADER ANIMATION =========================
 
 
 
@@ -287,8 +243,8 @@ canvas,
   @include transition( opacity 250ms ease );
   @include transform( translate( -50%, -50% ) );
   @media ( min-width: 768px ) {
-    height: 40px;
-    width: 40px;
+    height: 30px;
+    width: 30px;
   }
   &.visible {
     // @include transition( opacity 0ms ease );
@@ -420,46 +376,6 @@ canvas,
     }
   }
 }
-
-
-
-
-// =============================== PROJECT IMAGES =============================
-.bg-wentworth {
-  background-image: url("../images/projects/wentworth/wentworth-home.png");
-}
-
-.bg-bbk {
-  background-image: url("../images/projects/bbk/bbk-home.png");
-}
-
-.bg-enernoc {
-  background-image: url("../images/projects/enernoc/enernoc-home.png");
-  background-position: 0 !important;
-}
-
-.bg-father-peyton {
-  background-image: url("../images/projects/father-peyton/home.png");
-}
-
-// .bg-iha {
-//   background-image: url("../images/projects/iha-today.png");
-// }
-
-.bg-standish {
-  background-image: url("../images/projects/standish/standish-home.png");
-}
-
-// .bg-wolf {
-//   background-image: url("../images/projects/wolf-greenfield.png");
-// }
-
-.bg-zildjian {
-  background-image: url("../images/projects/zildjian/home.jpg");
-}
-
-
-
 
 
 
