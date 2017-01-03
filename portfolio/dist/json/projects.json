@@ -70,7 +70,7 @@
         "img2": "images/projects/qusai/mobile-home.png",
         "img3": "images/projects/qusai/work.png",
         "img4": "images/projects/qusai/mobile-expanded.png",
-        "text1": "This site was build for my friend, Qusai to serve as his design portfolio. It was designed by him, and implemented by me as a static webpage. Due to the limited amout of content and the desire to keep the development process quick, we decided to implement this without a CMS.",
+        "text1": "This site was build for my friend, Qusai, to serve as his design portfolio. It was designed by him, and implemented by me as a static webpage. Due to the limited amout of content and the desire to keep the development process quick, we decided to implement this without a CMS.",
         "text2": "The development process for this project was very smooth, and we were able to construct most of the site gathered around one screen. In fact, this was the first project that I've worked on where the entire design/development process was done in the browser.",
         "text3": "This portfolio was built with an emphasis on the content, which mainly consists of images and small videos. The attention and focus placed on each featured project in this portfolio, helps to highlight the work that went into the project, and immerses the user in the specifics of each project. ",
         "text4": "Because this site was built without a Content Management System, we had full control of the markup and were able to implement whatever we could come up with. This can be seen and felt all over the site, especially in behavior of the main project slider and the background image which was implemented with THREE.js",
