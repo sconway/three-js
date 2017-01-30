@@ -334,15 +334,21 @@ canvas,
 
 .project-name {
   color: #fff;
-  font-size: 48px;
+  font-size: 24px;
   opacity: 0;
   position: absolute;
   letter-spacing: 2px;
   left: 50%;
-  top: 30px;
+  min-width: 300px;
+  text-align: center;
+  top: 20%;
   transform: translateX(-50%);
   transition: opacity 500ms ease;
   z-index: 1; }
+  @media (min-width: 768px) {
+    .project-name {
+      font-size: 48px;
+      top: 30px; } }
   .project-name.visible {
     opacity: 1; }
 
@@ -375,7 +381,7 @@ canvas,
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   width: 10px;
   word-wrap: break-word;
   z-index: 1;
@@ -419,6 +425,9 @@ canvas,
     line-height: 1.6; }
     .project-plane.text::before {
       display: none; }
+    @media (min-width: 640px) {
+      .project-plane.text {
+        font-size: 42px; } }
   .project-plane.visible {
     opacity: 1; }
   .project-plane.shown::before {

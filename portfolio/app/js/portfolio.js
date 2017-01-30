@@ -4,9 +4,9 @@ var container, controls, camera, scene, raycaster, renderer, curSphere, cssRende
 	positions, mainMesh, sprite1, sprite2, sprite3, sprite4, sprite5, linePlane,
 	curProject, projectImage1, projectImage2, projectImage3, projectImage4,
 	projectText1, projectText2, projectText3, projectText4, json, glowMesh,
-	intersectMutex = true,  unIntersectMutex = true,  isTweening  = false,
+	intersectMutex = true,  unIntersectMutex = true,  isTweening  = false, CAMERA_PROJECT_Z = 400,
 	movePlane      = false, projectClicked   = false, projectClickedAfterTween = false, clickedOnce = false,
-	stopCamera     = false, projectInView    = false, theta = 0, json,
+	stopCamera     = false, projectInView    = false, theta = 0, touchStartY = 0, json, 
 	spinTheta = 0.005, cameraZ = 2000, cubeSize = 50, numProjectPics = 8,
 	mouse      = new THREE.Vector2(), 
 	curMouse   = new THREE.Vector2(),
@@ -22,31 +22,31 @@ var container, controls, camera, scene, raycaster, renderer, curSphere, cssRende
 	loaders = [], icons = [], planes = [], objects = [];
 
 
-var PLANE_0_Z         = -1000,
-	PLANE_0_X         = -280,
-	PLANE_0_X_ORIGIN  = -1000,
-	PLANE_1_Z         = -2100,
-	PLANE_1_X         = 620,
-	PLANE_1_X_ORIGIN  = 1000,
-	PLANE_2_Z         = -4700,
-	PLANE_2_X         = -550,
-	PLANE_2_X_ORIGIN  = -4000,
-	PLANE_3_Z         = -3700,
-	PLANE_3_X         = 280,
-	PLANE_3_X_ORIGIN  = 4000,
-	PLANE_4_Z         = -6300,
-	PLANE_4_X         = -280,
-	PLANE_4_X_ORIGIN  = -6000,
-	PLANE_5_Z         = -7600,
-	PLANE_5_X         = 620,
-	PLANE_5_X_ORIGIN  = 6000,
-	PLANE_6_Z         = -10400,
-	PLANE_6_X         = -350,
-	PLANE_6_X_ORIGIN  = -8000,
-	PLANE_7_Z         = -9000,
-	PLANE_7_X         = 280,
-	PLANE_7_X_ORIGIN  = 8000,
-	PLANE_Z_THRESHOLD = -1200;
+var PLANE_0_Z         = !isMobile() ? -1000 : -600,
+	PLANE_0_X         = !isMobile() ? -280  : 0,
+	PLANE_0_X_ORIGIN  = !isMobile() ? -1000 : -800,
+	PLANE_1_Z         = !isMobile() ? -2100 : -2600,
+	PLANE_1_X         = !isMobile() ? 620   : 0,
+	PLANE_1_X_ORIGIN  = !isMobile() ? 1000  : 800,
+	PLANE_2_Z         = !isMobile() ? -4700 : -6500,
+	PLANE_2_X         = !isMobile() ? -550  : 0,
+	PLANE_2_X_ORIGIN  = !isMobile() ? -4000 : -3500,
+	PLANE_3_Z         = !isMobile() ? -3700 : -4500,
+	PLANE_3_X         = !isMobile() ? 280   : 0,
+	PLANE_3_X_ORIGIN  = !isMobile() ? 4000  : 3500,
+	PLANE_4_Z         = !isMobile() ? -6300 : -8500,
+	PLANE_4_X         = !isMobile() ? -280  : 0,
+	PLANE_4_X_ORIGIN  = !isMobile() ? -6000 : -5000,
+	PLANE_5_Z         = !isMobile() ? -7600 : -10500,
+	PLANE_5_X         = !isMobile() ? 620   : 0,
+	PLANE_5_X_ORIGIN  = !isMobile() ? 6000  : 5000,
+	PLANE_6_Z         = !isMobile() ? -10400 : -14500,
+	PLANE_6_X         = !isMobile() ? -350  : 0,
+	PLANE_6_X_ORIGIN  = !isMobile() ? -8000 : -7000,
+	PLANE_7_Z         = !isMobile() ? -9000 : -12500,
+	PLANE_7_X         = !isMobile() ? 280   : 0,
+	PLANE_7_X_ORIGIN  = !isMobile() ? 8000  : 7000,
+	PLANE_Z_THRESHOLD = !isMobile() ? -1200 : -1400;
 
 
 uniforms = {
@@ -142,7 +142,6 @@ function toScreenPosition( obj ) {
     vector.setFromMatrixPosition(obj.matrixWorld);
     vector.project(camera);
 
-
     vector.x = (   ( vector.x * widthHalf )  + widthHalf )  / ( isMobile() ? 2 : 1 );
     vector.y = ( - ( vector.y * heightHalf ) + heightHalf ) / ( isMobile() ? 2 : 1 );
 
@@ -190,6 +189,11 @@ function init() {
 }
 
 
+/**
+ * Handles the click events related to the specific projects. This includes
+ * the actual project spheres, the Previous and Next buttons, and the 'Back'
+ * button that takes the user back to the main view.
+ */
 function handleProjectClicks() {
 
 	// When there's a click, zoom to the project that's hovered on. On Mobile
@@ -224,13 +228,17 @@ function handleProjectClicks() {
 
 	$(".prev-next").click( function() {
 
-		if ( $(this).hasClass("prev-btn") ) {
-			currentProject = json[ currentProject ].previous;
-			animateProjectPlanesBack( currentProject );
-		} else {
-			currentProject = json[ currentProject ].next;
-			// populateProjectDetails( currentProject );
-			animateProjectPlanesBack( currentProject );
+		// Safety check for mobile devices so the next/prev button isn't hit
+		if ( projectInView ) {
+
+			if ( $(this).hasClass("prev-btn") ) {
+				currentProject = json[ currentProject ].previous;
+				animateProjectPlanesBack( currentProject );
+			} else {
+				currentProject = json[ currentProject ].next;
+				animateProjectPlanesBack( currentProject );
+			}
+
 		}
 
 	});
@@ -341,7 +349,7 @@ function addMainShape() {
 
 	glowMesh = new THREE.Mesh( ballGeometry, customMaterial );
 
-	glowMesh.scale.set( 2.0, 2.0, 2.0 );
+	glowMesh.scale.set( 1.3, 1.3, 1.3 );
 	scene.add( glowMesh );
 
 }
@@ -404,7 +412,6 @@ function addProjectDetailPlanes( ) {
 		switch ( i ) {
 			case 0:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
-				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image shown';
@@ -413,7 +420,7 @@ function addProjectDetailPlanes( ) {
 				projectImage1.element.innerHTML = planeImg;
 			    
 				projectImage1.position.set( PLANE_0_X_ORIGIN, 0, PLANE_0_Z );
-				projectImage1.rotation.y = 0.15;
+				projectImage1.rotation.y = !isMobile() ? 0.15 : 0;
 
 				planeGroup.add( projectImage1 );
 				planes.push( projectImage1 );
@@ -429,7 +436,7 @@ function addProjectDetailPlanes( ) {
 				projectText1.element.innerHTML = planeText;
 			    
 				projectText1.position.set( PLANE_1_X_ORIGIN, 0, PLANE_1_Z );
-				projectText1.rotation.y = -0.2;
+				projectText1.rotation.y = !isMobile() ? -0.2 : 0;
 
 				planeGroup.add( projectText1 );
 				planes.push( projectText1 );
@@ -445,7 +452,7 @@ function addProjectDetailPlanes( ) {
 				projectText2.element.innerHTML = planeText;
 			    
 				projectText2.position.set( PLANE_2_X_ORIGIN, 0, PLANE_2_Z );
-				projectText2.rotation.y = 0.2;
+				projectText2.rotation.y = !isMobile() ? 0.2 : 0;
 
 				planeGroup.add( projectText2 );
 				planes.push( projectText2 );
@@ -453,7 +460,6 @@ function addProjectDetailPlanes( ) {
 				break;
 			case 3:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
-				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image';
@@ -462,7 +468,7 @@ function addProjectDetailPlanes( ) {
 				projectImage2.element.innerHTML = planeImg;
 			    
 				projectImage2.position.set( PLANE_3_X_ORIGIN, 0, PLANE_3_Z );
-				projectImage2.rotation.y = -0.15;
+				projectImage2.rotation.y = !isMobile() ? -0.15 : 0;
 
 				planeGroup.add( projectImage2 );
 				planes.push( projectImage2 );
@@ -470,7 +476,6 @@ function addProjectDetailPlanes( ) {
 				break;
 			case 4:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
-				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image';
@@ -479,7 +484,7 @@ function addProjectDetailPlanes( ) {
 				projectImage3.element.innerHTML = planeImg;
 			    
 				projectImage3.position.set( PLANE_4_X_ORIGIN, 0, PLANE_4_Z );
-				projectImage3.rotation.y = 0.15;
+				projectImage3.rotation.y = !isMobile() ? 0.15 : 0;
 
 				planeGroup.add( projectImage3 );
 				planes.push( projectImage3 );
@@ -495,7 +500,7 @@ function addProjectDetailPlanes( ) {
 				projectText3.element.innerHTML = planeText;
 			    
 				projectText3.position.set( PLANE_5_X_ORIGIN, 0, PLANE_5_Z );
-				projectText3.rotation.y = -0.2;
+				projectText3.rotation.y = !isMobile() ? -0.2 : 0;
 
 				planeGroup.add( projectText3 );
 				planes.push( projectText3 );
@@ -511,7 +516,7 @@ function addProjectDetailPlanes( ) {
 				projectText4.element.innerHTML = planeText;
 			    
 				projectText4.position.set( PLANE_6_X_ORIGIN, 0, PLANE_6_Z );
-				projectText4.rotation.y = 0.2;
+				projectText4.rotation.y = !isMobile() ? 0.2 : 0;
 
 				planeGroup.add( projectText4 );
 				planes.push( projectText4 );
@@ -519,7 +524,6 @@ function addProjectDetailPlanes( ) {
 				break;
 			case 7:
 				var planeImg = "<img src='images/projects/zildjian/home.jpg' >"
-				// var planeImg = "";
 
 				var img = document.createElement( 'div' );
 				img.className = 'project-plane image';
@@ -528,7 +532,7 @@ function addProjectDetailPlanes( ) {
 				projectImage4.element.innerHTML = planeImg;
 			    
 				projectImage4.position.set( PLANE_7_X_ORIGIN, 0, PLANE_7_Z );
-				projectImage4.rotation.y = -0.15;
+				projectImage4.rotation.y = !isMobile() ? -0.15 : 0;
 
 				planeGroup.add( projectImage4 );
 				planes.push( projectImage4 );
@@ -540,7 +544,6 @@ function addProjectDetailPlanes( ) {
 
 	}
 
-	// scene.add( planeGroup );
 }
 
 
@@ -594,36 +597,36 @@ function addShapes() {
 
 		    	switch (i) {
 					case 0:
-					    material     = runtime.get( shaderData[0].name );
-					    geo     = new THREE.SphereGeometry( 60, 64, 64 );
+					    material = runtime.get( shaderData[0].name );
+					    geo      = new THREE.SphereGeometry( 60, 64, 64 );
 						break;
 					case 1:
 					    material = runtime.get( shaderData[1].name );
-					    geo = new THREE.SphereGeometry( 30, 64, 64 );
+					    geo      = new THREE.SphereGeometry( 30, 64, 64 );
 						break;
 					case 2:
 						material = runtime.get( shaderData[2].name );
-						geo = new THREE.SphereGeometry( 25, 64, 64 );
+						geo      = new THREE.SphereGeometry( 25, 64, 64 );
 						break;
 					case 3:
 						material = runtime.get( shaderData[0].name );
-						geo = new THREE.SphereGeometry( 45, 64, 64 );
+						geo      = new THREE.SphereGeometry( 45, 64, 64 );
 						break;
 					case 4:
 						material = runtime.get( shaderData[3].name );
-						geo = new THREE.SphereGeometry( 60, 64, 64 );
+						geo      = new THREE.SphereGeometry( 60, 64, 64 );
 						break;
 					case 5:
 						material = runtime.get( shaderData[4].name );
-						geo = new THREE.SphereGeometry( 40, 64, 64 );
+						geo      = new THREE.SphereGeometry( 40, 64, 64 );
 						break;
 					case 6:
 						material = runtime.get( shaderData[5].name );
-						geo = new THREE.SphereGeometry( 40, 64, 64 );
+						geo      = new THREE.SphereGeometry( 40, 64, 64 );
 						break;
 					case 7:
 						material = runtime.get( shaderData[6].name );
-						geo = new THREE.SphereGeometry( 30, 64, 64 );
+						geo      = new THREE.SphereGeometry( 30, 64, 64 );
 						break;
 					default:
 						break;
@@ -807,7 +810,6 @@ function animateNameColor() {
 	var text = document.getElementById( 'changingText' ),
 		back = document.getElementById( 'backBtn' );
 
-
 	sweep( text, ['color'], 'hsl(0, 1, 0.5)', 'hsl(359, 1, 0.5)', {
 		callback: animateNameColor,
 		direction: 1,
@@ -825,31 +827,23 @@ function animateNameColor() {
 
 
 /**
- * Called whenever the mouse is moved. Updates the variables keeping track
- * of the current mouse position. These variables are used to calculate
- * intersections, when a THREE.js object is being hovered on.
+ * Used to update the camera when the user scrolls/swipes through the project
+ * details. Checks to make sure the camera and projects are within the bounds.
  *
- * @param      event     :     JavaScript Event Object
+ * @param      deltaY     :    number
+ * @param      isMobile   :    Boolean
  *
- */
-function onDocumentMouseMove( event ) {
-	event.preventDefault();
-	curMouse.x = event.clientX;
-	curMouse.y = event.clientY;
-	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-}
+/ */
+function updateProjectPlaneLocations( deltaY, isMobile ) {
 
-
-/**
- * Called whenever the mouse wheel is scrolled. Zooms the camera in or out
- * within the bounds.
- */
-function mouseWheel( event ) {
-
-    // Don't zoom the camera back past its origin
+	// Don't zoom the camera back past its origin
     if ( camera.position.z <= 400 ) {
-	    camera.position.z += event.wheelDeltaY * 0.05;
+
+    	if ( isMobile ) {
+			camera.position.z -= deltaY * 0.01;
+		} else {
+			camera.position.z += deltaY * 0.05;
+		}
 
 	    // safety check in case we scroll the camera past the origin
 	    if ( camera.position.z > 400 ) {
@@ -874,22 +868,18 @@ function mouseWheel( event ) {
 		    if ( planes[ 3 ].position.z < PLANE_3_Z ) {
 		    	planes[ 3 ].position.z = PLANE_3_Z;
 		    }
-
 	    	 // safety check in case we scroll the plane past the origin
 		    if ( planes[ 4 ].position.z < PLANE_4_Z ) {
 		    	planes[ 4 ].position.z = PLANE_4_Z;
 		    }
-
 	    	 // safety check in case we scroll the plane past the origin
 		    if ( planes[ 5 ].position.z < PLANE_5_Z ) {
 		    	planes[ 5 ].position.z = PLANE_5_Z;
 		    }
-
 	    	 // safety check in case we scroll the plane past the origin
 		    if ( planes[ 6 ].position.z < PLANE_6_Z ) {
 		    	planes[ 6 ].position.z = PLANE_6_Z;
 		    }
-
 	    	 // safety check in case we scroll the plane past the origin
 		    if ( planes[ 7 ].position.z < PLANE_7_Z ) {
 		    	planes[ 7 ].position.z = PLANE_7_Z;
@@ -897,14 +887,14 @@ function mouseWheel( event ) {
 
 		    // Moves all planes forward as the user scrolls.
 	    	if ( planes[ 0 ].position.z >= PLANE_0_Z ) {
-		    	planes[ 0 ].position.z -= event.wheelDeltaY * 0.4;
-		    	planes[ 1 ].position.z -= event.wheelDeltaY * 0.4;
-		    	planes[ 2 ].position.z -= event.wheelDeltaY * 0.4;
-		    	planes[ 3 ].position.z -= event.wheelDeltaY * 0.4;
-		    	planes[ 4 ].position.z -= event.wheelDeltaY * 0.4;
-		    	planes[ 5 ].position.z -= event.wheelDeltaY * 0.4;
-		    	planes[ 6 ].position.z -= event.wheelDeltaY * 0.4;
-		    	planes[ 7 ].position.z -= event.wheelDeltaY * 0.4;
+		    	planes[ 0 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 1 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 2 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 3 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 4 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 5 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 6 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 7 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
 	    	}
 
 	    	// Checks if the position of each plane is within the 'viewing threshold'.
@@ -923,11 +913,73 @@ function mouseWheel( event ) {
 
 
 /**
+ * Called whenever the mouse is moved. Updates the variables keeping track
+ * of the current mouse position. These variables are used to calculate
+ * intersections, when a THREE.js object is being hovered on.
+ *
+ * @param      event     :     JavaScript Event Object
+ *
+ */
+function onDocumentMouseMove( event ) {
+	event.preventDefault();
+	curMouse.x = event.clientX;
+	curMouse.y = event.clientY;
+	mouse.x    = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y    = - ( event.clientY / window.innerHeight ) * 2 + 1;
+}
+
+
+/**
+ * Called at the start of a touch event. Records the initial touch location.
+ */
+function touchStart( event ) {
+	touchStartY = event.touches[0].pageY;
+}
+
+
+/**
+ * Called whenever there is a touch move event. Zooms the project planes
+ * forward or backward depending on the direction of the swipe.
+ */
+function touchMove( event ) {
+	var deltaY = touchStartY - event.touches[0].pageY;
+
+	updateProjectPlaneLocations( deltaY, true );
+}
+
+
+/**
+ * Called whenever the mouse wheel is scrolled. Zooms the camera in or out
+ * within the bounds.
+ */
+function mouseWheel( event ) {
+    updateProjectPlaneLocations( event.wheelDeltaY, false );
+}
+
+
+/**
  * As per the name, this function sets the project planes Z position
  * back to the original value. This is needed in case the user clicks
  * to go back after they have scrolled, and the planes have been moved.
  */
 function resetProjectPlaneZPosition() {
+
+	// Move the camera back to its starting position when viewing the projects
+	new TWEEN.Tween( camera.position )
+		.to({
+			x: 0,
+			y: 0,
+			z: CAMERA_PROJECT_Z
+		}, 500)
+		.easing( TWEEN.Easing.Sinusoidal.Out )
+		.onStart( function() {
+		})
+	    .onUpdate( function() {
+	    	renderer.render(scene, camera);
+	    })
+	    .onComplete( function() {
+	    })
+	    .start();
 
 	for ( var i = 0; i < planes.length; i++ ) {
 
@@ -991,8 +1043,13 @@ function checkMobileIntersection( event ) {
 
 		// If one of the spheres is clicked for a second time, zoom to it.
 		if ( curSphere.parent === intersects[0].object.parent && clickedOnce ) {
-			clickedOnce = false;
-			zoomToProject();
+            projectClicked = true;
+			clickedOnce    = false;
+			currentProject = INTERSECTED.name;
+
+			$("#addIcon").removeClass( "visible" );
+			populateProjectDetails( currentProject );
+			lastSphereToCurrent( INTERSECTED );
 		} else {
 			clickedOnce = true;
 			onMobileIntersection( intersects );
@@ -1024,7 +1081,7 @@ function zoomToProject() {
 			.to({
 				x: 0,
 				y: 0,
-				z: 400
+				z: CAMERA_PROJECT_Z
 			}, 3000)
 			.easing( TWEEN.Easing.Sinusoidal.Out )
 			.onStart( function() {
@@ -1050,11 +1107,18 @@ function zoomToProject() {
 		    	// hide the icons while we are viewing the projects
 		    	iconGroup.scale.set( 0, 0, 0);
 
-		    	window.addEventListener( 
-					'mousewheel', 
-					mouseWheel, 
-					Modernizr.passiveeventlisteners ? {passive: true} : false 
-				);
+		    	// Use the mouse wheel listener if we're on a larger device.
+		    	// Otherwise, use a touchmove listener
+		    	if (!isMobile()) {
+			    	window.addEventListener( 
+						'mousewheel', 
+						mouseWheel, 
+						Modernizr.passiveeventlisteners ? {passive: true} : false 
+					);
+			    } else {
+			    	window.addEventListener( 'touchstart', touchStart, false );
+			    	window.addEventListener( 'touchmove',  touchMove,  false );
+			    }
 
 		    })
 		    .start();
@@ -1175,6 +1239,8 @@ function spheresToCurrent( current, duration ) {
 			    	// zoom to the project after the animation is done.
 			    	if ( projectClicked ) {
 			    		currentProject = INTERSECTED.name;
+
+			    		console.log("Intersected name: ", INTERSECTED);
 
 						$("#addIcon").removeClass( "visible" );
 						populateProjectDetails( currentProject );
@@ -1432,7 +1498,7 @@ function fadePanelAfterDelay( i ) {
  */
 function fadeSphere( zoomIn ) {
 
-	var scale = ( zoomIn ? 0.01 : 2.0 );
+	var scale = ( zoomIn ? 0.01 : 1.3 );
 
 	new TWEEN.Tween( glowMesh.scale )
 			.to({
@@ -1587,6 +1653,7 @@ function animateProjectPlanesBack( current ) {
 
 		    		$("#projectName").html( current );
 		    		populateProjectDetails( current );
+		    		resetProjectPlaneZPosition();
 		    		animateProjectPlanes();
 		    	}
 
@@ -1645,6 +1712,9 @@ function zoomCameraOut() {
 }
 
 
+/*
+ * Updates any THREE.js controls that may exist
+ */
 function updateControls() {
 	var numControls = controls.length;
 
@@ -1704,6 +1774,8 @@ function onMobileIntersection( intersects ) {
 	}
 
     curSphere = INTERSECTED = intersects[ 0 ].object;
+
+    console.log("intersect: ", intersects);
 
 	if ( !projectInView ) {
 		stopCamera       = true;

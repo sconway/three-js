@@ -17,10 +17,10 @@
 	setTimeout(checkLoader, 3000);
 
 	window.addEventListener('load', function () {
-	  var atom = document.getElementById("atom");
+	  // var atom = document.getElementById("atom");
 
 	  loaded = true;
-	  atom.className += " active";
+	  // atom.className += " active";
 
 	  // only fade the loader out if the load time has 
 	  // taken longer than the pre-defined delay.
@@ -86,7 +86,7 @@
 	varying vec3 vNormal;
 	void main() 
 	{
-		float intensity = pow( 0.05 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 4.0 ); 
+		float intensity = pow( 0.35 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 3.0 ); 
 	    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
 	}
 	</script>
