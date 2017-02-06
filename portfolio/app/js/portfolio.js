@@ -6,7 +6,7 @@ var container, controls, camera, scene, raycaster, renderer, curSphere, cssRende
 	projectText1, projectText2, projectText3, projectText4, json, glowMesh,
 	intersectMutex = true,  unIntersectMutex = true,  isTweening  = false, CAMERA_PROJECT_Z = 400,
 	movePlane      = false, projectClicked   = false, projectClickedAfterTween = false, clickedOnce = false,
-	stopCamera     = false, projectInView    = false, theta = 0, touchStartY = 0, json, 
+	stopCamera     = false, projectInView    = false, theta = 0, touchStartX = 0, json, 
 	spinTheta = 0.005, cameraZ = 2000, cubeSize = 50, numProjectPics = 8,
 	mouse      = new THREE.Vector2(), 
 	curMouse   = new THREE.Vector2(),
@@ -842,7 +842,7 @@ function updateProjectPlaneLocations( deltaY, isMobile ) {
     	if ( isMobile ) {
 			camera.position.z -= deltaY * 0.01;
 		} else {
-			camera.position.z += deltaY * 0.05;
+			camera.positin.z -= deltaY * 0.05;
 		}
 
 	    // safety check in case we scroll the camera past the origin
@@ -887,14 +887,14 @@ function updateProjectPlaneLocations( deltaY, isMobile ) {
 
 		    // Moves all planes forward as the user scrolls.
 	    	if ( planes[ 0 ].position.z >= PLANE_0_Z ) {
-		    	planes[ 0 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
-		    	planes[ 1 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
-		    	planes[ 2 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
-		    	planes[ 3 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
-		    	planes[ 4 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
-		    	planes[ 5 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
-		    	planes[ 6 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
-		    	planes[ 7 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 0 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 1 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 2 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 3 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 4 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 5 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 6 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 7 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
 	    	}
 
 	    	// Checks if the position of each plane is within the 'viewing threshold'.
@@ -933,7 +933,7 @@ function onDocumentMouseMove( event ) {
  * Called at the start of a touch event. Records the initial touch location.
  */
 function touchStart( event ) {
-	touchStartY = event.touches[0].pageY;
+	touchStartX = event.touches[0].pageX;
 }
 
 
@@ -942,7 +942,9 @@ function touchStart( event ) {
  * forward or backward depending on the direction of the swipe.
  */
 function touchMove( event ) {
-	var deltaY = touchStartY - event.touches[0].pageY;
+	event.preventDefault();
+
+	var deltaY = (touchStartX - event.touches[0].pageX) * -1;
 
 	updateProjectPlaneLocations( deltaY, true );
 }
@@ -1398,7 +1400,7 @@ function expandPlane() {
 			animateProjectPlanes();
 
 	    	// show the back button to bring the user to the main view
-	    	$("#backBtn").addClass( "visible" );
+	    	$("#backBtn, #swipeImg").addClass( "visible" );
 
 	    	// Show the current project name
 	    	$("#projectName")
@@ -1524,7 +1526,7 @@ function fadeSphere( zoomIn ) {
 function shrinkSphere( object ) {
 	console.log("shrinkSphere called");
 
-	$("#addIcon").removeClass( "visible" );
+	$("#addIcon, #swipeImg").removeClass( "visible" );
 
 	if ( curSphere ) {
 

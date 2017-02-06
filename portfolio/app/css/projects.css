@@ -124,6 +124,16 @@ body {
   height: 100%;
   width: 100%; }
 
+@keyframes opacity-pulse {
+  0% {
+    opacity: 0; }
+  10% {
+    opacity: 1; }
+  90% {
+    opacity: 1; }
+  100% {
+    opacity: 0; } }
+
 h1 {
   font-size: 26px;
   letter-spacing: 2px;
@@ -331,6 +341,21 @@ canvas,
       width: 30px; } }
   .add-icon.visible {
     opacity: 1; }
+
+.swipe-img {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  bottom: 20px;
+  left: 50%;
+  opacity: 0;
+  transform: translateX(-50%);
+  z-index: 1; }
+  @media (min-width: 992px) {
+    .swipe-img {
+      display: none; } }
+  .swipe-img.visible {
+    animation: opacity-pulse 5s ease 1; }
 
 .project-name {
   color: #fff;

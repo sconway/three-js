@@ -48,7 +48,12 @@ body {
 
 
 
-
+@keyframes opacity-pulse {
+  0%    { opacity: 0; }
+  10%   { opacity: 1; }
+  90%   { opacity: 1; }
+  100%  { opacity: 0; }
+}
 
 
 
@@ -253,6 +258,24 @@ canvas,
   }
 }
 
+// swipe indicator
+.swipe-img {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  bottom: 20px;
+  left: 50%;
+  opacity: 0;
+  transform: translateX(-50%);
+  z-index: 1;
+  @media (min-width: $break-lg) {
+    display: none;
+  }
+  &.visible {
+    animation: opacity-pulse 5s ease 1;
+    // opacity: 1;
+  }
+}
 
 // The name of the current project.
 .project-name {
