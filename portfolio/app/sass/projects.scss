@@ -253,7 +253,6 @@ canvas,
     width: 30px;
   }
   &.visible {
-    // @include transition( opacity 0ms ease );
     opacity: 1;
   }
 }
@@ -273,7 +272,6 @@ canvas,
   }
   &.visible {
     animation: opacity-pulse 5s ease 1;
-    // opacity: 1;
   }
 }
 

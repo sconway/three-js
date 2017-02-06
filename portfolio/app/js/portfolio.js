@@ -842,7 +842,7 @@ function updateProjectPlaneLocations( deltaY, isMobile ) {
     	if ( isMobile ) {
 			camera.position.z -= deltaY * 0.01;
 		} else {
-			camera.positin.z -= deltaY * 0.05;
+			camera.position.z += deltaY * 0.05;
 		}
 
 	    // safety check in case we scroll the camera past the origin
@@ -887,14 +887,14 @@ function updateProjectPlaneLocations( deltaY, isMobile ) {
 
 		    // Moves all planes forward as the user scrolls.
 	    	if ( planes[ 0 ].position.z >= PLANE_0_Z ) {
-		    	planes[ 0 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
-		    	planes[ 1 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
-		    	planes[ 2 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
-		    	planes[ 3 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
-		    	planes[ 4 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
-		    	planes[ 5 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
-		    	planes[ 6 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
-		    	planes[ 7 ].position.z += deltaY * (isMobile ? 0.1 : 0.4);
+		    	planes[ 0 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 1 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 2 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 3 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 4 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 5 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 6 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
+		    	planes[ 7 ].position.z += deltaY * (isMobile ? 0.1 : -0.4);
 	    	}
 
 	    	// Checks if the position of each plane is within the 'viewing threshold'.
