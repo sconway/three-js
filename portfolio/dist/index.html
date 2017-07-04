@@ -9,181 +9,149 @@
   <link rel="stylesheet" href="css/styles.min.css">
 
   <script type="text/javascript">
-
-  	var loaded = false,
-	    timedOut = false;
+    var loaded = false,
+        timedOut = false;
 
     // checks if the page has loaded (minimum amout of time the animation runs)
-	setTimeout(checkLoader, 3000);
+    setTimeout(checkLoader, 3000);
 
-	window.addEventListener('load', function () {
-	  // var atom = document.getElementById("atom");
+    window.addEventListener('load', function () {
+      loaded = true;
 
-	  loaded = true;
-	  // atom.className += " active";
+      // only fade the loader out if the load time has 
+      // taken longer than the pre-defined delay.
+      if (timedOut)
+        fadeLoaderOut();
+      
+    }, false);
 
-	  // only fade the loader out if the load time has 
-	  // taken longer than the pre-defined delay.
-	  if (timedOut)
-	    fadeLoaderOut();
-		
-	}, false);
+    function checkLoader() {
+      timedOut = true;
 
-	function checkLoader() {
-	  timedOut = true;
+      // only fade out the loader after the pre defined delay
+      // if the page had loaded before the delay. 
+      if (loaded)
+        fadeLoaderOut();
+    }
 
-	  // only fade out the loader after the pre defined delay
-	  // if the page had loaded before the delay. 
-	  if (loaded)
-	    fadeLoaderOut();
-	}
-
-	function fadeLoaderOut() {
-	  init();
-	  animate();
-	}
-
-  </script>		
+    function fadeLoaderOut() {
+      init();
+      animate();
+    }
+  </script>   
 </head>
 
 <body id="body">
 
-	<script type="x-shader/x-vertex" id="vertexshader">
-		uniform float amplitude;
-		attribute vec3 displacement;
-		attribute vec3 customColor;
-		varying vec3 vColor;
-		void main() {
-			vec3 newPosition = position + amplitude * displacement;
-			vColor = customColor;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-		}
-	</script>
+  <script type="x-shader/x-vertex" id="vertexshader">
+    uniform float amplitude;
+    attribute vec3 displacement;
+    attribute vec3 customColor;
+    varying vec3 vColor;
+    void main() {
+      vec3 newPosition = position + amplitude * displacement;
+      vColor = customColor;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+    }
+  </script>
 
-	<script type="x-shader/x-fragment" id="fragmentshader">
-		uniform vec3 color;
-		uniform float opacity;
-		varying vec3 vColor;
-		void main() {
-			gl_FragColor = vec4( vColor * color, opacity );
-		}
-	</script>
-
-
-
-	<!-- ---------------- Custom Shader Code ------------------------ -->
-	<script id="vertexShaderGlow" type="x-shader/x-vertex">
-	varying vec3 vNormal;
-	void main() 
-	{
-	    vNormal = normalize( normalMatrix * normal );
-	    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-	}
-	</script>
-
-	<!-- fragment shader a.k.a. pixel shader -->
-	<script id="fragmentShaderGlow" type="x-shader/x-vertex"> 
-	varying vec3 vNormal;
-	void main() 
-	{
-		float intensity = pow( 0.35 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 3.0 ); 
-	    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
-	}
-	</script>
-	<!-- ----------------------------------------------------------- -->
+  <script type="x-shader/x-fragment" id="fragmentshader">
+    uniform vec3 color;
+    uniform float opacity;
+    varying vec3 vColor;
+    void main() {
+      gl_FragColor = vec4( vColor * color, opacity );
+    }
+  </script>
 
 
-
-	<!-- ADD ICON -->
-	<img id="addIcon" class="add-icon" src="images/assets/add.svg">
-
-
-	<!-- LOADER -->
-	<section id="loader" class="loader-wrapper">
-		<div class="demo">
-		  <svg class="loader">
-		    <filter id="blur">
-		      <fegaussianblur in="SourceGraphic" stddeviation="2"></fegaussianblur>
-		    </filter>
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="#F4F519" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
-		  </svg>
-		  <svg class="loader loader-2">
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="#DE2FFF" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
-		  </svg>
-		  <svg class="loader loader-3">
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="#FF5932" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
-		  </svg>
-		  <svg class="loader loader-4">
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="#E97E42" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
-		  </svg>
-		  <svg class="loader loader-5">
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="white" stroke-width="6" stroke-linecap="round" filter="url(#blur)"></circle>
-		  </svg>
-		  <svg class="loader loader-6">
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="#00DCA3" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
-		  </svg>
-		  <svg class="loader loader-7">
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="purple" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
-		  </svg>
-		  <svg class="loader loader-8">
-		    <circle cx="75" cy="75" r="60" fill="transparent" stroke="#AAEA33" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
-		  </svg>
-		</div>
-	</section>
-	<!-- END LOADER -->
-
-	
-
-	<!-- MAIN CANVAS -->
-	<div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
-		<aside class="changing-text" id="changingText">
-			<div id="firstName" class="first-name swap-letters">
-				<span>s</span>
-				<span>c</span>
-				<span>o</span>
-				<span class="name-dash">-</span>
-				<span>t</span>
-				<span class="name-dash">-</span>
-				<span class="name-dash">-</span>
-				<span>t</span>
-				<span class="name-dash">-</span>
-			</div>
-			<div id="lastName" class="last-name swap-letters">
-		        <span>c</span>
-		        <span>o</span>
-		        <span>n</span>
-		        <span>w</span>
-		        <span class="name-dash">-</span>
-		        <span class="name-dash">-</span>
-		        <span>a</span>
-		        <span>y</span>
-	        </div>
-		</aside>
-
-		<!-- BACK BUTTON -->
-		<a id="backBtn" class="back-btn swap-letters project-control">
-	      <span>B</span>
-	      <span class="name-dash">-</span>
-	      <span>a</span>
-	      <span>c</span>
-	      <span class="name-dash">-</span>
-	      <span>k</span>
-	    </a>
-
-	    <img id="swipeImg" class="swipe-img" src="images/assets/swipe.png">
-
-	    <!-- PROJECT NAME -->
-	    <h2 id="projectName" class="project-name"></h2>
-
-	    <!-- PREVIOUS/NEXT BUTTONS -->
-	    <a class="prev-btn prev-next project-control" href="#">Prev</a>
-	    <a class="next-btn prev-next project-control" href="#">Next</a>
-
-	</div>
-	<!-- END MAIN CANVAS -->
+  <!-- ADD ICON -->
+  <img id="addIcon" class="add-icon" src="images/assets/add.svg">
 
 
-	<script src="js/main.min.js"></script>
+  <!-- LOADER -->
+  <section id="loader" class="loader-wrapper">
+    <div class="demo">
+      <svg class="loader">
+        <filter id="blur">
+          <fegaussianblur in="SourceGraphic" stddeviation="2"></fegaussianblur>
+        </filter>
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="#F4F519" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
+      </svg>
+      <svg class="loader loader-2">
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="#DE2FFF" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
+      </svg>
+      <svg class="loader loader-3">
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="#FF5932" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
+      </svg>
+      <svg class="loader loader-4">
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="#E97E42" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
+      </svg>
+      <svg class="loader loader-5">
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="white" stroke-width="6" stroke-linecap="round" filter="url(#blur)"></circle>
+      </svg>
+      <svg class="loader loader-6">
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="#00DCA3" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
+      </svg>
+      <svg class="loader loader-7">
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="purple" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
+      </svg>
+      <svg class="loader loader-8">
+        <circle cx="75" cy="75" r="60" fill="transparent" stroke="#AAEA33" stroke-width="6" stroke-linecap="round" stroke-dasharray="385" stroke-dashoffset="385" filter="url(#blur)"></circle>
+      </svg>
+    </div>
+  </section>
+  <!-- END LOADER -->
+
+  <!-- MAIN CANVAS -->
+  <div class="canvas" id="container" style="position: absolute; left:0px; top:0px">
+    <aside class="changing-text" id="changingText">
+      <div id="firstName" class="first-name swap-letters">
+        <span>s</span>
+        <span>c</span>
+        <span>o</span>
+        <span class="name-dash">-</span>
+        <span>t</span>
+        <span class="name-dash">-</span>
+        <span class="name-dash">-</span>
+        <span>t</span>
+        <span class="name-dash">-</span>
+      </div>
+      <div id="lastName" class="last-name swap-letters">
+            <span>c</span>
+            <span>o</span>
+            <span>n</span>
+            <span>w</span>
+            <span class="name-dash">-</span>
+            <span class="name-dash">-</span>
+            <span>a</span>
+            <span>y</span>
+          </div>
+    </aside>
+
+    <!-- BACK BUTTON -->
+    <a id="backBtn" class="back-btn swap-letters project-control">
+      <span>B</span>
+      <span class="name-dash">-</span>
+      <span>a</span>
+      <span>c</span>
+      <span class="name-dash">-</span>
+      <span>k</span>
+    </a>
+
+    <img id="swipeImg" class="swipe-img" src="images/assets/swipe.png">
+
+    <!-- PROJECT NAME -->
+    <h2 id="projectName" class="project-name"></h2>
+
+    <!-- PREVIOUS/NEXT BUTTONS -->
+    <a class="prev-btn prev-next project-control" href="#">Prev</a>
+    <a class="next-btn prev-next project-control" href="#">Next</a>
+  </div>
+  <!-- END MAIN CANVAS -->
+
+
+  <script src="js/main.min.js"></script>
 </body>
 
 </html>

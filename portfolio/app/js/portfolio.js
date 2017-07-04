@@ -160,6 +160,11 @@ function toScreenPosition( obj ) {
  */
 function init() {
 
+  // The browser doesn't even know what WebGL is
+	if (!window.WebGLRenderingContext || !Detector.webgl) {
+    window.location = "http://get.webgl.org";
+	}
+
 	container = document.getElementById("container");
 	camera    = new THREE.PerspectiveCamera( 45, aspect, 1, 10000 );
 	scene     = new THREE.Scene();
@@ -343,7 +348,8 @@ function addMainShape() {
 			fragmentShader: document.getElementById( 'fragmentShaderGlow' ).textContent,
 			side: THREE.BackSide,
 			blending: THREE.AdditiveBlending,
-			transparent: true
+			transparent: true,
+			depthWrite: false
 		}),
 		ballGeometry = new THREE.SphereGeometry( 400, 64, 64 );
 
@@ -634,7 +640,7 @@ function addShapes() {
 
 		    	var gradient = new THREE.Mesh( geo, material );
 
-				gradient.name = names[i];
+				gradient.name = names[i] || "";
 
 				objects.push( gradient );
 				shapeGroup.add( gradient );
@@ -1244,9 +1250,9 @@ function spheresToCurrent( current, duration ) {
 
 			    		console.log("Intersected name: ", INTERSECTED);
 
-						$("#addIcon").removeClass( "visible" );
-						populateProjectDetails( currentProject );
-						lastSphereToCurrent( INTERSECTED );
+							$("#addIcon").removeClass( "visible" );
+							populateProjectDetails( currentProject );
+							lastSphereToCurrent( INTERSECTED );
 			    	}
 
 			    	// ensure this is only called once, right when the tween's done
